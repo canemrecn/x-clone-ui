@@ -1,3 +1,4 @@
+// src/app/api/posts/[postId]/like/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
@@ -10,53 +11,64 @@ interface Context {
 
 export async function POST(request: Request, context: Context) {
   try {
-    const params = await context.params; // `params` asenkron olarak çözülmeli
-    const postId = params.postId; // Burada artık kullanılabilir
-
+    // URL parametrelerinden postId'yi alıyoruz ve temizleyip sayıya çeviriyoruz.
+    const { postId } = context.params;
     if (!postId) {
       return NextResponse.json({ message: "Invalid post ID" }, { status: 400 });
     }
-
-    const { token } = await request.json();
-    if (!token) {
-      return NextResponse.json({ message: "No token" }, { status: 401 });
+    const numericPostId = Number(postId.trim());
+    if (isNaN(numericPostId)) {
+      return NextResponse.json({ message: "Invalid post ID" }, { status: 400 });
     }
 
-    const secret = process.env.JWT_SECRET!;
+    // İstek gövdesinden token'ı alıyoruz.
+    const { token: rawToken } = await request.json() as { token?: string };
+    if (!rawToken) {
+      return NextResponse.json({ message: "No token" }, { status: 401 });
+    }
+    const token = rawToken.trim();
+
+    // JWT token doğrulaması
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error("JWT_SECRET is not defined in environment variables");
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
-    // Beğeniyi ekle (Tekrarlanan beğenileri engelle)
+    // "likes" tablosuna ekleme yapılıyor.
+    // INSERT IGNORE kullanılarak aynı kullanıcının aynı gönderiyi tekrar beğenmesi engelleniyor.
     await db.query<OkPacket>(
-      `INSERT IGNORE INTO likes (post_id, user_id) VALUES (?, ?)`,
-      [postId, userId]
+      "INSERT IGNORE INTO likes (post_id, user_id) VALUES (?, ?)",
+      [numericPostId, userId]
     );
 
-    // Gönderi sahibini bul
-    const [rows] = await db.query<RowDataPacket[]>(
+    // Gönderi sahibini çekiyoruz.
+    const [postRows] = await db.query<RowDataPacket[]>(
       "SELECT user_id FROM posts WHERE id = ?",
-      [postId]
+      [numericPostId]
     );
-    if (!rows || rows.length === 0) {
+    if (!postRows || postRows.length === 0) {
       return NextResponse.json({ message: "Post not found" }, { status: 404 });
     }
-    const postOwnerId = rows[0].user_id;
+    const postOwnerId = postRows[0].user_id;
 
-    // Gönderi sahibine 1 puan ekle
+    // Gönderi sahibine 1 puan ekliyoruz.
     await updateUserPoints(postOwnerId, 1);
 
-    // **BİLDİRİM EKLE**
+    // Bildirim ekleniyor: 
+    // - Bildirim tipi "like", 
+    // - Bildirimi oluşturan kullanıcı userId, 
+    // - İlgili gönderi postId.
     await db.query(
       `INSERT INTO notifications (user_id, type, from_user_id, post_id) 
        VALUES (?, 'like', ?, ?)`,
-      [postOwnerId, userId, postId]
+      [postOwnerId, userId, numericPostId]
     );
 
     return NextResponse.json({ message: "Post liked" }, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Like error:", error);
     return NextResponse.json(
-      { message: "Server error", error: String(error) },
+      { message: "Server error", error: error.message || "Unknown error" },
       { status: 500 }
     );
   }

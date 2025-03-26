@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
-import Feed from "./Feed"; // Kullanıcının gönderilerini gösteren Feed bileşeni
+import useSWR from "swr";
+import Feed from "./Feed";
 import Share from "./Share";
 
 interface UserProfileProps {
@@ -10,53 +11,52 @@ interface UserProfileProps {
   auth: any;
 }
 
+const fetcher = (url: string) =>
+  fetch(url).then((res) => {
+    if (!res.ok) {
+      throw new Error(`Error: ${res.status}`);
+    }
+    return res.json();
+  });
+
 export default function UserProfile({ username, auth }: UserProfileProps) {
   const router = useRouter();
-  const [profileUser, setProfileUser] = useState<any>(null);
-  const [postsLoading, setPostsLoading] = useState(true);
-  const [userPosts, setUserPosts] = useState<any[]>([]);
 
-  async function fetchUser(username: string) {
-    const res = await fetch(`/api/users/get-by-username?username=${username}`);
-    if (!res.ok) throw new Error("User not found");
-    const data = await res.json();
-    return data.user;
+  // Kullanıcı bilgilerini SWR ile çekiyoruz
+  const { data: userData, error: userError } = useSWR(
+    username ? `/api/users/get-by-username?username=${username}` : null,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
+
+  // Kullanıcı bilgileri hazırsa, gönderileri çekiyoruz
+  const { data: postsData, error: postsError } = useSWR(
+    userData && userData.user && userData.user.id
+      ? `/api/posts?user_id=${userData.user.id}`
+      : null,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
+
+  if (userError) {
+    return <div className="p-4 text-center text-white">User not found.</div>;
   }
 
-  useEffect(() => {
-    if (!username) return;
-    fetchUser(username)
-      .then((userData) => {
-        setProfileUser(userData);
-      })
-      .catch((err) => {
-        console.error(err);
-        // Hata durumunda kullanıcı bulunamadı mesajı veya yönlendirme ekleyebilirsiniz.
-      });
-  }, [username]);
-
-  useEffect(() => {
-    if (!profileUser || !profileUser.id) return;
-    setPostsLoading(true);
-    fetch(`/api/posts?user_id=${profileUser.id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setUserPosts(data.posts);
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setPostsLoading(false));
-  }, [profileUser]);
-
-  if (!profileUser) {
-    return <div className="p-4 text-center">User not found.</div>;
+  if (!userData || !postsData) {
+    return <div className="p-4 text-center text-white">Loading...</div>;
   }
+
+  const profileUser = userData.user;
+  const userPosts = postsData.posts || [];
 
   return (
-    <div className="min-h-screen bg-[#FAFCF2]">
-      <h1 className="text-2xl font-bold text-center my-4">@{profileUser.username}</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white">
+      <h1 className="text-2xl font-bold text-center my-4 bg-gradient-to-r from-gray-800 to-gray-800 p-4 rounded shadow-md">
+        @{profileUser.username}
+      </h1>
       <Share />
-      {postsLoading ? (
-        <p className="text-center">Loading posts...</p>
+      {postsError ? (
+        <p className="text-center">Error loading posts.</p>
       ) : (
         <Feed posts={userPosts} />
       )}

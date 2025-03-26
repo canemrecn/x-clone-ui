@@ -1,12 +1,26 @@
-// src/components/Search.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import Image1 from "./image";
+import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
+
+const fetcher = (url: string) =>
+  fetch(url).then((res) => {
+    if (!res.ok) {
+      throw new Error(`Error fetching posts: ${res.status}`);
+    }
+    return res.json();
+  });
 
 export default function Search() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
+
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setQuery(e.target.value);
+    },
+    []
+  );
 
   useEffect(() => {
     if (!query.trim()) {
@@ -26,21 +40,27 @@ export default function Search() {
   }, [query]);
 
   return (
-    <div className="fixed top-2 right-2 lg:relative lg:top-0 lg:right-0 bg-[#FAFCF2] py-2 px-4 flex flex-col gap-2 rounded-full relative shadow-md">
-      <div className="flex items-center gap-4">
-        <Image1 path="icons/explore.svg" alt="search" w={16} h={16} />
+    <div className=" bg-gradient-to-br from-gray-800 to-gray-700 py-2 px-4 flex flex-col gap-2 rounded-full shadow-md text-white">
+      <div className="flex items-center gap-2">
+        <Image
+          src="https://ik.imagekit.io/n6qnlu3rx/tr:q-20,bl-6/icons/explore.svg"
+          alt="Explore"
+          width={24}
+          height={24}
+        />
         <input
           type="text"
-          placeholder="Search"
-          className="bg-transparent outline-none placeholder:text-textGray flex-1"
+          placeholder="Search..."
+          className=" rounded px-2 py-1 bg-gradient-to-br from-gray-800 to-gray-700 text-white outline-none"
+          onChange={handleChange}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
         />
       </div>
+
       {results.length > 0 && (
-        <div className="absolute top-12 left-0 w-full bg-white border border-gray-600 rounded-md p-2 z-50 shadow-lg">
+        <div className="absolute top-12 left-0 w-full bg-gradient-to-br from-gray-800 to-gray-700 border border-gray-300 rounded-md p-2 z-50 shadow-lg text-white">
           {results.map((r) => (
-            <div key={r.id} className="p-2 hover:bg-gray-800 rounded">
+            <div key={r.id} className="p-2 hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 rounded transition">
               <a href={`/${r.username}`}>
                 {r.full_name} (@{r.username})
               </a>

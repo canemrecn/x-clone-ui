@@ -1,38 +1,42 @@
-//src/actions.tsx
-"use server"
-import { serverImageKit } from "./utils";
+"use server";
 
-export const shareAction = async (formData: FormData, settings:{type:"original" | "wide" | "square"; sensitive:boolean})=>{
-    const file = formData.get("file") as File;
-    // const desc = formData.get("desc") as string;
+import { serverImageKit } from "./utils/server";
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+export const shareAction = async (
+  formData: FormData,
+  settings: { type: "original" | "wide" | "square"; sensitive: boolean }
+) => {
+  const file = formData.get("file") as File;
+  // const desc = formData.get("desc") as string;
 
-    const transformation = `w-600, ${
-        settings.type === "square"
-        ? "ar-1-1"
-        : settings.type === "wide"
-        ? "ar-16-9"
-        : ""
-    }`;
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
 
-    serverImageKit.upload(
-        {
-        file:buffer,
-        fileName:file.name,
-        folder:"/posts",
-        ...(file.type.includes("image") && {transformation:{
-            pre:transformation,
+  const transformation = `w-600, ${
+    settings.type === "square"
+      ? "ar-1-1"
+      : settings.type === "wide"
+      ? "ar-16-9"
+      : ""
+  }`;
+
+  serverImageKit.upload(
+    {
+      file: buffer,
+      fileName: file.name,
+      folder: "/posts",
+      ...(file.type.includes("image") && {
+        transformation: {
+          pre: transformation,
         },
-    }),
-        customMetadata:{
-            sensitive: settings.sensitive,
-        },
-    }, 
-    function(error, result) {
-        if (error) console.log(error);
-        else console.log(result);
+      }),
+      customMetadata: {
+        sensitive: settings.sensitive,
+      },
+    },
+    function (error: any, result: any) {
+      if (error) console.log(error);
+      else console.log(result);
     }
-);
+  );
 };

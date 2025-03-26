@@ -1,40 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Login() {
   const auth = useAuth();
   const [user, setUser] = useState({ email: "", password: "" });
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Gelen Login Bilgileri:", user);
+  const handleLogin = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      console.log("Gelen Login Bilgileri:", user);
 
-    if (auth?.login) {
-      await auth.login(user.email, user.password);
-      router.push("/");
-    } else {
-      console.error("❌ AuthContext içinde `login` fonksiyonu bulunamadı!");
-    }
-  };
+      if (auth?.login) {
+        await auth.login(user.email, user.password);
+        router.push("/");
+      } else {
+        console.error("❌ AuthContext içinde `login` fonksiyonu bulunamadı!");
+      }
+    },
+    [user, auth, router]
+  );
 
   return (
-    <div className="flex min-h-screen overflow-hidden bg-gradient-to-br from-[#C8D6DF] via-[#E1E8ED] to-[#CAD4DB] relative">
-      {/* Güçlü Işık Efektleri ve Gölgelendirme */}
-      <div className="absolute inset-0">
-        <div className="absolute top-[-100px] left-[-100px] w-[500px] h-[500px] bg-white/15 blur-[200px] rounded-full"></div>
-        <div className="absolute bottom-[-150px] right-[-150px] w-[600px] h-[600px] bg-[#A8DBF0]/20 blur-[250px] rounded-full"></div>
-        <div className="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
-      </div>
+    <div className="flex min-h-screen overflow-hidden bg-gradient-to-br from-gray-800 to-gray-700 relative text-white">
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-800/80 blur-[120px] rounded-3xl"></div>
 
-      {/* Sol Taraf */}
-      <div className="w-1/2 flex items-center justify-center relative z-10">
+      {/* Sol Taraf: yalnızca md ve üzeri ekranlarda göster */}
+      <div className="w-1/2 hidden md:flex items-center justify-center relative z-10">
         <Image
-          src="/icons/son_logo2.png"
+          src="/icons/logom2.png"
           alt="Left column background"
           width={900}
           height={900}
@@ -42,41 +40,55 @@ export default function Login() {
         />
       </div>
 
-      {/* Sağ Taraf */}
-      <div className="w-1/2 flex items-center justify-center relative z-10">
+      {/* Sağ Taraf: mobilde tam genişlik, md ve üzeri ekranlarda yarı genişlik */}
+      <div className="w-full md:w-1/2 flex flex-col items-center justify-center relative z-10">
+        <div className="block md:hidden mb-4">
+          <Image
+            src="/icons/logom2.png"
+            alt="Mobile top image"
+            width={150}
+            height={150}
+            className="object-contain drop-shadow-2xl"
+          />
+        </div>
+
         {/* Form Konteyneri */}
-        <div className="relative p-10 rounded-2xl bg-gradient-to-br from-[#FAFCF2] via-[#A8DBF0] to-[#BDC4BF] border border-[#BDC4BF] shadow-[0_15px_50px_rgba(0,0,0,0.3)] before:absolute before:inset-0 before:bg-white/30 before:blur-3xl before:rounded-2xl">
+        <div className="relative p-10 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-800 border border-gray-300 shadow-lg before:absolute before:inset-0 before:bg-gradient-to-br before:from-gray-800 before:to-gray-800/30 before:blur-3xl before:rounded-2xl">
           <div className="p-6 md:p-10 relative z-10">
             <form onSubmit={handleLogin} className="flex flex-col gap-6">
-              <h1 className="text-center text-2xl font-bold text-[#3E6A8A]">
-                Login
-              </h1>
+              <h1 className="text-center text-2xl font-bold">Login</h1>
 
-              {/* GIF */}
+              {/* GIF veya Başlık */}
               <div className="flex justify-center">
-                <h1 className="text-lg font-semibold text-[#3E6A8A]">UNDERGO</h1>
+                <h1 className="text-lg font-semibold">UNDERGO</h1>
               </div>
 
               {/* Email Input */}
               <input
                 type="email"
                 placeholder="Email"
-                className="p-3 rounded-lg text-gray-800 bg-white/50 placeholder-gray-600 border border-[#BDC4BF] focus:outline-none focus:ring-2 focus:ring-[#A8DBF0] shadow-md"
-                onChange={(e) => setUser({ ...user, email: e.target.value })}
+                className="p-3 rounded-lg bg-gradient-to-br from-gray-800 to-gray-800/50 placeholder-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 shadow-md"
+                onChange={(e) =>
+                  setUser((prev) => ({ ...prev, email: e.target.value }))
+                }
+                required
               />
 
               {/* Password Input */}
               <input
                 type="password"
                 placeholder="Password"
-                className="p-3 rounded-lg text-gray-800 bg-white/50 placeholder-gray-600 border border-[#BDC4BF] focus:outline-none focus:ring-2 focus:ring-[#A8DBF0] shadow-md"
-                onChange={(e) => setUser({ ...user, password: e.target.value })}
+                className="p-3 rounded-lg bg-gradient-to-br from-gray-800 to-gray-800/50 placeholder-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 shadow-md"
+                onChange={(e) =>
+                  setUser((prev) => ({ ...prev, password: e.target.value }))
+                }
+                required
               />
 
               {/* Login Button */}
               <button
                 type="submit"
-                className="py-3 px-4 font-semibold rounded-lg bg-[#A8DBF0] text-[#3E6A8A] hover:bg-[#3E6A8A] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#A8DBF0] shadow-lg"
+                className="py-3 px-4 font-semibold rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 text-white hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 shadow-lg transition-all"
               >
                 Login
               </button>
@@ -85,7 +97,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => router.push("/forgot-password")}
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-white hover:underline"
               >
                 Şifremi Unuttum?
               </button>
@@ -94,7 +106,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => router.push("/register")}
-                className="py-3 px-4 font-semibold rounded-lg bg-[#BDC4BF] text-[#3E6A8A] hover:bg-[#3E6A8A] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#BDC4BF] shadow-lg"
+                className="py-3 px-4 font-semibold rounded-lg bg-gradient-to-br from-gray-800 to-gray-800 text-white hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 shadow-lg transition-all"
               >
                 Don't have an account?
               </button>

@@ -1,13 +1,19 @@
-// src/app/layout.tsx
+// src/app/layout.tsx (veya RootLayout)
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import LeftBar from "@/components/LeftBar";
 import RightBar from "@/components/RightBar";
-import Navbar from "@/components/Navbar";
+import React from "react";
+import DesktopMessages from "@/components/DesktopMessages";
+import AdBar from "@/components/Ad-Bar";
+import AdPlaceholder from "@/components/AdPlaceholder";
 
 export const metadata = {
-  title: "X-Clone",
-  description: "Social media clone with Next.js",
+  title: "UnderGo",
+  description: "Social media",
+  icons: {
+    icon: "/icons/logom2.png",
+  },
 };
 
 export default function RootLayout({
@@ -19,27 +25,34 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-[#cae1ff] text-black">
+      <body className="text-[#FFFFFF]">
         <AuthProvider>
-          <Navbar />
-          {/* LeftBar ve Navbar arasında minik bir boşluk (isteğe bağlı) */}
+          <AdBar />
+
           <div className="mb-4" />
 
           <LeftBar />
 
-          <div className="min-h-screen flex">
-            <aside className="hidden lg:block lg:w-1/4"></aside>
+          {/* SOLDaki REKLAM: LeftBar altına sabit */}
+          <div className="hidden lg:block fixed bottom-0 left-0 z-50">
+            {/* Burada istediğiniz width/height veriyorsunuz */}
+            <AdPlaceholder width={260} height={300} />
+          </div>
 
-            {/* Ana içerik: Navbar ile arasında boşluk için mt-8 eklendi */}
-            <main className="mt-8 w-full lg:w-1/2 p-1">
+          <div className="min-h-screen flex">
+            <aside className="hidden lg:block lg:w-80 "></aside>
+
+            <main className="pt-10 pb-16 w-full lg:w-1/2 p-0">
               {children}
               {modal}
             </main>
 
-            <aside className="hidden lg:block lg:w-1/4">
+            <aside className="hidden lg:block lg:w-1/4 mt-3 bg-[#000000]">
               <RightBar />
             </aside>
           </div>
+
+          <DesktopMessages />
         </AuthProvider>
       </body>
     </html>

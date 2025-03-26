@@ -1,7 +1,6 @@
-//src/components/Notes.tsx
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import React, { useState, useEffect, FormEvent, useCallback, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 interface Note {
@@ -15,6 +14,7 @@ export default function Notes() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchNotes() {
@@ -23,6 +23,7 @@ export default function Notes() {
         const token = localStorage.getItem("token");
         const res = await fetch("/api/notes", {
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
@@ -31,6 +32,7 @@ export default function Notes() {
         setNotes(data.notes || []);
       } catch (error) {
         console.error("fetchNotes error:", error);
+        setError("Error fetching notes.");
       } finally {
         setLoading(false);
       }
@@ -38,19 +40,11 @@ export default function Notes() {
     fetchNotes();
   }, [auth]);
 
-  if (loading) return <p className="text-black p-4">Loading notes...</p>;
-  if (!auth?.user)
-    return <p className="text-black p-4">Please login to see your notes.</p>;
-
-  const handleAddNote = (e: FormEvent) => {
+  // Add a new note
+  const handleAddNote = useCallback(async (e: FormEvent) => {
     e.preventDefault();
+    setError("");
     if (!text.trim()) return;
-
-    // Maksimum 5 not kontrolü
-    if (notes.length >= 5) {
-      alert("You can only have a maximum of 5 notes.");
-      return;
-    }
 
     if (!auth?.user) {
       alert("Please login first!");
@@ -58,62 +52,83 @@ export default function Notes() {
     }
 
     const token = localStorage.getItem("token");
-    fetch("/api/notes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, text }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
+    if (!token) {
+      alert("Token not found. Please login again.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ text }),
+      });
+      if (res.ok) {
+        const data = await res.json();
         setNotes((prev) => [
           { id: data.noteId, text, created_at: new Date().toISOString() },
           ...prev,
         ]);
         setText("");
-      })
-      .catch(console.error);
-  };
+      } else {
+        const errorData = await res.json();
+        console.error("Failed to add note:", errorData);
+        setError(errorData.message || "Error adding note.");
+      }
+    } catch (error) {
+      console.error("handleAddNote error:", error);
+      setError("Error adding note.");
+    }
+  }, [auth, text]);
+
+  const renderedNotes = useMemo(() => {
+    if (notes.length === 0) {
+      return <p className="text-center text-white">No notes yet.</p>;
+    }
+    return notes.map((note) => (
+      <div
+        key={note.id}
+        className="p-4 rounded-2xl border border-gray-300 bg-gradient-to-br from-gray-800 to-gray-700 relative shadow-2xl"
+      >
+        <button
+          onClick={() => setNotes((prev) => prev.filter((n) => n.id !== note.id))}
+          className="absolute top-2 right-2 text-sm bg-red-600 text-white rounded px-2 hover:bg-red-500 transition"
+        >
+          X
+        </button>
+        <p className="text-white">{note.text}</p>
+      </div>
+    ));
+  }, [notes]);
+
+  if (loading)
+    return <p className="text-center p-4 text-white">Loading notes...</p>;
+  if (!auth?.user)
+    return <p className="text-center p-4 text-white">Please login to see your notes.</p>;
 
   return (
-    <div className="p-4 rounded-2xl border border-[#BDC4BF] flex flex-col gap-4 bg-[#FAFCF2] shadow-md w-full max-w-full sm:max-w-3xl md:max-w-4xl mx-auto">
-      <h1 className="text-xl font-bold text-black">Notes</h1>
-
+    <div className="p-4 rounded-2xl border border-gray-300 flex flex-col gap-4 bg-gradient-to-br from-gray-800 to-gray-700 shadow-2xl w-full max-w-3xl mx-auto text-white">
+      <h1 className="text-xl font-bold text-center">Notes</h1>
       <form onSubmit={handleAddNote} className="flex gap-2">
         <input
           type="text"
           placeholder="Add a note..."
-          className="flex-1 p-2 border border-[#BDC4BF] rounded text-black bg-[#A8DBF0] placeholder-[#3E6A8A] outline-none"
+          className="flex-1 p-2 border border-gray-300 rounded text-white bg-gray-900 placeholder-white outline-none"
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
         <button
           type="submit"
-          className="bg-[#3E6A8A] text-white px-4 py-2 rounded font-bold hover:bg-[#2C4D66] transition"
+          className="bg-gradient-to-br from-gray-800 to-gray-700 border border-gray-300 text-white px-4 py-2 rounded font-bold hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition"
         >
           Add
         </button>
       </form>
-
-      {notes.length === 0 ? (
-        <p className="text-black">No notes yet.</p>
-      ) : (
-        notes.map((note) => (
-          <div
-            key={note.id}
-            className="p-4 rounded-2xl border border-[#BDC4BF] bg-[#A8DBF2] relative shadow-md"
-          >
-            <button
-              onClick={() =>
-                setNotes(notes.filter((n) => n.id !== note.id))
-              }
-              className="absolute top-2 right-2 text-sm bg-red-500 text-black rounded px-2 hover:bg-red-700 transition"
-            >
-              X
-            </button>
-            <p className="text-black">{note.text}</p>
-          </div>
-        ))
-      )}
+      {error && <p className="text-center text-white">{error}</p>}
+      {renderedNotes}
     </div>
   );
 }

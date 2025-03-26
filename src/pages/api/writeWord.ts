@@ -2,7 +2,10 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { db } from "@/lib/db";
 import { updateUserPoints } from "@/utils/points";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Only POST method allowed" });
   }
@@ -11,11 +14,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { content, userId } = req.body;
 
     if (!content || typeof content !== "string") {
-      return res.status(400).json({ error: "Geçerli bir içerik giriniz." });
+      return res
+        .status(400)
+        .json({ error: "Geçerli bir içerik giriniz." });
     }
 
     if (!userId || typeof userId !== "number") {
-      return res.status(400).json({ error: "Geçerli bir kullanıcı ID'si gereklidir." });
+      return res
+        .status(400)
+        .json({ error: "Geçerli bir kullanıcı ID'si gereklidir." });
     }
 
     // Gönderideki kelime sayısını hesapla
@@ -33,7 +40,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const totalPoints = wordCount * 2 + 3;
     await updateUserPoints(userId, totalPoints);
 
-    return res.status(200).json({ message: "Gönderi başarıyla kaydedildi.", pointsAdded: totalPoints });
+    return res.status(200).json({
+      message: "Gönderi başarıyla kaydedildi.",
+      pointsAdded: totalPoints,
+    });
   } catch (error) {
     console.error("Hata:", error);
     return res.status(500).json({ error: "Sunucu hatası oluştu." });

@@ -15,25 +15,28 @@ export function getLevelByPoints(points: number): string {
 export async function updateUserPoints(userId: number, pointChange: number) {
   console.log(`📌 updateUserPoints çağrıldı: userId=${userId}, pointChange=${pointChange}`);
 
-  const [rows] = await db.query<RowDataPacket[]>(
-    "SELECT points FROM users WHERE id = ?",
-    [userId]
-  );
+  try {
+    const [rows] = await db.query<RowDataPacket[]>(
+      "SELECT points FROM users WHERE id = ?",
+      [userId]
+    );
 
-  if (!rows || rows.length === 0) {
-    console.error(`❌ Kullanıcı bulunamadı: userId=${userId}`);
-    return;
+    if (!rows?.length) {
+      console.error(`❌ Kullanıcı bulunamadı: userId=${userId}`);
+      return;
+    }
+
+    const currentPoints = rows[0].points ?? 0;
+    const newPoints = Math.max(0, currentPoints + pointChange); // Negatif puan olamaz
+    const newLevel = getLevelByPoints(newPoints);
+
+    await db.query(
+      "UPDATE users SET points = ?, level = ? WHERE id = ?",
+      [newPoints, newLevel, userId]
+    );
+
+    console.log(`✅ Kullanıcının yeni puanı: ${newPoints}, Yeni seviye: ${newLevel}`);
+  } catch (error) {
+    console.error("Puan güncelleme hatası:", error);
   }
-
-  const currentPoints = rows[0].points || 0;
-  const newPoints = Math.max(0, currentPoints + pointChange); // Negatif puan olamaz
-
-  const newLevel = getLevelByPoints(newPoints);
-
-  await db.query(
-    "UPDATE users SET points = ?, level = ? WHERE id = ?",
-    [newPoints, newLevel, userId]
-  );
-
-  console.log(`✅ Kullanıcının yeni puanı: ${newPoints}, Yeni seviye: ${newLevel}`);
 }

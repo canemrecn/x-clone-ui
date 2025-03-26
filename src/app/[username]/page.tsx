@@ -1,4 +1,5 @@
-// src/app/[username]/page.tsx
+//src/app/[username]/page.tsx
+//src/app/[username]/page.tsx
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
@@ -8,122 +9,112 @@ import Image from "next/image";
 import { useState, useEffect, useRef, ChangeEvent } from "react";
 import { useParams } from "next/navigation";
 import Post from "@/components/Post";
-import LanguageHome from "@/components/LanguageHome"; // DİL SAYFASI BİLEŞENİ
+import LanguageHome from "@/components/LanguageHome";
+import useSWR from "swr";
+
+// Basit reklam bileşeni örneği
+function AdPlaceholder() {
+  return (
+    <div className="bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 rounded shadow-md my-4">
+      <p className="font-bold text-center">[ Reklam Alanı ]</p>
+    </div>
+  );
+}
+
+// Geliştirilmiş fetcher: AbortController, zaman aşımı ve hata kontrolü eklendi.
+const fetcher = (url: string, options?: RequestInit) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 saniyelik zaman aşımı
+
+  return fetch(url, { ...options, signal: controller.signal })
+    .then((res) => {
+      clearTimeout(timeoutId);
+      if (!res.ok) {
+        throw new Error(`Network response was not ok (status: ${res.status})`);
+      }
+      return res.json();
+    });
+};
 
 export default function UserPage() {
   const auth = useAuth();
   const { username } = useParams() as { username: string };
 
-  // Dil kodları kontrolü
+  // DİL KODLARI KONTROLÜ
   const languageCodes = ["en", "de", "it", "es", "ru"];
   if (languageCodes.includes(username)) {
     return <LanguageHome lang={username} />;
   }
 
-  // Profil sayfası kodları:
-  const [profileUser, setProfileUser] = useState<any>(null);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [userPosts, setUserPosts] = useState<any[]>([]);
-  const [postsLoading, setPostsLoading] = useState(true);
-  const [socialAccounts, setSocialAccounts] = useState<any[]>([]);
+  // PROFİL VERİSİNİN GETİRİLMESİ
+  const { data: userData, mutate: refetchProfile } = useSWR(
+    username !== "profile"
+      ? `/api/users/get-by-username?username=${username}`
+      : null,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
+  const profileUser = username === "profile" ? auth?.user : userData?.user;
 
-  const profileInputRef = useRef<HTMLInputElement>(null);
-  const coverInputRef = useRef<HTMLInputElement>(null);
+  // KULLANICI GÖNDERİLERİ
+  const { data: postsData } = useSWR(
+    profileUser?.id ? `/api/posts?user_id=${profileUser.id}` : null,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
+  const userPosts = postsData?.posts || [];
 
-  // 1) DİL SEÇİMİ STATE
-  const [targetLanguage, setTargetLanguage] = useState("tr"); // Örneğin varsayılan Türkçe
+  // SOSYAL HESAPLAR
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const { data: socialData } = useSWR(
+    profileUser?.id ? [`/api/social-accounts?userId=${profileUser.id}`, token] : null,
+    (url: string, token: string | null) =>
+      fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      }).then((res) => {
+        if (!res.ok) {
+          throw new Error(`Network response was not ok (status: ${res.status})`);
+        }
+        return res.json();
+      }),
+    { revalidateOnFocus: false }
+  );
+  const socialAccounts = socialData?.socialAccounts || [];
 
-  // 2) useEffect içinde localStorage'dan oku
+  // TAKİP DURUMU
+  const { data: followingData, mutate: mutateFollowing } = useSWR(
+    profileUser?.id && auth?.user
+      ? `/api/follows/status?user_id=${auth.user.id}&following_id=${profileUser.id}`
+      : null,
+    fetcher,
+    { revalidateOnFocus: false }
+  );
+  const isFollowing = followingData?.isFollowing || false;
+
+  // DİL SEÇİMİ
+  const [targetLanguage, setTargetLanguage] = useState("tr");
   useEffect(() => {
     const savedLang = localStorage.getItem("targetLanguage");
     if (savedLang) {
       setTargetLanguage(savedLang);
     }
   }, []);
-
-  // 3) Dil seçildiğinde hem state'i hem localStorage'ı güncelle
   const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newLang = e.target.value;
     setTargetLanguage(newLang);
     localStorage.setItem("targetLanguage", newLang);
   };
 
-  // 4) Profil kullanıcı bilgisi, gönderi vb. fetch'ler
-  async function fetchUser(username: string) {
-    const res = await fetch(`/api/users/get-by-username?username=${username}`);
-    if (!res.ok) throw new Error("User not found");
-    const data = await res.json();
-    return data.user;
-  }
+  // Dosya input referansları
+  const profileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
-  async function refetchProfile() {
-    if (!username) return;
-    try {
-      const updatedUser = await fetchUser(username);
-      setProfileUser(updatedUser);
-    } catch (error) {
-      console.error("refetchProfile error:", error);
-    }
-  }
-
-  useEffect(() => {
-    if (!username) return;
-
-    if (username === "profile") {
-      if (auth?.user) {
-        setProfileUser(auth.user);
-      }
-      return;
-    }
-
-    fetchUser(username)
-      .then((userData) => {
-        setProfileUser(userData);
-      })
-      .catch((err) => console.error(err));
-  }, [auth, username]);
-
-  useEffect(() => {
-    if (!profileUser || !profileUser.id) return;
-    setPostsLoading(true);
-    fetch(`/api/posts?user_id=${profileUser.id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setUserPosts(data.posts);
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setPostsLoading(false));
-  }, [profileUser]);
-
-  // Sosyal hesapları getirme (kullanıcının profil id'sine göre)
-  useEffect(() => {
-    if (!profileUser?.id) return;
-    async function fetchSocialAccounts() {
-      const token = localStorage.getItem("token");
-      try {
-        const res = await fetch(`/api/social-accounts?userId=${profileUser.id}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!res.ok) {
-          const errorData = await res.json();
-          console.error("Social accounts fetch error:", errorData.message);
-          setSocialAccounts([]);
-          return;
-        }
-        const data = await res.json();
-        setSocialAccounts(data.socialAccounts || []);
-      } catch (error) {
-        console.error("Social accounts fetch error:", error);
-        setSocialAccounts([]);
-      }
-    }
-    fetchSocialAccounts();
-  }, [profileUser]);
-
+  // TAKİP / TAKİBİ BIRAK
   const handleFollow = async () => {
     if (!auth?.user || !profileUser) return;
     const action = isFollowing ? "unfollow" : "follow";
@@ -138,10 +129,8 @@ export default function UserPage() {
         body: JSON.stringify({ following_id: profileUser.id, action }),
       });
       if (res.ok) {
-        setIsFollowing(!isFollowing);
+        mutateFollowing();
         refetchProfile();
-      } else if (res.status === 409) {
-        alert("Zaten takip ediyorsunuz!");
       } else {
         console.error("Follow/unfollow işlemi başarısız");
       }
@@ -150,8 +139,10 @@ export default function UserPage() {
     }
   };
 
+  // PROFİL FOTOĞRAFI GÜNCELLEME
   const handleProfilePhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
+    // (İyileştirme: Dosya tipi ve boyutu kontrol edilebilir.)
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = async () => {
@@ -164,7 +155,7 @@ export default function UserPage() {
           body: JSON.stringify({ token, profile_image: imageUrl }),
         });
         if (res.ok) {
-          setProfileUser((prev: any) => ({ ...prev, profile_image: imageUrl }));
+          refetchProfile();
         }
       } catch (error) {
         console.error("Profil fotoğrafı güncelleme hatası:", error);
@@ -173,8 +164,10 @@ export default function UserPage() {
     reader.readAsDataURL(file);
   };
 
+  // KAPAK FOTOĞRAFI GÜNCELLEME
   const handleCoverPhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
+    // (İyileştirme: Dosya tipi ve boyutu kontrol edilebilir.)
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = async () => {
@@ -187,7 +180,7 @@ export default function UserPage() {
           body: JSON.stringify({ token, cover_image: imageUrl }),
         });
         if (res.ok) {
-          setProfileUser((prev: any) => ({ ...prev, cover_image: imageUrl }));
+          refetchProfile();
         }
       } catch (error) {
         console.error("Kapak fotoğrafı güncelleme hatası:", error);
@@ -196,8 +189,12 @@ export default function UserPage() {
     reader.readAsDataURL(file);
   };
 
+  // PROFİL BİLGİSİ DÜZENLEME
   const handleEditProfileInfo = async () => {
-    const newInfo = prompt("Profiliniz hakkında bilgi girin:", profileUser.profile_info || "");
+    const newInfo = prompt(
+      "Profiliniz hakkında bilgi girin:",
+      profileUser?.profile_info || ""
+    );
     if (newInfo === null) return;
     const token = localStorage.getItem("token");
     try {
@@ -207,7 +204,7 @@ export default function UserPage() {
         body: JSON.stringify({ token, profile_info: newInfo }),
       });
       if (res.ok) {
-        setProfileUser((prev: any) => ({ ...prev, profile_info: newInfo }));
+        refetchProfile();
       }
     } catch (error) {
       console.error("Profil bilgisi güncelleme hatası:", error);
@@ -217,30 +214,93 @@ export default function UserPage() {
   const isMyProfile =
     username === "profile" || (auth?.user && auth.user.username === username);
 
+  // Engelle butonu
+  async function handleBlock() {
+    if (!auth?.user || !profileUser) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch("/api/block", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ blockedUserId: profileUser.id }),
+      });
+      if (res.ok) {
+        alert("Kullanıcı engellendi!");
+      } else {
+        console.error("Engelleme işlemi başarısız");
+      }
+    } catch (error) {
+      console.error("Engelleme hatası:", error);
+    }
+  }
+
   if (!profileUser) {
-    return <div className="p-4 text-center">Loading Profile...</div>;
+    return (
+      <div className="p-4 text-center text-white">
+        Loading Profile...
+      </div>
+    );
+  }
+
+  // ---------------------------------------
+  // HER 5 GÖNDERİDE BİR REKLAM EKLEME
+  // ---------------------------------------
+  // Basit reklam bileşeni (inline)
+  function AdPlaceholder() {
+    return (
+      <div className="bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 rounded shadow-md my-4">
+        <p className="font-bold text-center">[ Reklam Alanı ]</p>
+      </div>
+    );
+  }
+
+  // userPosts dizisine her 5 gönderide bir isAd item ekliyoruz
+  const finalPosts = [];
+  for (let i = 0; i < userPosts.length; i++) {
+    finalPosts.push(userPosts[i]);
+    if ((i + 1) % 5 === 0) {
+      finalPosts.push({ isAd: true, id: `ad-${i}` });
+    }
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFCF2]">
+    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white">
       {/* Üst Bar */}
-      <div className="sticky top-0 z-10 backdrop-blur-md p-4 bg-black/60 flex items-center justify-between">
+      <div className="sticky top-0 z-10 backdrop-blur-md p-4 bg-gradient-to-br from-gray-800 to-gray-700 flex items-center justify-between flex-wrap shadow-md">
         <Link href="/">
-          <Image1 path="icons/back.svg" alt="back" w={24} h={24} />
+          <Image
+            src="/icons/left.png"
+            alt="back"
+            width={24}
+            height={24}
+            className="hover:bg-gray-600 p-1 rounded transition"
+          />
         </Link>
-        <h1 className="font-bold text-lg text-black">@{profileUser.username}</h1>
+        <h1 className="font-bold text-base md:text-lg">@{profileUser.username}</h1>
         {isMyProfile ? (
           <Link href="/settings">
-            <Image src="/icons/setting.png" alt="settings" width={24} height={24} />
+            <Image
+              src="/icons/setting.png"
+              alt="settings"
+              width={24}
+              height={24}
+              className="hover:bg-gray-600 p-1 rounded transition"
+            />
           </Link>
         ) : (
           <div style={{ width: 24, height: 24 }}></div>
         )}
       </div>
 
-      {/* Kapak + Profil Fotoğrafı + Follow Butonu Aynı Satırda */}
-      <div className="relative w-full overflow-visible z-0">
-        <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-[#A8DBF0] to-[#BDC4BF] shadow-lg relative z-0">
+      {/* Kapak + Profil Fotoğrafı */}
+      <div className="relative w-full">
+        {/* Kapak Fotoğrafı */}
+        <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-gray-800 to-gray-700 shadow-lg relative">
           <div className="absolute inset-0 bg-black opacity-20"></div>
           <input
             type="file"
@@ -251,19 +311,23 @@ export default function UserPage() {
           />
         </div>
 
-        <div className="absolute bottom-0 w-full flex items-center justify-between px-4 sm:px-7 translate-y-1/2">
-          <div className="w-200 h-200 sm:w-150 sm:h-150 rounded-full overflow-hidden border-2 border-black bg-gray-300 z-50 relative">
-            <Image
-              src={profileUser.profile_image || "/icons/pp.png"}
-              alt="Avatar"
-              width={150}
-              height={150}
-            />
+        {/* Profil Fotoğrafı ve Aksiyonlar */}
+        <div className="absolute bottom-0 w-full flex flex-col sm:flex-row items-center justify-between px-4 sm:px-7 translate-y-1/2">
+          <div className="relative">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-black bg-gradient-to-br from-gray-800 to-gray-700 shadow-2xl">
+              <Image
+                src={profileUser.profile_image || "/icons/pp.png"}
+                alt="Avatar"
+                width={160}
+                height={160}
+                className="object-cover"
+              />
+            </div>
             {isMyProfile && (
               <>
                 <button
                   onClick={() => profileInputRef.current?.click()}
-                  className="absolute bottom-3 right-7 bg-white/50 hover:bg-white/80 text-black px-3 py-1 text-md rounded"
+                  className="absolute bottom-2 right-2 bg-gray-800/50 hover:bg-gray-600/80 text-white px-2 py-1 text-xs rounded transition"
                 >
                   Edit Photo
                 </button>
@@ -279,12 +343,20 @@ export default function UserPage() {
           </div>
 
           {!isMyProfile && (
-            <button
-              onClick={handleFollow}
-              className="py-2 px-3 bg-white text-black font-bold rounded-full shadow-md z-50"
-            >
-              {isFollowing ? "Unfollow" : "Follow"}
-            </button>
+            <div className="flex gap-2 mt-4 sm:mt-0">
+              <button
+                onClick={handleFollow}
+                className="py-2 px-3 bg-gradient-to-br from-gray-800 to-gray-700 hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 text-white font-bold rounded-full shadow-md transition"
+              >
+                {isFollowing ? "Unfollow" : "Follow"}
+              </button>
+              <button
+                onClick={handleBlock}
+                className="py-2 px-3 bg-gradient-to-br from-gray-800 to-gray-700 hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 text-white font-bold rounded-full shadow-md transition"
+              >
+                Engelle
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -292,28 +364,41 @@ export default function UserPage() {
       {/* Kullanıcı Bilgileri */}
       <div className="mt-20 p-4 flex flex-col gap-2">
         <h1 className="text-2xl font-bold">{profileUser.full_name}</h1>
-        <span className="text-black text-sm">@{profileUser.username}</span>
+        <span className="text-sm">@{profileUser.username}</span>
         <p>Level: {profileUser.level}</p>
         <p>Points: {profileUser.points}</p>
-        <div className="flex gap-6 mt-2">
-  <Link href={`/profile/${profileUser.username}/followers`} className="hover:underline">
-    <span className="font-bold">{profileUser.follower_count || 0}</span> Followers
-  </Link>
-  <Link href={`/profile/${profileUser.username}/following`} className="hover:underline">
-    <span className="font-bold">{profileUser.following_count || 0}</span> Following
-  </Link>
-</div>
+        <div className="flex flex-wrap gap-4 mt-2">
+          <Link
+            href={`/profile/${profileUser.username}/followers`}
+            className="hover:underline hover:text-cyan-400 text-white"
+          >
+            <span className="font-bold">{profileUser.follower_count || 0}</span>{" "}
+            Followers
+          </Link>
+          <Link
+            href={`/profile/${profileUser.username}/following`}
+            className="hover:underline hover:text-cyan-400 text-white"
+          >
+            <span className="font-bold">{profileUser.following_count || 0}</span>{" "}
+            Following
+          </Link>
+        </div>
 
         {/* Sosyal Medya Hesapları */}
         {socialAccounts?.length > 0 && (
-          <div className="mt-4 p-4 bg-white rounded shadow">
+          <div className="mt-4 p-4 bg-gradient-to-br from-gray-800 to-gray-700 rounded shadow">
             <h2 className="text-lg font-bold mb-2">Sosyal Medya Hesapları</h2>
             <ul className="space-y-2">
               {socialAccounts.map((account: any) => (
                 <li key={account.id}>
                   <p>
                     <strong>{account.platform}</strong>:{" "}
-                    <a href={account.accountLink} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={account.accountLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-cyan-400 transition"
+                    >
                       {account.accountLink}
                     </a>
                   </p>
@@ -323,17 +408,17 @@ export default function UserPage() {
           </div>
         )}
 
-        {/* DİL SEÇİMİ DROPDOWN */}
+        {/* DİL SEÇİMİ */}
         {isMyProfile && (
           <div className="mt-4 flex flex-col gap-2">
-            <label htmlFor="targetLang" className="font-semibold text-black">
+            <label htmlFor="targetLang" className="font-semibold">
               Çeviri Dili
             </label>
             <select
               id="targetLang"
               value={targetLanguage}
               onChange={handleLanguageChange}
-              className="border border-[#3E6A8A] bg-[#FAFCF2] rounded py-2 px-3 text-black outline-none focus:ring-2 focus:ring-[#A8DBF0] hover:bg-[#f0f9ff] transition"
+              className="border border-gray-300 bg-gradient-to-br from-gray-800 to-gray-700 rounded py-2 px-3 text-white outline-none focus:ring-2 focus:ring-gray-600 hover:bg-gray-600 transition"
             >
               <option value="tr">TR</option>
               <option value="en">EN</option>
@@ -349,10 +434,19 @@ export default function UserPage() {
       {/* Gönderiler */}
       <div className="p-4">
         <h2 className="text-xl font-bold mb-4">Gönderiler</h2>
-        {postsLoading ? (
+        {postsData === undefined ? (
           <p>Gönderiler yükleniyor...</p>
         ) : userPosts.length > 0 ? (
-          userPosts.map((post) => <Post key={post.id} postData={post} />)
+          // finalPosts dizisi => her 5 gönderide bir reklam
+          <>
+            {finalPosts.map((item: any, index: number) => {
+              if (item.isAd) {
+                return <AdPlaceholder key={item.id} />;
+              } else {
+                return <Post key={item.id} postData={item} />;
+              }
+            })}
+          </>
         ) : (
           <p>Henüz gönderi paylaşılmamış.</p>
         )}

@@ -1,7 +1,6 @@
-// src/app/forgot-password/page.tsx
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 export default function ForgotPassword() {
@@ -15,7 +14,7 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     setMessage("");
     setError("");
@@ -40,77 +39,76 @@ export default function ForgotPassword() {
         setError(data.message || "Error resetting password.");
       } else {
         setMessage(data.message);
-        // İsteğe bağlı: başarılı işlem sonrası login sayfasına yönlendirebilirsiniz.
-        // router.push("/login");
+        // Optionally, redirect after success: router.push("/login");
       }
     } catch (err: any) {
       setError(err.message || "Error resetting password.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [email, username, securityAnswer, newPassword, confirmNewPassword]);
 
   return (
-    <div className="min-h-screen bg-[#FAFCF2] p-4">
-      <h1 className="text-2xl font-bold mb-6">Şifremi Unuttum</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 p-4 text-white flex items-center justify-center">
+      <form onSubmit={handleSubmit} className="space-y-4 p-10 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-700 shadow-2xl w-full max-w-md">
+        <h1 className="text-center text-2xl font-bold mb-6">Şifremi Unuttum</h1>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <label className="block text-sm font-medium mb-1">Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="mt-1 block w-full border rounded p-2"
+            className="mt-1 block w-full border border-gray-300 rounded p-2 bg-gray-900 text-white outline-none focus:ring-2 focus:ring-gray-600"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Username</label>
+          <label className="block text-sm font-medium mb-1">Username</label>
           <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
-            className="mt-1 block w-full border rounded p-2"
+            className="mt-1 block w-full border border-gray-300 rounded p-2 bg-gray-900 text-white outline-none focus:ring-2 focus:ring-gray-600"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Güvenlik Cevabı</label>
+          <label className="block text-sm font-medium mb-1">Güvenlik Cevabı</label>
           <input
             type="text"
             value={securityAnswer}
             onChange={(e) => setSecurityAnswer(e.target.value)}
             placeholder="Kayıt sırasında belirlediğiniz güvenlik sorusunun cevabını girin."
             required
-            className="mt-1 block w-full border rounded p-2"
+            className="mt-1 block w-full border border-gray-300 rounded p-2 bg-gray-900 text-white outline-none focus:ring-2 focus:ring-gray-600"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Yeni Şifre</label>
+          <label className="block text-sm font-medium mb-1">Yeni Şifre</label>
           <input
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
-            className="mt-1 block w-full border rounded p-2"
+            className="mt-1 block w-full border border-gray-300 rounded p-2 bg-gray-900 text-white outline-none focus:ring-2 focus:ring-gray-600"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Yeni Şifre (Tekrar)</label>
+          <label className="block text-sm font-medium mb-1">Yeni Şifre (Tekrar)</label>
           <input
             type="password"
             value={confirmNewPassword}
             onChange={(e) => setConfirmNewPassword(e.target.value)}
             required
-            className="mt-1 block w-full border rounded p-2"
+            className="mt-1 block w-full border border-gray-300 rounded p-2 bg-gray-900 text-white outline-none focus:ring-2 focus:ring-gray-600"
           />
         </div>
-        {error && <p className="text-red-500">{error}</p>}
-        {message && <p className="text-green-500">{message}</p>}
+        {error && <p className="text-center text-red-400">{error}</p>}
+        {message && <p className="text-center text-green-400">{message}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          className="w-full bg-gradient-to-br from-gray-800 to-gray-700 text-white px-4 py-2 rounded hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition-all"
         >
           {loading ? "İşlem yapılıyor..." : "Şifreyi Sıfırla"}
         </button>

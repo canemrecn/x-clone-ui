@@ -1,34 +1,39 @@
-//src/app/api/notes/route.ts
+// src/app/api/notes/route.ts
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";
 import { RowDataPacket, OkPacket } from "mysql2/promise";
 
+// Yardımcı: Authorization header'dan token alma fonksiyonu
+function getTokenFromHeader(request: Request): string | null {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
+  return authHeader.split(" ")[1].trim();
+}
+
+// GET: Kullanıcının notlarını çek
 export async function GET(request: Request) {
   try {
-    // Auth header kontrol
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    // Authorization header'dan token alınıyor
+    const token = getTokenFromHeader(request);
+    if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const token = authHeader.split(" ")[1];
 
-    // JWT kontrol
+    // JWT doğrulaması
     const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error("JWT_SECRET not defined in .env");
-    }
+    if (!secret) throw new Error("JWT_SECRET not defined in .env");
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
-    // DB'den kullanıcının notlarını çek
+    // Kullanıcının notlarını veritabanından çekiyoruz (parametrik sorgu)
     const [rows] = await db.query<RowDataPacket[]>(
       "SELECT id, text, created_at FROM notes WHERE user_id = ? ORDER BY created_at DESC",
       [userId]
     );
 
     return NextResponse.json({ notes: rows }, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Notes GET error:", error);
     return NextResponse.json(
       { message: "Server error", error: String(error) },
@@ -37,33 +42,39 @@ export async function GET(request: Request) {
   }
 }
 
+// POST: Yeni not ekler
 export async function POST(request: Request) {
   try {
-    const { token, text } = await request.json();
-
-    if (!token || !text) {
-      return NextResponse.json({ message: "Missing fields" }, { status: 400 });
+    // Token'ı Authorization header'dan alıyoruz (POST için de tutarlı olması açısından)
+    const token = getTokenFromHeader(request);
+    if (!token) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // JWT
+    // JWT doğrulaması
     const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error("JWT_SECRET not defined in .env");
-    }
+    if (!secret) throw new Error("JWT_SECRET not defined in .env");
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
-    // DB'ye not ekle
+    // İstek gövdesinden not metnini alıyoruz
+    const { text } = await request.json();
+    if (!text || typeof text !== "string" || !text.trim()) {
+      return NextResponse.json({ message: "Missing text" }, { status: 400 });
+    }
+    const trimmedText = text.trim();
+
+    // Notu veritabanına ekliyoruz (parametrik sorgu kullanılarak)
     const [result] = await db.query<OkPacket>(
       "INSERT INTO notes (user_id, text) VALUES (?, ?)",
-      [userId, text]
+      [userId, trimmedText]
     );
 
     return NextResponse.json(
       { message: "Note created", noteId: result.insertId },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Notes POST error:", error);
     return NextResponse.json(
       { message: "Server error", error: String(error) },

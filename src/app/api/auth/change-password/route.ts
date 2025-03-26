@@ -1,29 +1,51 @@
 // src/app/api/auth/change-password/route.ts
+// src/app/api/auth/change-password/route.ts
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
 import { RowDataPacket } from "mysql2";
 
+const SALT_ROUNDS = 10;
+const MIN_PASSWORD_LENGTH = 8;
+
 export async function POST(req: Request) {
   try {
-    // Yetkilendirme kontrolü
+    // Authorization header kontrolü
     const authHeader = req.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
     const token = authHeader.split(" ")[1];
     const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error("JWT_SECRET is not defined");
+    if (!secret) {
+      throw new Error("JWT_SECRET is not defined");
+    }
 
-    // Token doğrulaması yapıp kullanıcı id'sini alalım
-    const decoded = jwt.verify(token, secret) as { id: number };
+    // Token doğrulaması yapıp kullanıcı ID'sini elde edelim
+    let decoded;
+    try {
+      decoded = jwt.verify(token, secret) as { id: number };
+    } catch (tokenError) {
+      return NextResponse.json({ message: "Invalid or expired token." }, { status: 401 });
+    }
     const userId = decoded.id;
 
-    // İstek gövdesinden eski şifre, yeni şifre ve güvenlik cevabını alalım
+    // İstek gövdesinden gerekli alanları alalım
     const { oldPassword, newPassword, securityAnswer } = await req.json();
     if (!oldPassword || !newPassword || !securityAnswer) {
-      return NextResponse.json({ message: "All fields are required." }, { status: 400 });
+      return NextResponse.json(
+        { message: "All fields are required." },
+        { status: 400 }
+      );
+    }
+
+    // Yeni şifrenin temel validasyonunu yapalım
+    if (typeof newPassword !== "string" || newPassword.length < MIN_PASSWORD_LENGTH) {
+      return NextResponse.json(
+        { message: `New password must be at least ${MIN_PASSWORD_LENGTH} characters long.` },
+        { status: 400 }
+      );
     }
 
     // Kullanıcının mevcut şifresini ve güvenlik cevabını veritabanından çekelim
@@ -36,7 +58,7 @@ export async function POST(req: Request) {
     }
     const user = rows[0];
 
-    // Eğer güvenlik cevabı veritabanında yoksa
+    // Kullanıcının güvenlik cevabının ayarlanıp ayarlanmadığını kontrol edelim
     if (!user.security_answer) {
       return NextResponse.json(
         { message: "Security answer is not set for this account." },
@@ -44,25 +66,37 @@ export async function POST(req: Request) {
       );
     }
 
-    // Eski şifre kontrolü
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      return NextResponse.json({ message: "Current password is incorrect." }, { status: 401 });
+    // Eski şifrenin doğruluğunu kontrol edelim
+    const isOldPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+    if (!isOldPasswordCorrect) {
+      return NextResponse.json(
+        { message: "Current password is incorrect." },
+        { status: 401 }
+      );
     }
 
-    // Güvenlik cevabının kontrolü: Her iki değer dolu olmalı
+    // Güvenlik cevabının doğruluğunu kontrol edelim
     const isSecurityAnswerCorrect = await bcrypt.compare(securityAnswer, user.security_answer);
     if (!isSecurityAnswerCorrect) {
-      return NextResponse.json({ message: "Security answer is incorrect." }, { status: 401 });
+      return NextResponse.json(
+        { message: "Security answer is incorrect." },
+        { status: 401 }
+      );
     }
 
     // Yeni şifreyi hash'leyip güncelleyelim
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    const hashedNewPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
     await db.query("UPDATE users SET password = ? WHERE id = ?", [hashedNewPassword, userId]);
 
-    return NextResponse.json({ message: "Password updated successfully." }, { status: 200 });
+    return NextResponse.json(
+      { message: "Password updated successfully." },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Change password error:", error);
-    return NextResponse.json({ message: "Error changing password." }, { status: 500 });
+    return NextResponse.json(
+      { message: "Error changing password." },
+      { status: 500 }
+    );
   }
 }

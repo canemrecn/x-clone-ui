@@ -8,17 +8,21 @@ import { RowDataPacket } from "mysql2";
 // GET: Kayıtlı cihazları döndürür
 export async function GET(request: Request) {
   try {
+    // Authorization header kontrolü
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const token = authHeader.split(" ")[1];
+    // Token değerini trim edip temizliyoruz
+    const token = authHeader.split(" ")[1].trim();
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
 
+    // JWT token doğrulaması
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
+    // Kullanıcının cihaz bilgilerini çekiyoruz (parametrik sorgu ile)
     const [rows] = await db.query<RowDataPacket[]>(`
       SELECT id, deviceName, ipAddress, lastLogin
       FROM user_devices
@@ -36,20 +40,24 @@ export async function GET(request: Request) {
 // POST: Yeni cihaz bilgilerini ekler
 export async function POST(request: Request) {
   try {
+    // Authorization header kontrolü
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const token = authHeader.split(" ")[1];
+    const token = authHeader.split(" ")[1].trim();
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
 
-    // Token'ı doğrulayarak kullanıcı id'sini alıyoruz
+    // Token'ı doğrulayarak kullanıcı ID'sini alıyoruz
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
     // İstek gövdesinden cihaz bilgilerini alıyoruz
     const { deviceName, ipAddress } = await request.json();
+    if (!deviceName || !ipAddress) {
+      return NextResponse.json({ message: "Device name and IP address are required." }, { status: 400 });
+    }
     const lastLogin = new Date();
 
     // Cihaz bilgilerini veritabanına ekliyoruz
@@ -59,7 +67,7 @@ export async function POST(request: Request) {
       [userId, deviceName, ipAddress, lastLogin]
     );
 
-    return NextResponse.json({ message: "Cihaz başarıyla eklendi." });
+    return NextResponse.json({ message: "Cihaz başarıyla eklendi." }, { status: 201 });
   } catch (error) {
     console.error("Device add error:", error);
     return NextResponse.json({ message: "Cihaz eklenirken hata oluştu." }, { status: 500 });

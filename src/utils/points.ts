@@ -1,26 +1,27 @@
 import { db } from "@/lib/db";
-import { getLevelByPoints } from "./level";
 import { RowDataPacket } from "mysql2/promise";
 
-export async function updateUserPoints(userId: number, pointsToAdd: number) {
-  // Kullanıcının mevcut puanını al
-  const [user] = await db.query<RowDataPacket[]>(
-    "SELECT points FROM users WHERE id = ?",
-    [userId]
-  );
+export async function updateUserPoints(userId: number, pointsToAdd: number): Promise<number> {
+  try {
+    // Kullanıcının mevcut puanını al
+    const [userRows] = await db.query<RowDataPacket[]>(
+      "SELECT points FROM users WHERE id = ?",
+      [userId]
+    );
 
-  if (!user || user.length === 0) {
-    throw new Error("User not found");
+    if (!userRows || userRows.length === 0) {
+      throw new Error("User not found");
+    }
+
+    const currentPoints = userRows[0].points ?? 0;
+    const newPoints = currentPoints + pointsToAdd;
+
+    // Sadece points güncelleniyor (level sütunu kullanılmıyor)
+    await db.query("UPDATE users SET points = ? WHERE id = ?", [newPoints, userId]);
+
+    return newPoints;
+  } catch (error) {
+    console.error("updateUserPoints error:", error);
+    throw error;
   }
-
-  const currentPoints = user[0].points;
-  const newPoints = currentPoints + pointsToAdd;
-
-  // `level` sütunu artık olmadığı için sadece `points` güncellenecek
-  await db.query(
-    "UPDATE users SET points = ? WHERE id = ?",
-    [newPoints, userId]
-  );
-
-  return newPoints;
 }

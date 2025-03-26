@@ -1,17 +1,17 @@
-//src/context/LogoutButton.tsx
+"use client";
+
+import React from "react";
 import { useAuth } from "@/context/AuthContext";
 
-const LogoutButton = () => {
-    const auth = useAuth();
+const LogoutButton: React.FC = React.memo(() => {
+  const auth = useAuth();
 
-    if (!auth) {
-        console.error("❌ AuthContext bulunamadı!");
-        return null;
-    }
+  if (!auth) {
+    console.error("❌ AuthContext bulunamadı!");
+    return null;
+  }
 
-    return (
-        <button onClick={auth.logout}>Çıkış Yap</button>
-    );
-};
+  return <button onClick={auth.logout}>Çıkış Yap</button>;
+});
 
 export default LogoutButton;

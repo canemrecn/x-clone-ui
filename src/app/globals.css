@@ -33,3 +33,6 @@ html, body {
   margin: 0;
   padding: 0;
 }
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}

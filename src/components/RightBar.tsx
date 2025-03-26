@@ -1,48 +1,34 @@
-// src/components/RightBar.tsx
-// src/components/RightBar.tsx
 "use client";
 
-import Search from "./Search";
-import Arrangement from "./Arrangement";
-import Link from "next/link";
-import Notes from "./Notes";
+import React from "react";
+import Arrangement from "@/components/Arrangement";
+import Notes from "@/components/Notes";
+import AdPlaceholder from "./AdPlaceholder"; // Reklam bileşeni
 
 export default function RightBar() {
   return (
     <div className="
-    hidden
-    lg:flex
-    flex-col
-    fixed
-    top-13
-    right-30
-    w-74
-    h-200
-    shadow-md
-    border-r
-    border-[#BDC4BF]
-    justify-between
-    pt-7
+    hidden 
+    lg:flex 
+    flex-col 
+    fixed 
+    top-14 
+    right-0 
+    w-94 
+    justify-between 
+    pt-1
     pb-1
-    z-50
-  ">
-      <Search />
+    z-50">
       <Arrangement />
       <Notes />
-      <div className="text-[#3E6A8A] text-sm flex gap-x-4 flex-wrap border-t border-[#BDC4BF] pt-2 mt-2">
-        <Link href="/" className="hover:text-[#A8DBF0] transition-all">
-          Terms of Service
-        </Link>
-        <Link href="/" className="hover:text-[#A8DBF0] transition-all">
-          Privacy Policy
-        </Link>
-        <Link href="/" className="hover:text-[#A8DBF0] transition-all">
-          Cookie Policy
-        </Link>
-        <Link href="/" className="hover:text-[#A8DBF0] transition-all">
-          Accessibility
-        </Link>
-        <span className="text-[#BDC4BF]">2025 Practical Language</span>
+      {/* En altta reklam bileşeni */}
+      <AdPlaceholder />
+      <div className="text-gray-300 text-sm flex gap-x-4 flex-wrap border-t border-gray-300 pt-2 mt-2 px-2">
+        <span className="hover:text-orange-400 cursor-pointer">Terms of Service</span>
+        <span className="hover:text-orange-400 cursor-pointer">Privacy Policy</span>
+        <span className="hover:text-orange-400 cursor-pointer">Cookie Policy</span>
+        <span className="hover:text-orange-400 cursor-pointer">Accessibility</span>
+        <span className="text-gray-500">2025 Undergo</span>
       </div>
     </div>
   );

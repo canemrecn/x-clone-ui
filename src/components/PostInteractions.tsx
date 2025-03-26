@@ -1,91 +1,160 @@
-// src/components/PostInteractions.tsx
 "use client";
 
-import { useState } from "react";
+import React, { useState, useCallback } from "react";
 import Image from "next/image";
+import UsersList from "@/app/direct-messages/UsersList";
 
 interface PostInteractionsProps {
   postId: number;
   initialLikes: number | string;
   initialComments: number | string;
+  onCommentClick?: () => void; // Yorum ikonuna tıklanınca çalışacak fonksiyon
 }
 
-export default function PostInteractions({
-  postId,
-  initialLikes,
-  initialComments,
-}: PostInteractionsProps) {
-  const [likeCount, setLikeCount] = useState(Number(initialLikes) || 0);
-  const [commentCount, setCommentCount] = useState(Number(initialComments) || 0);
-  const [isLiked, setIsLiked] = useState(false);
+const PostInteractions: React.FC<PostInteractionsProps> = React.memo(
+  ({ postId, initialLikes, initialComments }) => {
+    const [likeCount, setLikeCount] = useState(Number(initialLikes) || 0);
+    const [commentCount, setCommentCount] = useState(Number(initialComments) || 0);
+    const [isLiked, setIsLiked] = useState(false);
+    const [showSendModal, setShowSendModal] = useState(false);
 
-  const handleLike = async () => {
-    const res = await fetch(`/api/posts/${postId}/like`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: localStorage.getItem("token") }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data.message === "Post liked") {
-        setLikeCount((prev) => prev + 1);
-        setIsLiked(true);
-      } else if (data.message === "Post unliked") {
-        setLikeCount((prev) => (prev > 0 ? prev - 1 : 0));
-        setIsLiked(false);
+    const handleLike = useCallback(async () => {
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch(`/api/posts/${postId}/like`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.message === "Post liked") {
+            setLikeCount((prev) => prev + 1);
+            setIsLiked(true);
+          } else if (data.message === "Post unliked") {
+            setLikeCount((prev) => (prev > 0 ? prev - 1 : 0));
+            setIsLiked(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error in handleLike:", error);
       }
-    }
-  };
+    }, [postId]);
 
-  const handleComment = async () => {
-    const text = prompt("Yorumunuzu yazın:") || "";
-    if (!text.trim()) return;
+    const handleComment = useCallback(async () => {
+      const text = prompt("Yorumunuzu yazın:") || "";
+      if (!text.trim()) return;
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch(`/api/posts/${postId}/comment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, text }),
+        });
+        if (res.ok) {
+          setCommentCount((prev) => prev + 1);
+        }
+      } catch (error) {
+        console.error("Error in handleComment:", error);
+      }
+    }, [postId]);
 
-    const res = await fetch(`/api/posts/${postId}/comment`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: localStorage.getItem("token"), text }),
-    });
+    // Update the function to accept a number (buddyId) instead of an object.
+    const handleSendPost = useCallback(
+      async (buddyId: number) => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
 
-    if (res.ok) {
-      setCommentCount((prev) => prev + 1);
-    }
-  };
+        try {
+          const res = await fetch("/api/dm_messages/send", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ toUserId: buddyId, postId }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            console.log("DM sent successfully:", data);
+            // Optionally, show a success notification here.
+          } else {
+            console.error("Failed to send DM:", res.status);
+          }
+        } catch (error) {
+          console.error("Error sending DM:", error);
+        } finally {
+          setShowSendModal(false);
+        }
+      },
+      [postId]
+    );
 
-  return (
-    <div className="flex items-center gap-4 my-2 text-black">
-      {/* Yorum Butonu */}
-      <div
-        className="flex items-center gap-2 cursor-pointer group"
-        onClick={handleComment}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24">
-          <path
-            className="fill-[#3E6A8A] group-hover:fill-[#A8DBF0]"
-            d="M1.751 10C1.751 5.58 5.335 2 9.756 2h4.366c4.39 0 8.129 3.64 8.129 8.13 
-               0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6
-               c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 
-               3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"
+    return (
+      <div className="flex items-center gap-4 my-2 text-white">
+        {/* Yorum Butonu */}
+        <div
+          className="flex items-center gap-2 cursor-pointer group"
+          onClick={handleComment}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path
+              className="fill-white group-hover:fill-gray-300"
+              d="M1.751 10C1.751 5.58 5.335 2 9.756 2h4.366c4.39 0 8.129 3.64 8.129 8.13 
+                 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6
+                 c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 
+                 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"
+            />
+          </svg>
+          <span className="group-hover:text-gray-300 text-sm">{commentCount}</span>
+        </div>
+
+        {/* Like Butonu */}
+        <div
+          className="flex items-center gap-2 cursor-pointer group"
+          onClick={handleLike}
+        >
+          <Image
+            src="/icons/like.png"
+            alt="Like"
+            width={20}
+            height={20}
+            className={`group-hover:opacity-70 ${isLiked ? "brightness-150" : ""}`}
           />
-        </svg>
-        <span className="group-hover:text-[#A8DBF0] text-sm">{commentCount}</span>
-      </div>
+          <span className="text-sm">{likeCount}</span>
+        </div>
 
-      {/* Like Butonu */}
-      <div
-        className="flex items-center gap-2 cursor-pointer group"
-        onClick={handleLike}
-      >
-        <Image
-          src="/icons/like.png"
-          alt="Like"
-          width={20}
-          height={20}
-          className={`group-hover:opacity-70 ${isLiked ? "brightness-150" : ""}`}
-        />
-        <span className="text-sm">{likeCount}</span>
+        {/* Gönder Butonu */}
+        <div className="mt-2">
+          <button onClick={() => setShowSendModal(true)}>
+            <Image src="/icons/gonder.png" alt="Gönder" width={15} height={15} />
+          </button>
+        </div>
+
+        {/* Send Modal */}
+        {showSendModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+            <div className="bg-gradient-to-br from-gray-800 to-gray-800 p-4 rounded shadow-lg w-full max-w-md">
+              <div className="flex items-center gap-2 mb-4">
+                <Image src="/icons/gonder.png" alt="Gönder" width={20} height={20} />
+                <h2 className="text-white text-lg font-bold">Gönder</h2>
+              </div>
+              <UsersList onSelectBuddy={handleSendPost} />
+              <button
+                onClick={() => setShowSendModal(false)}
+                className="mt-4 text-white underline"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
+
+export default PostInteractions;

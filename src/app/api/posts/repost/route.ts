@@ -6,23 +6,30 @@ import { RowDataPacket, OkPacket } from "mysql2/promise";
 
 export async function POST(req: Request) {
   try {
-    const { post_id } = await req.json();
-    if (!post_id) {
+    // İstek gövdesinden post_id alınır ve sayıya dönüştürülür.
+    const { post_id: rawPostId } = await req.json();
+    if (!rawPostId) {
       return NextResponse.json({ message: "post_id is required" }, { status: 400 });
     }
-
+    const post_id = Number(rawPostId);
+    if (isNaN(post_id)) {
+      return NextResponse.json({ message: "Invalid post_id" }, { status: 400 });
+    }
+    
+    // Authorization header kontrolü ve token doğrulaması
     const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-
-    const token = authHeader.replace("Bearer ", "");
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: number };
+    const token = authHeader.split(" ")[1].trim();
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error("JWT_SECRET is not defined in environment variables");
+    const decoded = jwt.verify(token, secret) as { id: number };
     const user_id = decoded.id;
 
-    // Orijinal postu bul (SELECT -> RowDataPacket[])
+    // Orijinal gönderiyi çekiyoruz.
     const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT user_id, category_id, title, content, media_url, media_type FROM posts WHERE id = ?",
+      "SELECT user_id, category_id, title, content, media_url, media_type FROM posts WHERE id = ? LIMIT 1",
       [post_id]
     );
     if (!rows || rows.length === 0) {
@@ -30,7 +37,8 @@ export async function POST(req: Request) {
     }
     const original = rows[0];
 
-    // Yeni satır ekle (INSERT -> OkPacket)
+    // Yeni repost gönderisinin içeriğini oluşturuyoruz.
+    // Bu örnekte, orijinal gönderinin tüm içeriği repost olarak aktarılıyor.
     const [insertResult] = await db.query<OkPacket>(
       `INSERT INTO posts (user_id, category_id, title, content, media_url, media_type, repost_id)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -45,21 +53,23 @@ export async function POST(req: Request) {
       ]
     );
 
-    // Orijinal post sahibini bul
+    // Orijinal gönderi sahibini alıyoruz.
     const postOwnerId = original.user_id;
 
-    // Post sahibinin points/level
+    // Gönderi sahibinin mevcut puan ve seviye bilgilerini çekiyoruz.
     const [userRows] = await db.query<RowDataPacket[]>(
-      "SELECT points, level FROM users WHERE id = ?",
+      "SELECT points, level FROM users WHERE id = ? LIMIT 1",
       [postOwnerId]
     );
     if (!userRows || userRows.length === 0) {
       return NextResponse.json({ message: "Post owner not found" }, { status: 404 });
     }
 
-    let currentPoints = userRows[0].points;
+    // Puan güncellemesi: Orijinal gönderi sahibine repost başına 0.05 puan ekliyoruz.
+    let currentPoints = Number(userRows[0].points) || 0;
     currentPoints += 0.05;
 
+    // Seviye belirleme fonksiyonu
     function getLevel(points: number): string {
       if (points < 100) return "Beginner";
       if (points < 300) return "Intermediate";
@@ -68,14 +78,18 @@ export async function POST(req: Request) {
     }
     const newLevel = getLevel(currentPoints);
 
+    // Kullanıcı puanları ve seviyesi güncelleniyor.
     await db.query<OkPacket>(
       "UPDATE users SET points = ?, level = ? WHERE id = ?",
       [currentPoints, newLevel, postOwnerId]
     );
 
     return NextResponse.json({ message: "Reposted successfully" }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Repost error:", error);
-    return NextResponse.json({ message: "Database error", error: String(error) }, { status: 500 });
+    return NextResponse.json(
+      { message: "Database error", error: error.message || "Unknown error" },
+      { status: 500 }
+    );
   }
 }

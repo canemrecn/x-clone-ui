@@ -1,7 +1,6 @@
-// src/context/AuthContext.tsx
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback, useMemo } from "react";
 
 type User = {
   id: number;
@@ -27,67 +26,62 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (!token) {
       setLoading(false);
       return;
     }
 
-    // Token varsa sunucudan kullanıcı bilgilerini çek
+    // Token varsa API'den kullanıcı bilgisi çekiliyor.
     fetch("/api/auth/user", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {
         if (!res.ok) {
-          throw new Error(`Sunucudan geçersiz yanıt: ${res.status}`);
+          console.error("❌ Kullanıcı bilgisi alınamadı:", res.status);
+          localStorage.removeItem("token");
+          return;
         }
         return res.json();
       })
       .then((data) => {
-        if (data.user) {
+        if (data?.user) {
           setUser(data.user);
         }
       })
-      .catch((error) => {
-        console.error("❌ Kullanıcı bilgisi alınamadı:", error);
-        localStorage.removeItem("token");
-      })
+      .catch((error) => console.error("❌ API isteği başarısız:", error))
       .finally(() => setLoading(false));
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-
     const data = await res.json();
     if (!res.ok) {
       throw new Error(data.message || "Login failed");
     }
-
-    // Başarılı
     if (data.token) {
       localStorage.setItem("token", data.token);
       setUser(data.user);
+    } else {
+      console.error("Login successful but no token received");
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("token");
     setUser(null);
-  };
+  }, []);
+
+  const value = useMemo(() => ({ user, login, logout }), [user, login, logout]);
 
   if (loading) {
     return <div className="text-center text-lg font-bold">Yükleniyor...</div>;
   }
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

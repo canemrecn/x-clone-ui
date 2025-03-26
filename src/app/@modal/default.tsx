@@ -1,6 +1,11 @@
 //src/app/@modal/default.tsx
-const Default = () => {
-    return null;
-};
+// src/app/@modal/default.tsx
 
-export default Default
+/**
+ * Bu bileşen, varsayılan modal içeriğini temsil eder.
+ * Eğer belirli bir modal gösterilmek istenmiyorsa, bu bileşen hiçbir içerik render etmez.
+ */
+export default function Default() {
+    return null;
+  }
+  

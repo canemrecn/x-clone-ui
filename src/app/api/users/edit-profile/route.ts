@@ -5,29 +5,43 @@ import jwt from 'jsonwebtoken';
 
 export async function POST(request: Request) {
   try {
-    // Authorization başlığından token'ı alıyoruz.
+    // Authorization header'dan token alınır.
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const token = authHeader.split(" ")[1];
+    // Token değeri trim edilerek temizleniyor.
+    const token = authHeader.split(" ")[1].trim();
+
+    // JWT_SECRET kontrol edilir.
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
 
-    // Token'ı doğrulayıp kullanıcı id'sini alıyoruz.
+    // Token doğrulanarak kullanıcı ID'si elde edilir.
     const decoded = jwt.verify(token, secret) as { id: number };
+    const userId = decoded.id;
 
+    // İstek gövdesinden güncellenecek alanlar (full_name, username) alınır.
     const { full_name, username } = await request.json();
+    if (!full_name || !username) {
+      return NextResponse.json({ message: "Missing fields" }, { status: 400 });
+    }
+    // Gelen veriler trim edilerek temizlenir.
+    const cleanedFullName = full_name.toString().trim();
+    const cleanedUsername = username.toString().trim();
 
-    // Kullanıcının bilgilerini güncelliyoruz.
+    // Veritabanında kullanıcının profil bilgileri güncellenir.
     await db.query(
       'UPDATE users SET full_name = ?, username = ? WHERE id = ?',
-      [full_name, username, decoded.id]
+      [cleanedFullName, cleanedUsername, userId]
     );
 
     return NextResponse.json({ message: "Profil güncellendi." });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Profil güncelleme hatası:", error);
-    return NextResponse.json({ message: "Güncelleme sırasında hata oluştu." }, { status: 500 });
+    return NextResponse.json(
+      { message: "Güncelleme sırasında hata oluştu.", error: error.message || "Unknown error" },
+      { status: 500 }
+    );
   }
 }

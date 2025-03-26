@@ -1,5 +1,4 @@
 // src/app/api/posts/[postId]/repost/route.ts
-
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
@@ -11,20 +10,28 @@ interface Context {
 
 export async function POST(request: Request, { params }: Context) {
   try {
-    const post_id = parseInt(params.postId, 10);
-
-    const { token, content } = await request.json();
-    if (!token) {
-      return NextResponse.json({ message: "Missing token" }, { status: 401 });
+    // URL parametresinden postId alınarak sayısal değere dönüştürülüyor.
+    const post_id = parseInt(params.postId.trim(), 10);
+    if (isNaN(post_id)) {
+      return NextResponse.json({ message: "Invalid post ID" }, { status: 400 });
     }
 
-    const secret = process.env.JWT_SECRET!;
+    // İstek gövdesinden token ve isteğe bağlı repost mesajı (content) alınıyor.
+    const { token: rawToken, content } = await request.json() as { token?: string, content?: string };
+    if (!rawToken) {
+      return NextResponse.json({ message: "Missing token" }, { status: 401 });
+    }
+    const token = rawToken.trim();
+
+    // JWT token doğrulaması yapılır.
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error("JWT_SECRET is not defined in environment variables");
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
-    // Orijinal gönderiyi çek
+    // Orijinal gönderi veritabanından çekiliyor. LIMIT 1 ekleyerek verimlilik artırılabilir.
     const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT user_id, category_id, title, content, media_url, media_type FROM posts WHERE id = ?",
+      "SELECT user_id, category_id, title, content, media_url, media_type FROM posts WHERE id = ? LIMIT 1",
       [post_id]
     );
     if (!rows || rows.length === 0) {
@@ -32,10 +39,11 @@ export async function POST(request: Request, { params }: Context) {
     }
     const original = rows[0];
 
-    // Yeni gönderi içeriği: Orijinal içeriği + Repost mesajı
-    const newContent = `${original.content}\n\nRepost Message: ${content || ""}`;
+    // Yeni gönderi içeriği, orijinal içeriğe repost mesajı eklenerek oluşturuluyor.
+    // Eğer 'content' tanımlı değilse boş string olarak kabul edilir.
+    const newContent = `${original.content}\n\nRepost Message: ${content ? content.trim() : ""}`;
 
-    // Repost ekle
+    // Yeni repost gönderisi ekleniyor. repost_id, orijinal gönderinin ID'si olarak saklanıyor.
     const [insertResult] = await db.query<OkPacket>(
       `INSERT INTO posts (user_id, category_id, title, content, media_url, media_type, repost_id)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -50,7 +58,7 @@ export async function POST(request: Request, { params }: Context) {
       ]
     );
 
-    // Orijinal gönderi sahibine bildirim (type='repost')
+    // Orijinal gönderi sahibine repost bildirimi ekleniyor.
     const originalOwnerId = original.user_id;
     await db.query(
       `INSERT INTO notifications (user_id, type, from_user_id, post_id)
@@ -58,14 +66,11 @@ export async function POST(request: Request, { params }: Context) {
       [originalOwnerId, userId, post_id]
     );
 
-    return NextResponse.json(
-      { message: "Reposted successfully" },
-      { status: 201 }
-    );
-  } catch (error) {
+    return NextResponse.json({ message: "Reposted successfully" }, { status: 201 });
+  } catch (error: any) {
     console.error("Repost error:", error);
     return NextResponse.json(
-      { message: "Server error", error: String(error) },
+      { message: "Server error", error: error.message || "Unknown error" },
       { status: 500 }
     );
   }

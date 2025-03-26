@@ -1,21 +1,25 @@
+// src/app/api/notifications/route.ts
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { RowDataPacket } from "mysql2/promise";
 
+// GET: Kullanıcının bildirimlerini getirir.
 export async function GET(req: Request) {
   try {
+    // Authorization header kontrolü
     const authHeader = req.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-
-    const token = authHeader.split(" ")[1];
-    const secret = process.env.JWT_SECRET!;
+    // Token değeri trim edilerek temizleniyor
+    const token = authHeader.split(" ")[1].trim();
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error("JWT_SECRET is not defined");
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
-    // Kullanıcının bildirimlerini getir
+    // Kullanıcının bildirimlerini, bildirimi oluşturan kullanıcı bilgileri ile birlikte getiriyoruz.
     const [rows] = await db.query<RowDataPacket[]>(`
       SELECT 
         n.*,
@@ -28,13 +32,13 @@ export async function GET(req: Request) {
     `, [userId]);
 
     return NextResponse.json({ notifications: rows }, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Notifications error:", error);
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
+    return NextResponse.json({ message: "Server error", error: error.message || "" }, { status: 500 });
   }
 }
 
-// **📌 Yeni DELETE API Ekleniyor**
+// DELETE: Belirtilen bildirim ID'sine sahip bildirimi siler.
 export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();
@@ -42,11 +46,12 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ message: "Notification ID required" }, { status: 400 });
     }
 
+    // Parametrik sorgu kullanarak SQL enjeksiyon riskini azaltıyoruz.
     await db.query("DELETE FROM notifications WHERE id = ?", [id]);
 
     return NextResponse.json({ message: "Notification deleted" }, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Delete notification error:", error);
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
+    return NextResponse.json({ message: "Server error", error: error.message || "" }, { status: 500 });
   }
 }
