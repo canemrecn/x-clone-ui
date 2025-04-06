@@ -1,3 +1,7 @@
+//src/components/WhatToWatchCard.tsx
+/*Bu dosya, kullanıcıyı /what-to-watch sayfasına yönlendiren tıklanabilir bir kart bileşeni olan WhatToWatchCard 
+bileşenini oluşturur; kart, "Bugün Ne İzlesem?" başlığıyla görüntülenir, stil açısından koyu bir arka plan, 
+yuvarlatılmış köşeler ve hover efekti içerir, masaüstü görünümünde modern bir buton gibi davranır.*/
 "use client";
 
 import React, { useCallback } from "react";

@@ -1,4 +1,9 @@
 // src/app/api/report/route.ts
+/*Bu dosya, bir gönderinin şikayet edilmesi durumunda şikayet nedenini ve gönderi bağlantısını belirlenmiş e-posta 
+adresine gönderen POST /api/report endpoint’ini tanımlar. Gelen postId ve reason alanları doğrulanıp temizlenir, 
+ardından nodemailer kullanılarak şikayet içeriği reportEmail adresine e-posta olarak iletilir. E-posta gönderimi 
+için Gmail servis bilgileri ortam değişkenlerinden alınır.*/
+// src/app/api/report/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 

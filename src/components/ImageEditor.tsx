@@ -1,23 +1,13 @@
+//src/components/ImageEditor.tsx
+/*Bu dosya, kullanıcının bir görselin önizlemesini yaparak formatını ("original", "wide", "square") seçebileceği ve içeriğin hassas (sensitive) 
+olup olmadığını belirleyebileceği interaktif bir modal bileşeni olan ImageEditor'ı tanımlar; görsel ImageKit üzerinden optimize şekilde 
+gösterilir ve kullanıcı bu modal üzerinden görsel ayarlarını yapıp "Save" butonuyla kapatabilir.*/
 "use client";
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import { IKImage } from "imagekitio-next";
 
-type ImageProps = {
-  path: string;
-  w?: number;
-  h?: number;
-  alt: string;
-  className?: string;
-  tr?: boolean;
-};
-
-const ImageEditor = React.memo(function ImageEditor({
-  onClose,
-  previewURL,
-  settings,
-  setSettings,
-}: {
+type ImageEditorProps = {
   onClose: () => void;
   previewURL: string;
   settings: {
@@ -30,7 +20,14 @@ const ImageEditor = React.memo(function ImageEditor({
       sensitive: boolean;
     }>
   >;
-}) {
+};
+
+const ImageEditor = React.memo(function ImageEditor({
+  onClose,
+  previewURL,
+  settings,
+  setSettings,
+}: ImageEditorProps) {
   const handleChangeSensitive = useCallback(
     (sensitive: boolean) => {
       setSettings((prev) => ({ ...prev, sensitive }));
@@ -88,6 +85,7 @@ const ImageEditor = React.memo(function ImageEditor({
                 : "aspect-video object-cover"
             }`}
             lqip={{ active: true, quality: 20 }}
+            crossOrigin="use-credentials" // HTTP‑only çerezler için eklenmiştir.
           />
         </div>
 

@@ -1,3 +1,8 @@
+// src/utils/gemini.ts
+/*Bu dosya, verilen bir mesajı /api/gemini endpoint'ine POST isteğiyle göndererek Gemini yapay zeka modelinden 
+yanıt almak için kullanılan chatWithGemini adlı asenkron bir fonksiyon tanımlar; API'den gelen cevabı JSON 
+formatında işleyip metin (text) olarak döndürür, hata durumlarında ise kullanıcıya varsayılan bir hata mesajı verir.*/
+// src/utils/gemini.ts
 export const chatWithGemini = async (message: string): Promise<string> => {
   try {
     const response = await fetch("/api/gemini", {

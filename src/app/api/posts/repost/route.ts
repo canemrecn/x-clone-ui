@@ -1,4 +1,11 @@
 // src/app/api/posts/repost/route.ts
+/*Bu dosya, bir gönderiyi tekrar paylaşmak (repost) için POST /api/posts/repost endpoint'ini tanımlar. 
+Gövdesinden gelen post_id ile orijinal gönderi veritabanından çekilir, JWT ile kimlik doğrulaması 
+yapılır ve kullanıcı bu gönderiyi kendi adına yeniden paylaşır. Repost işlemi başarılı olursa, 
+orijinal gönderi sahibine 0.05 puan eklenir ve puana göre seviyesi (Beginner, Intermediate, 
+Advanced, Legend) güncellenir. İşlem sonunda başarılı yanıt döner, hata durumunda ilgili 
+mesajla hata yanıtı verilir.*/
+// src/app/api/posts/repost/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
@@ -28,8 +35,8 @@ export async function POST(req: Request) {
     const user_id = decoded.id;
 
     // Orijinal gönderiyi çekiyoruz.
-    const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT user_id, category_id, title, content, media_url, media_type FROM posts WHERE id = ? LIMIT 1",
+    const [rows] = await db.query<RowDataPacket[]>( 
+      "SELECT user_id, category_id, title, content, media_url, media_type FROM posts WHERE id = ? LIMIT 1", 
       [post_id]
     );
     if (!rows || rows.length === 0) {
@@ -38,7 +45,6 @@ export async function POST(req: Request) {
     const original = rows[0];
 
     // Yeni repost gönderisinin içeriğini oluşturuyoruz.
-    // Bu örnekte, orijinal gönderinin tüm içeriği repost olarak aktarılıyor.
     const [insertResult] = await db.query<OkPacket>(
       `INSERT INTO posts (user_id, category_id, title, content, media_url, media_type, repost_id)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -57,8 +63,8 @@ export async function POST(req: Request) {
     const postOwnerId = original.user_id;
 
     // Gönderi sahibinin mevcut puan ve seviye bilgilerini çekiyoruz.
-    const [userRows] = await db.query<RowDataPacket[]>(
-      "SELECT points, level FROM users WHERE id = ? LIMIT 1",
+    const [userRows] = await db.query<RowDataPacket[]>( 
+      "SELECT points, level FROM users WHERE id = ? LIMIT 1", 
       [postOwnerId]
     );
     if (!userRows || userRows.length === 0) {

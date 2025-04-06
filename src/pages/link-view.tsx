@@ -1,3 +1,7 @@
+//src/pages/link-view.tsx
+/*Bu dosya, /link-view sayfasını tanımlar ve URL parametresi olarak gelen url değerini alarak, bu bağlantıyı 
+tam sayfa olarak bir <iframe> içinde görüntüler; eğer url değeri henüz alınmamışsa "Yükleniyor..." mesajı 
+gösterir. Kullanıcıyı başka bir siteye yönlendirmeden site içerisinde o bağlantıyı görmesini sağlar.*/
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -8,7 +12,12 @@ const LinkViewPage = () => {
 
   useEffect(() => {
     if (typeof url === "string") {
-      setTargetUrl(url);
+      if (url.startsWith("http://") || url.startsWith("https://")) {
+        setTargetUrl(url);
+      } else {
+        console.warn("❌ Geçersiz veya güvensiz URL engellendi:", url);
+        setTargetUrl("");
+      }
     }
   }, [url]);
 

@@ -1,7 +1,14 @@
 // src/app/api/movies/route.ts
+//Bu dosya, film verilerini yöneten bir API endpoint’idir (/api/movies) ve iki işlemi destekler: 
+//POST isteğiyle gelen title, poster ve description alanlarını doğrulayıp temizleyerek movies 
+//tablosuna yeni bir film kaydı ekler; GET isteğiyle ise veritabanındaki tüm filmleri çekip rastgele 
+//bir tanesini seçerek başlık, poster ve açıklama bilgileriyle birlikte döner. Eksik veri, bulunamayan 
+//film veya sunucu hatalarında uygun mesaj ve durum kodu ile yanıt verir.
+// src/app/api/movies/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2";
+import jwt from "jsonwebtoken";
 
 /**
  * POST: Yeni film yükler.
@@ -9,6 +16,25 @@ import { RowDataPacket } from "mysql2";
  */
 export async function POST(request: Request) {
   try {
+    // Authorization header'dan token'ı al
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    // Token'ı al ve temizle
+    const token = authHeader.split(" ")[1].trim();
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, secret) as { id: number };
+    } catch (err) {
+      return NextResponse.json({ message: "Invalid or expired token" }, { status: 401 });
+    }
+
     // İstek gövdesinden title, poster ve description alanlarını alıyoruz.
     const { title, poster, description } = await request.json();
 
@@ -47,7 +73,7 @@ export async function POST(request: Request) {
  * GET: Rastgele film getirir.
  * Tüm filmler veritabanından çekilir, rastgele bir film seçilir ve gerekli alanlar döndürülür.
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
     // Tüm filmleri veritabanından çekiyoruz.
     const [rows] = await db.query("SELECT * FROM movies") as unknown as [RowDataPacket[], any];

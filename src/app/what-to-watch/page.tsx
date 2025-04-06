@@ -1,16 +1,22 @@
+//src/app/what-to-watch/page.tsx
+/*Bu dosya, kullanıcılara rastgele bir film önerisi sunan ve dilerlerse yeni bir film (isim, afiş ve açıklama) yüklemelerine 
+imkân tanıyan interaktif bir sayfa oluşturur; /api/movies üzerinden film verilerini çeker veya yeni film ekler, yüklenen 
+görselleri Base64 formatında işler, kullanıcıya önerilen filmi ve detaylarını gösterir, hata ve başarı mesajlarını yansıtır 
+ve ayrıca sayfa içinde örnek bir reklam bileşeni de sunar.*/
 "use client";
 
 import React, { useState, FormEvent, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+// Film arayüzü
 interface Movie {
   title: string;
   poster: string;
   description: string;
 }
 
-// Basit bir reklam bileşeni örneği
+// Basit reklam bileşeni
 function AdPlaceholder() {
   return (
     <div className="bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 rounded shadow-md mt-4">
@@ -32,7 +38,9 @@ export default function WhatToWatchPage() {
 
   const fetchRandomMovie = useCallback(async () => {
     try {
-      const res = await fetch("/api/movies");
+      const res = await fetch("/api/movies", {
+        credentials: "include", // HTTP-only cookie ile doğrulama
+      });
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || "No movies found.");
@@ -59,6 +67,7 @@ export default function WhatToWatchPage() {
             poster: uploadPoster,
             description: uploadDescription,
           }),
+          credentials: "include", // HTTP-only cookie ile doğrulama
         });
         const data = await res.json();
         if (!res.ok) {

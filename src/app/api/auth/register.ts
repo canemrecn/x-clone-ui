@@ -1,5 +1,15 @@
-// File: src/app/api/auth/register.ts
-// File: src/app/api/auth/register/route.ts
+// src/app/api/auth/register.ts
+//Bu dosya, kullanıcı kaydı işlemini gerçekleştiren bir API endpoint’idir 
+//(/api/auth/register, Next.js API Route olarak); POST isteğiyle gelen ad, 
+//kullanıcı adı, e-posta, şifre, güvenlik sorusu ve cevabı gibi verileri 
+//doğrulayıp temizledikten sonra e-posta veya kullanıcı adının daha önce 
+//kullanılıp kullanılmadığını kontrol eder, şifre ve güvenlik cevabını 
+//hash'leyerek 4 haneli bir doğrulama kodu ile birlikte kullanıcıyı 
+//veritabanına ekler. Ardından sabit bir Gmail adresinden 
+//(emrecancnzytnl@gmail.com) doğrulama kodunu içeren e-postayı 
+//Nodemailer ile kullanıcıya gönderir. E-posta gönderimi başarısız 
+//olsa bile kayıt tamamlanır, her durumda uygun yanıt mesajı döner.
+// src/app/api/auth/register.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
@@ -9,10 +19,7 @@ const SALT_ROUNDS = 10;
 // Basit email regex kontrolü (temel düzeyde)
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method Not Allowed" });
   }

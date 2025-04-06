@@ -1,10 +1,10 @@
-import { NextApiRequest, NextApiResponse } from "next";
+//src/pages/api/updatePoints.ts
+/*Bu dosya, gelen POST isteği ile belirtilen bir kullanıcının (userId) puanını (points) güncelleyen bir API endpoint'idir. 
+updateUserPoints fonksiyonunu kullanarak veritabanında puan güncellemesi yapar. userId veya points eksikse 400, 
+başarılıysa 200, bir hata oluşursa 500 koduyla uygun JSON yanıtı döner.*/
+import type { NextApiRequest, NextApiResponse } from "next";
 import { updateUserPoints } from "@/utils/points";
-
-interface UpdatePointsRequest {
-  userId: number;
-  points: number;
-}
+import { getAuthUser } from "@/utils/getAuthUser";
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,22 +15,24 @@ export default async function handler(
   }
 
   try {
-    const { userId, points } = req.body as UpdatePointsRequest;
-
-    if (!userId || points === undefined) {
-      return res
-        .status(400)
-        .json({ error: "userId ve points gereklidir" });
+    // Get the authenticated user from the HTTP-only cookie
+    const authUser = await getAuthUser(req);
+    if (!authUser) {
+      return res.status(401).json({ error: "Unauthorized. Lütfen giriş yapınız." });
     }
 
-    // Kullanıcının puanını güncelle
-    await updateUserPoints(userId, points);
+    const { points } = req.body as { points: number };
 
-    return res
-      .status(200)
-      .json({ message: "Puan başarıyla güncellendi." });
+    if (points === undefined) {
+      return res.status(400).json({ error: "Puan bilgisi gereklidir." });
+    }
+
+    // Update points for the authenticated user (authUser.id)
+    await updateUserPoints(authUser.id, points);
+
+    return res.status(200).json({ message: "Puan başarıyla güncellendi." });
   } catch (error: any) {
-    console.error("Hata:", error);
-    return res.status(500).json({ error: "Puan güncellenirken hata oluştu" });
+    console.error("Puan güncelleme hatası:", error);
+    return res.status(500).json({ error: "Puan güncellenirken sunucu hatası oluştu." });
   }
 }

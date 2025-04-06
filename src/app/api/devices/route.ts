@@ -1,11 +1,26 @@
 // src/app/api/devices/route.ts
+//Bu dosya, kullanıcıların cihaz bilgilerini yönetmesini sağlayan 
+//bir API endpoint’idir (/api/devices) ve iki HTTP metodunu 
+//destekler: GET isteğiyle JWT doğrulaması yapılan kullanıcının 
+//daha önce giriş yaptığı cihazların bilgilerini (deviceName, 
+ // ipAddress, lastLogin) veritabanından çekip sıralı olarak 
+ // döner; POST isteğiyle ise doğrulanan kullanıcıdan gelen 
+ // yeni cihaz bilgilerini alır ve user_devices tablosuna 
+ // kaydeder. Her iki işlemde de yetkilendirme zorunludur 
+ // ve eksik bilgi ya da sistem hatalarında uygun hata 
+ // mesajları ve durum kodlarıyla yanıt verir.
+// src/app/api/devices/route.ts
 // src/app/api/devices/route.ts
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2";
 
-// GET: Kayıtlı cihazları döndürür
+/**
+ * GET: Kayıtlı cihazları döndürür
+ * POST: Yeni cihaz bilgilerini ekler
+ */
+
 export async function GET(request: Request) {
   try {
     // Authorization header kontrolü
@@ -37,7 +52,6 @@ export async function GET(request: Request) {
   }
 }
 
-// POST: Yeni cihaz bilgilerini ekler
 export async function POST(request: Request) {
   try {
     // Authorization header kontrolü

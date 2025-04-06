@@ -1,3 +1,9 @@
+// src/components/Ad-Bar.tsx
+/* Bu dosya, sayfanın en üstünde sabit (fixed) olarak konumlanan AdBar adlı bir reklam bileşenini tanımlar.
+   İçinde bir logo ve “Reklam Alanı: Yeni Özellikleri Keşfedin!” metni yer alır; 
+   bu metne tıklanıldığında /advertise sayfasına yönlendirme yapılır.
+   Tasarımıyla dikkat çeken bu bar, yüksek z-index (z-[9999]) sayesinde tüm içeriklerin üzerinde görünür
+   ve kullanıcıyı yeni özellikler hakkında bilgilendirmek için kullanılır. */
 "use client";
 
 import React from "react";
@@ -5,10 +11,9 @@ import Link from "next/link";
 import Image from "next/image";
 
 /**
- * AdBar: Sabit konumlu reklam barı
- * - En üstte fixed olarak yer alır.
- * - z-[9999] ile en üst katmanda görünür.
- * - Arka plan, metin ve görseller ayarlanmıştır.
+ * AdBar: Fixed-position advertisement bar
+ * - Positioned at the top of the page with a high z-index for visibility.
+ * - Background, text, and images are styled appropriately.
  */
 export default function AdBar() {
   return (

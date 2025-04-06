@@ -1,5 +1,11 @@
 //src/app/api/arrangement/route.ts
-//src/app/api/arrangement/route.ts
+//Bu dosya, kullanıcıları puanlarına göre azalan sırada listeleyen 
+//bir API endpoint’idir (/api/arrangement); istekte all parametresi 
+//varsa 100, yoksa sadece 3 kullanıcıyı döner. MySQL sorgusu ile 
+//id, full_name, username, points ve profile_image verilerini alır, 
+//sonucu JSON formatında döner ve performans için önbellekleme 
+//(Cache-Control) başlığı ekler. Hata durumunda ise 500 sunucu 
+//hatası mesajı gönderir.
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";

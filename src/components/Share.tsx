@@ -1,25 +1,64 @@
+//src/components/Share.tsx
+/*Bu dosya, kullanıcıların metin, fotoğraf veya video içeren gönderiler (post) oluşturmasını sağlayan Share 
+adlı bileşeni içerir. Kullanıcı giriş yapmışsa, gönderiye metin yazabilir, fotoğraf/video ekleyebilir; 
+medya dosyası varsa önce /api/image-upload ile ImageKit'e yüklenir, ardından metin ve medya bilgileri 
+/api/posts/create endpoint’ine POST isteğiyle gönderilerek paylaşılır. Başarılı işlem sonrası giriş kutusu 
+ve medya temizlenir. Ayrıca gönderi dili lang prop'u ile belirlenebilir ve video içerikler isReel olarak işaretlenir.*/
+//src/components/Share.tsx
+/*Bu dosya, kullanıcıların metin, fotoğraf veya video içeren gönderiler (post) oluşturmasını sağlayan Share 
+adlı bileşeni içerir. Kullanıcı giriş yapmışsa, gönderiye metin yazabilir, fotoğraf/video ekleyebilir; 
+medya dosyası varsa önce /api/image-upload ile ImageKit'e yüklenir, ardından metin ve medya bilgileri 
+/api/posts/create endpoint’ine POST isteğiyle gönderilerek paylaşılır. Başarılı işlem sonrası giriş kutusu 
+ve medya temizlenir. Ayrıca gönderi dili lang prop'u ile belirlenebilir ve video içerikler isReel olarak işaretlenir.*/
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import * as nsfwjs from "nsfwjs";
 
-/** 
- * Foto/Video dosyasını ImageKit'e yüklemek için 
- */
+// Fotoğraf veya videoyu sunucuya yüklemek için
 async function uploadFile(file: File): Promise<{ url: string; fileType: string }> {
   const formData = new FormData();
   formData.append("file", file);
+
   const res = await fetch("/api/image-upload", {
     method: "POST",
     body: formData,
+    credentials: "include",
   });
+
   if (!res.ok) {
     throw new Error("Dosya yükleme işlemi başarısız.");
   }
-  const data = await res.json();
-  return data;
+
+  return await res.json();
 }
+
+// Görsel uygunsuzsa true döner
+const checkNsfw = async (file: File): Promise<boolean> => {
+  return new Promise(async (resolve) => {
+    const image = document.createElement("img");
+    image.src = URL.createObjectURL(file);
+    image.crossOrigin = "anonymous";
+
+    image.onload = async () => {
+      const model = await nsfwjs.load();
+      const predictions = await model.classify(image);
+
+      const sensitive = predictions.find(
+        (p: { className: string; probability: number }) =>
+          (p.className === "Porn" ||
+            p.className === "Hentai" ||
+            p.className === "Sexy") &&
+          p.probability > 0.7
+      );
+      
+
+      resolve(!!sensitive);
+    };
+  });
+};
 
 interface ShareProps {
   lang?: string;
@@ -44,11 +83,6 @@ export default function Share({ lang }: ShareProps) {
         alert("Lütfen giriş yapın.");
         return;
       }
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Token bulunamadı. Lütfen tekrar giriş yapın.");
-        return;
-      }
 
       const textValue = inputRef.current?.value.trim() || "";
 
@@ -57,6 +91,12 @@ export default function Share({ lang }: ShareProps) {
       let isReel = false;
 
       if (file) {
+        const isNsfw = await checkNsfw(file);
+        if (isNsfw) {
+          alert("Bu görsel uygunsuz içerik içeriyor. Lütfen başka bir görsel seçin.");
+          return;
+        }
+
         try {
           const uploadResult = await uploadFile(file);
           mediaUrl = uploadResult.url;
@@ -82,8 +122,8 @@ export default function Share({ lang }: ShareProps) {
         const res = await fetch("/api/posts/create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
-            token,
             content: textValue,
             media_url: mediaUrl,
             media_type: mediaType,
@@ -95,18 +135,15 @@ export default function Share({ lang }: ShareProps) {
 
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.message || "Bilinmeyen sunucu hatası");
+          throw new Error(data.message || "Sunucu hatası.");
         }
 
         alert("Gönderi başarıyla paylaşıldı!");
         if (inputRef.current) inputRef.current.value = "";
         setFile(null);
       } catch (error) {
-        console.error("Post Error:", error);
-        alert(
-          "Gönderi paylaşırken hata oluştu: " +
-            (error instanceof Error ? error.message : "Bilinmeyen hata")
-        );
+        console.error("Gönderi paylaşma hatası:", error);
+        alert("Gönderi paylaşırken hata oluştu.");
       }
     },
     [auth, file, lang]

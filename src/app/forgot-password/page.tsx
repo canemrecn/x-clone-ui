@@ -1,7 +1,12 @@
+//src/app/forgot-password/page.tsx
+/*Bu dosya, kullanıcıların şifrelerini sıfırlayabilmeleri için e-posta, kullanıcı adı, güvenlik sorusu cevabı ve yeni şifre bilgilerini girerek 
+/api/auth/forgot-password endpoint’ine istek gönderen, doğrulama ve hata/başarı mesajlarını gösteren “Şifremi Unuttum” sayfasını oluşturan bir 
+React bileşenidir.*/
 "use client";
 
 import { useState, FormEvent, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie"; // For cookies management
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -39,6 +44,8 @@ export default function ForgotPassword() {
         setError(data.message || "Error resetting password.");
       } else {
         setMessage(data.message);
+        // Optionally, store token or other details in cookies here if needed
+        Cookies.set("resetSuccess", "true"); // Example, if you need to track the reset
         // Optionally, redirect after success: router.push("/login");
       }
     } catch (err: any) {

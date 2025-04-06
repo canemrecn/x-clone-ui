@@ -1,46 +1,51 @@
+// src/components/Search.tsx
+/*Bu dosya, kullanıcıların diğer kullanıcıları arayabileceği bir arama bileşeni (Search) tanımlar. Kullanıcı input 
+alanına bir şeyler yazdığında, girilen sorguya göre /api/search endpoint’ine fetch isteği gönderir, sonuçları alır 
+ve eşleşen kullanıcıları dropdown şeklinde gösterir. Arama kutusu, şık bir şekilde stillendirilmiş olup arama simgesi 
+ve girilen metne göre anlık sonuç listesini kullanıcıya sunar.*/
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-
-const fetcher = (url: string) =>
-  fetch(url).then((res) => {
-    if (!res.ok) {
-      throw new Error(`Error fetching posts: ${res.status}`);
-    }
-    return res.json();
-  });
+import Link from "next/link";
 
 export default function Search() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setQuery(e.target.value);
-    },
-    []
-  );
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  }, []);
 
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
       return;
     }
+
     const timer = setTimeout(() => {
-      fetch(`/api/search?query=${encodeURIComponent(query)}`)
-        .then((res) => res.json())
+      fetch(`/api/search?query=${encodeURIComponent(query)}`, {
+        credentials: "include", // Ensuring cookies are sent for authentication
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error(`Error: ${res.status}`);
+          return res.json();
+        })
         .then((data) => {
           setResults(data.results || []);
         })
-        .catch((err) => console.error(err));
-    }, 300);
+        .catch((err) => {
+          console.error("Search error:", err);
+          setResults([]);
+        });
+    }, 300); // Debounce time
 
     return () => clearTimeout(timer);
   }, [query]);
 
   return (
-    <div className=" bg-gradient-to-br from-gray-800 to-gray-700 py-2 px-4 flex flex-col gap-2 rounded-full shadow-md text-white">
+    <div className="relative bg-gradient-to-br from-gray-800 to-gray-700 py-2 px-4 flex flex-col gap-2 rounded-full shadow-md text-white w-full max-w-md">
+      {/* Search input */}
       <div className="flex items-center gap-2">
         <Image
           src="https://ik.imagekit.io/n6qnlu3rx/tr:q-20,bl-6/icons/explore.svg"
@@ -51,20 +56,23 @@ export default function Search() {
         <input
           type="text"
           placeholder="Search..."
-          className=" rounded px-2 py-1 bg-gradient-to-br from-gray-800 to-gray-700 text-white outline-none"
+          className="flex-1 rounded px-2 py-1 bg-transparent text-white outline-none placeholder-white"
           onChange={handleChange}
           value={query}
         />
       </div>
 
+      {/* Dropdown for results */}
       {results.length > 0 && (
-        <div className="absolute top-12 left-0 w-full bg-gradient-to-br from-gray-800 to-gray-700 border border-gray-300 rounded-md p-2 z-50 shadow-lg text-white">
+        <div className="absolute top-full mt-2 left-0 w-full bg-gradient-to-br from-gray-800 to-gray-700 border border-gray-300 rounded-md p-2 z-50 shadow-lg max-h-[300px] overflow-y-auto">
           {results.map((r) => (
-            <div key={r.id} className="p-2 hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 rounded transition">
-              <a href={`/${r.username}`}>
-                {r.full_name} (@{r.username})
-              </a>
-            </div>
+            <Link
+              key={r.id}
+              href={`/${r.username}`}
+              className="block p-2 rounded hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition text-white"
+            >
+              {r.full_name} (@{r.username})
+            </Link>
           ))}
         </div>
       )}

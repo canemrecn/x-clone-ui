@@ -1,4 +1,12 @@
 // src/app/api/dm_messages/route.ts
+//Bu dosya, iki kullanıcı arasındaki özel mesajları (DM) getiren bir API endpoint’idir 
+//(/api/dm_messages, GET methodu); URL üzerinden gelen buddyId parametresiyle birlikte 
+//JWT token aracılığıyla kimliği doğrulanan kullanıcının ID’si alınır, ardından areUsersBlocked 
+//fonksiyonu ile kullanıcılar arasında engel (blok) olup olmadığı kontrol edilir. Eğer 
+//blok yoksa, bu iki kullanıcı arasında gönderilmiş tüm mesajlar dm_messages tablosundan 
+//çekilir ve kronolojik sırayla döndürülür; blok varsa mesajlara erişim engellenir. 
+//Hatalı parametre, yetkisiz erişim veya sistem hatalarında uygun hata mesajı ile yanıt verir.
+// src/app/api/dm_messages/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";

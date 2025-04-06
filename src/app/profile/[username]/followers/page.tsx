@@ -1,8 +1,13 @@
+//src/app/profile/[username]/followers/page.tsx
+/*Bu dosya, bir kullanıcının takipçilerini (followers) görüntüleyen sayfayı oluşturur; URL'den username parametresini alarak /api/users/followers 
+endpoint’ine istek gönderir, gelen verileri SWR ile çeker ve kullanıcının takipçilerini profil fotoğrafları, adları ve kullanıcı adlarıyla 
+birlikte listeler; veri yoksa uygun mesaj gösterir.*/
 "use client";
 
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import Image from "next/image";
+import Cookies from "js-cookie"; // Import js-cookie to access cookies
 
 interface User {
   id: number;
@@ -11,19 +16,25 @@ interface User {
   profile_image: string;
 }
 
-// Basit fetcher fonksiyonu
-const fetcher = (url: string) =>
-  fetch(url).then((res) => {
+// Custom fetcher function using cookies
+const fetcher = (url: string) => {
+  const token = Cookies.get("token"); // Get the token from cookies
+  return fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token || ""}`,
+    },
+  }).then((res) => {
     if (!res.ok) {
       throw new Error(`Error fetching followers: ${res.status}`);
     }
     return res.json();
   });
+};
 
 export default function FollowersPage() {
   const { username } = useParams() as { username: string };
 
-  // SWR kullanarak API'den veri çekiyoruz
+  // Fetch data using SWR and our custom fetcher
   const { data, error } = useSWR<{ followers: User[] }>(
     `/api/users/followers?username=${username}`,
     fetcher,

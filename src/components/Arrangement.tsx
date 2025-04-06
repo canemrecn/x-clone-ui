@@ -1,3 +1,9 @@
+//src/components/Arrangement.tsx
+/*Bu dosya, sosyal medya uygulamasında en yüksek puanlı kullanıcıları sıralayan ve her birinin profiline bağlantı sağlayan Arrangement 
+bileşenini tanımlar; kullanıcılar sıralama listesinde gösterilir, profil fotoğrafları ve kullanıcı adlarıyla birlikte listelenir ve giriş 
+yapmış kullanıcılar bu listedeki kişileri "Follow" butonuna basarak takip edebilir; ayrıca veri SWR ile /api/arrangement endpoint'inden 
+çekilir ve takip işlemi sonrasında liste güncellenir.*/
+// src/components/Arrangement.tsx
 "use client";
 
 import useSWR, { mutate } from "swr";
@@ -14,8 +20,9 @@ type TopUser = {
   profile_image?: string;
 };
 
+// SWR fetcher: Token is sent via HTTP-only cookies for authentication.
 const fetcher = (url: string) =>
-  fetch(url).then((res) => {
+  fetch(url, { credentials: "include" }).then((res) => {
     if (!res.ok) {
       throw new Error(`Error fetching arrangement: ${res.status}`);
     }
@@ -28,21 +35,29 @@ export default function Arrangement() {
     revalidateOnFocus: false,
   });
 
+  // Follow handler: Now checks for the user and sends requests via HTTP-only cookies for authentication.
   const handleFollow = useCallback(
     async (userId: number) => {
-      if (!auth?.user) return;
-      const token = localStorage.getItem("token");
+      if (!auth?.user) {
+        alert("Lütfen giriş yapın.");
+        return;
+      }
       try {
         const res = await fetch("/api/follows", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
+          credentials: "include", // Using credentials to send HTTP-only cookies
           body: JSON.stringify({ following_id: userId, action: "follow" }),
         });
         if (res.ok) {
+          // After following, mutate the arrangement list to reflect the change
           mutate("/api/arrangement");
+        } else {
+          const errorData = await res.json();
+          console.error("Follow error:", errorData.message);
+          alert("Takip işlemi başarısız oldu: " + (errorData.message || ""));
         }
       } catch (err: any) {
         console.error("Follow error:", err);
@@ -69,6 +84,7 @@ export default function Arrangement() {
                 alt="Avatar"
                 width={100}
                 height={100}
+                priority
               />
             </div>
             <div>

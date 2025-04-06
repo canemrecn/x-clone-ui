@@ -1,8 +1,13 @@
+//src/app/profile/[username]/following/page.tsx
+/*Bu dosya, belirli bir kullanıcının takip ettiği kişileri (following) listeleyen bir sayfa oluşturur; URL'den username parametresini alarak 
+/api/users/following API'sine istek gönderir, gelen kullanıcı verilerini SWR ile çeker ve bu kullanıcıları profil fotoğrafı, adı ve kullanıcı 
+adıyla birlikte listeler; veri yoksa "No following found" mesajı gösterir.*/
 "use client";
 
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import Image from "next/image";
+import Cookies from "js-cookie"; // Import js-cookie to access cookies
 
 interface User {
   id: number;
@@ -11,19 +16,25 @@ interface User {
   profile_image: string;
 }
 
-// Basit fetcher fonksiyonu (Hata yönetimi ile birlikte)
-const fetcher = (url: string) =>
-  fetch(url).then((res) => {
+// Custom fetcher function using cookies
+const fetcher = (url: string) => {
+  const token = Cookies.get("token"); // Get the token from cookies
+  return fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token || ""}`,
+    },
+  }).then((res) => {
     if (!res.ok) {
       throw new Error(`Error fetching following: ${res.status}`);
     }
     return res.json();
   });
+};
 
 export default function FollowingPage() {
   const { username } = useParams() as { username: string };
 
-  // SWR ile veriyi çekiyoruz
+  // Fetch data using SWR and our custom fetcher
   const { data, error } = useSWR<{ following: User[] }>(
     `/api/users/following?username=${username}`,
     fetcher,

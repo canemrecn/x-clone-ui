@@ -1,15 +1,23 @@
+//src/pages/api/upload.ts
+/*Bu dosya, multipart/form-data formatındaki dosya yüklemelerini işleyen bir Next.js API endpoint’idir. 
+formidable kütüphanesini kullanarak gelen POST isteğinden form verilerini ve dosyayı ayrıştırır, dosyayı 
+sunucunun public/uploads klasörüne kaydeder ve başarılıysa yüklü dosyanın yolunu (/uploads/filename) içeren 
+bir JSON yanıtı döner. Yanlış yöntem ya da hata durumlarında uygun hata mesajları ile yanıt verir.*/
 import type { NextApiRequest, NextApiResponse } from "next";
 import formidable, { IncomingForm, File } from "formidable";
 import path from "path";
+import { getAuthUser } from "@/utils/getAuthUser";
 
 export const config = {
   api: {
-    bodyParser: false, // Form-data desteği için bodyParser'ı kapattık
+    bodyParser: false, // Disable bodyParser for form-data support
   },
 };
 
-// Async olarak form verilerini ayrıştırmak için Promise tabanlı parseForm fonksiyonu
-const parseForm = (req: NextApiRequest): Promise<{ fields: formidable.Fields; files: formidable.Files }> => {
+// Async function to parse form data
+const parseForm = (
+  req: NextApiRequest
+): Promise<{ fields: formidable.Fields; files: formidable.Files }> => {
   return new Promise((resolve, reject) => {
     const form = new IncomingForm({
       uploadDir: path.join(process.cwd(), "public/uploads"),
@@ -26,26 +34,31 @@ const parseForm = (req: NextApiRequest): Promise<{ fields: formidable.Fields; fi
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method Not Allowed" });
+    return res.status(405).json({ message: "Only POST method allowed" });
   }
 
   try {
-    // Form verilerini ayrıştır
-    const { fields, files } = await parseForm(req);
-
-    // Dosyanın varlığını kontrol et
-    if (!files.file) {
-      return res.status(400).json({ message: "Dosya yüklenemedi, geçersiz dosya." });
+    // Get the authenticated user from the HTTP-only cookie
+    const authUser = await getAuthUser(req);
+    if (!authUser) {
+      return res.status(401).json({ error: "Unauthorized. Please log in." });
     }
 
-    // Eğer dosya array ise ilk öğeyi, değilse dosyayı al
-    const file = Array.isArray(files.file) ? files.file[0] : files.file;
-    // Yeni dosya yolunu oluştur (public klasörü içinde)
-    const newPath = `/uploads/${file.newFilename}`;
+    // Parse the form data
+    const { fields, files } = await parseForm(req);
 
-    return res.status(201).json({ fileUrl: newPath });
+    // Check if a file exists
+    if (!files.file) {
+      return res.status(400).json({ message: "No file uploaded." });
+    }
+
+    // If there are multiple files, pick the first one
+    const file = Array.isArray(files.file) ? files.file[0] : files.file;
+    const filePath = `/uploads/${file.newFilename}`;
+
+    return res.status(201).json({ fileUrl: filePath });
   } catch (error) {
-    console.error("Dosya yükleme hatası:", error);
-    return res.status(500).json({ message: "Dosya yüklenirken hata oluştu." });
+    console.error("❌ File upload error:", error);
+    return res.status(500).json({ message: "Server error during file upload." });
   }
 }

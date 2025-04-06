@@ -1,7 +1,11 @@
+//src/app/notes/page.tsx
+/*Bu dosya, kullanıcının kendi notlarını görüp yeni not ekleyebileceği bir not yönetim sayfası oluşturur; kullanıcı giriş yapmışsa API'den notlarını 
+çeker, ekleme işlemi yapabilir ve bu notları ekranda sıralı şekilde gösterir, kullanıcı giriş yapmamışsa "giriş yapın" mesajı gösterir.*/
 "use client";
 
 import { useState, useEffect, FormEvent, useCallback, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
+import Cookies from "js-cookie"; // Using js-cookie for token management
 
 interface Note {
   id: number;
@@ -16,7 +20,7 @@ export default function NotesPage() {
   const [text, setText] = useState("");
   const [error, setError] = useState("");
 
-  // Notları fetch ederken Authorization header ekleyin
+  // Fetch notes with Authorization header
   useEffect(() => {
     async function fetchNotes() {
       if (!auth?.user) {
@@ -24,11 +28,13 @@ export default function NotesPage() {
         return;
       }
       try {
-        const token = localStorage.getItem("token");
+        const token = Cookies.get("token"); // Get token from cookies
+        if (!token) return;
+
         const res = await fetch("/api/notes", {
           headers: { 
             "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
+            Authorization: `Bearer ${token}`,
           },
         });
         if (!res.ok) {
@@ -46,7 +52,7 @@ export default function NotesPage() {
     fetchNotes();
   }, [auth]);
 
-  // Not ekleme işlemi – token'ı header’da gönderiyoruz ve sadece not metnini body’ye koyuyoruz
+  // Add new note
   const handleAddNote = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
@@ -55,26 +61,25 @@ export default function NotesPage() {
         alert("Please login first!");
         return;
       }
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("token"); // Get token from cookies
       try {
         const res = await fetch("/api/notes", {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ text }),
         });
         if (res.ok) {
           const data = await res.json();
-          // Yeni notu listenin başına ekliyoruz
+          // Add new note to the beginning of the list
           setNotes((prev) => [
             { id: data.noteId, text, created_at: new Date().toISOString() },
             ...prev,
           ]);
           setText("");
         } else {
-          // Hata kodunu loglayarak detaylı hata mesajı alabilirsiniz
           const errorData = await res.json();
           console.error("Failed to add note:", errorData);
           setError(errorData.message || "Error adding note.");

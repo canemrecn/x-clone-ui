@@ -1,8 +1,13 @@
+//src/app/notifications/page.tsx
+/*Bu dosya, kullanıcının bildirimlerini listeleyen bir sayfa oluşturur; SWR ile /api/notifications endpoint’inden kullanıcıya özel bildirimleri 
+çeker, bildirim türüne göre simge ve mesaj gösterir, her bildirimin yanında silme butonu bulunur ve butona tıklanınca ilgili bildirim silinir, 
+ardından liste güncellenir.*/
 "use client";
 
 import { useCallback, useMemo } from "react";
 import useSWR from "swr";
 import Image from "next/image";
+import Cookies from "js-cookie"; // Using js-cookie to get the token from cookies
 
 interface NotificationRow {
   id: number;
@@ -15,9 +20,9 @@ interface NotificationRow {
   created_at: string;
 }
 
-// SWR fetcher: Token'ı localStorage'dan okuyoruz
+// SWR fetcher: Token'ı HTTP-only cookies'ten alıyoruz
 const fetcher = (url: string) => {
-  const token = localStorage.getItem("token");
+  const token = Cookies.get("token"); // Get token from cookies
   return fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => {

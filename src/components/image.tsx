@@ -1,3 +1,7 @@
+//src/components/image.tsx
+/*Bu dosya, ImageKit ile entegre çalışan Image1 adlı özel bir görsel bileşeni tanımlar; verilen path ve alt bilgilerine göre 
+bir görseli sayfada gösterir, görsele tıklandığında ise ekran ortasında büyük boyutlu bir modal açarak detaylı önizleme sunar. 
+Geçersiz veya eksik görsel yolları için varsayılan bir görsel kullanılır ve görseller IKImage bileşeniyle optimize şekilde yüklenir.*/
 "use client";
 
 import React, { useState } from "react";
@@ -35,6 +39,7 @@ export default function Image1({ path, alt, className }: ImageProps) {
         alt={alt}
         width="600"
         height="400"
+        crossOrigin="use-credentials" // HTTP‑only çerezler için eklenmiştir.
         className={`w-full h-full object-contain rounded-lg cursor-pointer ${className}`}
         onClick={() => setIsOpen(true)}
       />
@@ -64,6 +69,7 @@ export default function Image1({ path, alt, className }: ImageProps) {
               alt={alt}
               width="900"
               height="600"
+              crossOrigin="use-credentials" // HTTP‑only çerezler için eklenmiştir.
               className="w-full h-auto rounded-lg"
             />
           </div>

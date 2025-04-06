@@ -1,16 +1,14 @@
+//src/components/Feed.tsx
+/*Bu dosya, sosyal medya uygulamasında gönderi akışını (Feed) yöneten bileşeni tanımlar; posts verisi dışarıdan gelmezse API'den gönderileri çeker, 
+gönderilerin her 5 tanesinden sonra bir reklam (AdPlaceholder) yerleştirir, YouTube bağlantısı içeren medyalara isYouTube işaretini ekler ve her 
+gönderiyi Post bileşeni ile ekrana render eder; dil filtresi (lang) desteği de vardır.*/
+// src/components/Feed.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import Post from "./Post";
-// Örnek reklam bileşeni - siz kendi AdPlaceholder bileşeninizi import edebilirsiniz.
-// Aşağıda basit bir placeholder olarak eklenmiştir.
-function AdPlaceholder() {
-  return (
-    <div className="bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 rounded shadow">
-      <p className="font-bold">[ Reklam Alanı ]</p>
-    </div>
-  );
-}
+import AdPlaceholder from "./AdPlaceholder";
+import { useAuth } from "@/context/AuthContext"; // Importing AuthContext for managing authentication
 
 interface FeedProps {
   posts?: any[];
@@ -20,9 +18,9 @@ interface FeedProps {
 export default function Feed({ posts, lang }: FeedProps) {
   const [localPosts, setLocalPosts] = useState<any[]>(posts || []);
   const [loading, setLoading] = useState(!posts);
+  const auth = useAuth(); // Using authentication context
 
   useEffect(() => {
-    // Eğer dışarıdan posts gelmezse, API'den gönderileri çekiyoruz.
     if (!posts) {
       (async function fetchPosts() {
         try {
@@ -30,15 +28,8 @@ export default function Feed({ posts, lang }: FeedProps) {
           if (lang) {
             url += `?lang=${lang}`;
           }
-          const token = localStorage.getItem("token") || "";
-          const res = await fetch(url, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if (!res.ok) {
-            throw new Error("Gönderiler alınamadı");
-          }
+          const res = await fetch(url, { credentials: "include" }); // Sending the request with credentials
+          if (!res.ok) throw new Error("Gönderiler alınamadı");
           const data = await res.json();
           setLocalPosts(data.posts || []);
         } catch (error) {
@@ -48,7 +39,6 @@ export default function Feed({ posts, lang }: FeedProps) {
         }
       })();
     } else {
-      // Dışarıdan gelen posts varsa onları kullanıyoruz.
       setLocalPosts(posts);
       setLoading(false);
     }
@@ -62,19 +52,13 @@ export default function Feed({ posts, lang }: FeedProps) {
     return <p className="text-center text-white">Gönderi bulunamadı.</p>;
   }
 
-  // finalPosts: Her 5 gönderide bir reklam eklemek için yeni bir dizi oluşturuyoruz.
   const finalPosts: Array<any> = [];
   for (let i = 0; i < localPosts.length; i++) {
-    // Ekstra özellik: Eğer gönderinin media_url alanı varsa ve YouTube linki içeriyorsa, isYouTube ekle
     const post = { ...localPosts[i] };
-    if (
-      post.media_url &&
-      (post.media_url.includes("youtube.com") || post.media_url.includes("youtu.be"))
-    ) {
+    if (post.media_url && (post.media_url.includes("youtube.com") || post.media_url.includes("youtu.be"))) {
       post.isYouTube = true;
     }
     finalPosts.push(post);
-    // Her 5 gönderide bir, bir reklam öğesi ekle
     if ((i + 1) % 5 === 0) {
       finalPosts.push({ isAd: true, id: `ad-${i}` });
     }
@@ -84,11 +68,9 @@ export default function Feed({ posts, lang }: FeedProps) {
     <div className="flex flex-col gap-4 p-4 bg-gradient-to-br from-gray-800 to-gray-800">
       {finalPosts.map((item) => {
         if (item.isAd) {
-          // Reklam göster
-          return <AdPlaceholder key={item.id} />;
+          return <AdPlaceholder key={item.id} />; // Render the ad
         } else {
-          // Normal gönderi; Post bileşeni içerisinde YouTube link kontrolü yapılacak
-          return <Post key={item.id} postData={item} />;
+          return <Post key={item.id} postData={item} />; // Render the post
         }
       })}
     </div>

@@ -1,7 +1,12 @@
+//src/app/settings/edit-profile/page.tsx
+/*Bu dosya, kullanıcının profil bilgilerini (isim ve kullanıcı adı) düzenlemesine olanak tanıyan bir "Profili Düzenle" sayfası sunar; 
+kullanıcı formu doldurup gönderdiğinde, bilgiler Bearer token ile birlikte /api/users/edit-profile API endpoint’ine POST isteğiyle 
+gönderilir, işlem başarılı olursa kullanıcı profil sayfasına yönlendirilir, hata oluşursa ekranda gösterilir.*/
 "use client";
 
 import { useState, FormEvent, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie"; // Import js-cookie to get the token from HttpOnly cookies
 
 export default function EditProfile() {
   const router = useRouter();
@@ -10,23 +15,35 @@ export default function EditProfile() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Token'ı ve user bilgisini cache'leyelim
-  const token = useMemo(() => localStorage.getItem("token"), []);
-  const storedUser = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem("user") || "{}");
-    } catch {
-      return {};
-    }
-  }, []);
+  // Get token from HttpOnly cookie using js-cookie
+  const token = Cookies.get("token");
 
-  // İlk yüklemede kullanıcı verilerini state'e alıyoruz
+  const [storedUser, setStoredUser] = useState<{ full_name: string, username: string }>({ full_name: "", username: "" });
+
+  // UseEffect to fetch user data when the component mounts
   useEffect(() => {
-    if (storedUser) {
-      setFullName(storedUser.full_name || "");
-      setUsername(storedUser.username || "");
+    if (token) {
+      async function fetchUser() {
+        try {
+          const res = await fetch("/api/auth/user", {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setStoredUser(data.user);
+            setFullName(data.user.full_name);
+            setUsername(data.user.username);
+          }
+        } catch (err) {
+          console.error("User fetch error:", err);
+        }
+      }
+      fetchUser();
     }
-  }, [storedUser]);
+  }, [token]);
 
   const handleSubmit = useCallback(
     async (e: FormEvent) => {
@@ -45,8 +62,8 @@ export default function EditProfile() {
             username: username,
           }),
         });
+        const data = await res.json();
         if (!res.ok) {
-          const data = await res.json();
           setError(data.message || "Güncelleme sırasında hata oluştu.");
         } else {
           router.push("/profile");

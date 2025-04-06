@@ -1,4 +1,8 @@
 // src/app/api/users/profile-image/route.ts
+/*Bu dosya, kullanıcının profil fotoğrafını güncelleyen bir POST API endpoint'idir. Gelen istekteki JWT token doğrulanarak kullanıcı ID’si 
+alınır, ardından profile_image verisi ImageKit’e yüklenir ve elde edilen görsel URL'si veritabanındaki users tablosuna kaydedilir. İşlem 
+başarıyla tamamlandığında güncellenen görselin URL'siyle birlikte başarı mesajı döndürülür.*/
+// src/app/api/users/profile-image/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
@@ -11,21 +15,23 @@ export async function POST(req: Request) {
     if (!rawToken || !profile_image) {
       return NextResponse.json({ message: "Missing fields" }, { status: 400 });
     }
+
     const token = rawToken.toString().trim();
 
     // JWT doğrulaması yapılarak kullanıcı ID'si elde ediliyor.
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined in environment variables");
+
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
     // ImageKit üzerinden profil resmi yüklemesi yapılıyor.
-    // cover_image beklenen formatta (Base64 string veya binary veri) sağlanmalıdır.
     const uploadResponse = await serverImageKit.upload({
       file: profile_image,
       fileName: `profile_${userId}_${Date.now()}.jpg`,
       folder: "/users/profile_images",
     });
+
     const imageUrl = uploadResponse.url;
 
     // Kullanıcının profil resmi, veritabanında güncelleniyor.

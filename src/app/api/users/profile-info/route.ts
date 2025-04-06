@@ -1,4 +1,8 @@
 // src/app/api/users/profile-info/route.ts
+/*Bu dosya, kullanıcının profil açıklamasını (profile_info) güncelleyen bir POST API endpoint’idir. JWT token doğrulanarak kullanıcı kimliği alınır, 
+ardından gelen açıklama metni temizlenir ve users tablosundaki ilgili kullanıcının profile_info alanı güncellenir. Başarılı işlem sonunda “Profile 
+info updated” mesajı döndürülür.*/
+// src/app/api/users/profile-info/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
@@ -10,12 +14,14 @@ export async function POST(req: Request) {
     if (!rawToken || !profile_info) {
       return NextResponse.json({ message: "Missing fields" }, { status: 400 });
     }
+
     // Token değeri trim edilerek temizleniyor.
     const token = rawToken.toString().trim();
 
     // JWT doğrulaması yapılarak kullanıcı ID'si elde ediliyor.
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
+
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 

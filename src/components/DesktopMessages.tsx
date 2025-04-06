@@ -1,14 +1,20 @@
+//src/components/DesktopMessages.tsx
+/*Bu dosya, sadece masaüstü cihazlarda çalışan bir "Masaüstü Mesajlar" paneli oluşturur; kullanıcılar sağ alt köşedeki "Mesajlar" butonuna 
+tıklayarak açılan panelde arkadaş listesinden birini seçip sohbet başlatabilir, panelde seçilen kullanıcıyla ChatWindow bileşeni üzerinden 
+mesajlaşabilir ve sağdaki UsersList bileşeni sayesinde diğer kullanıcılar arasında geçiş yapabilir.*/
 "use client";
 
 import React, { useState } from "react";
 import useIsMobile from "@/hooks/useIsMobile";
 import UsersList from "@/app/direct-messages/UsersList";
 import ChatWindow from "@/components/ChatWindow";
+import { useAuth } from "@/context/AuthContext"; // Importing AuthContext for managing authentication
 
 export default function DesktopMessages() {
   const isMobile = useIsMobile();
   const [showPanel, setShowPanel] = useState(false);
   const [selectedBuddyId, setSelectedBuddyId] = useState<number | null>(null);
+  const auth = useAuth(); // Using authentication context
 
   // Sadece masaüstünde çalışsın
   if (isMobile) return null;

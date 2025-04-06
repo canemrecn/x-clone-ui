@@ -1,4 +1,11 @@
 // src/app/api/auth/verification/route.ts
+//Bu dosya, kullanıcı e-posta doğrulamasını gerçekleştiren bir API 
+//endpoint’idir (/api/auth/verification, POST methodu); kullanıcıdan 
+//e-posta ve doğrulama kodunu alır, e-posta formatını kontrol eder, 
+//veritabanında ilgili kullanıcıyı bulur, kod eşleşiyorsa is_verified 
+//alanını true olarak günceller ve başarı mesajı döner. Kullanıcı zaten 
+//doğrulanmışsa veya kod geçersizse uygun uyarılar verir; hata durumlarında 
+//ise 500 sunucu hatası yanıtı gönderir.
 // src/app/api/auth/verification/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
@@ -19,6 +26,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
     // Email format kontrolü
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -37,10 +45,12 @@ export async function POST(req: NextRequest) {
     }
     const user = users[0];
 
+    // Kullanıcı zaten doğrulanmış mı kontrol ediyoruz
     if (user.is_verified) {
       return NextResponse.json({ message: "Kullanıcı zaten doğrulanmış." });
     }
 
+    // Doğrulama kodu kontrolü
     if (user.verification_code !== verificationCode) {
       return NextResponse.json({ error: "Geçersiz doğrulama kodu" }, { status: 400 });
     }

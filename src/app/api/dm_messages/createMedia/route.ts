@@ -1,17 +1,27 @@
+//src/app/api/dm_messages/createMedia/route.ts
+//Bu dosya, kullanıcıların özel mesaj yoluyla görsel veya video 
+//dosyaları göndermesini sağlayan bir API endpoint’idir 
+//(/api/dm_messages/createMedia, POST methodu); JWT token ile 
+//kimliği doğrulanan kullanıcının gönderdiği base64 formatındaki 
+//medya verisini alır, ImageKit aracılığıyla sunucuya yükler ve 
+//yüklenen medyanın URL’si ile birlikte dm_messages tablosuna 
+//mesaj kaydı olarak ekler. İşlem sonunda yeni mesaj verisini 
+//döner, eksik veya geçersiz veri ya da yetkisiz erişim 
+//durumlarında uygun hata mesajları ve durum kodları ile yanıt verir.
+// src/app/api/dm_messages/createMedia/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import ImageKit from "imagekit";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db"; // Örnek DB bağlantısı (mysql2/promise)
 import { RowDataPacket } from "mysql2/promise";
 
-// ImageKit yapılandırması: Eksik ortam değişkenleri varsa hata fırlatılabilir.
+// ImageKit yapılandırması
 const imagekit = new ImageKit({
   publicKey: process.env.IMAGEKIT_PUBLIC_KEY || "",
   privateKey: process.env.IMAGEKIT_PRIVATE_KEY || "",
   urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || "",
 });
 
-// Örnek DB ekleme fonksiyonu
 async function insertMessage({
   senderId,
   receiverId,
@@ -23,7 +33,6 @@ async function insertMessage({
   attachmentUrl: string;
   attachmentType: "image" | "video";
 }) {
-  // created_at'i manuel eklemiyoruz; MySQL otomatik dolduracak
   const query = `
     INSERT INTO dm_messages (senderId, receiverId, message, attachmentUrl, attachmentType)
     VALUES (?, ?, "", ?, ?)
@@ -35,10 +44,8 @@ async function insertMessage({
     attachmentType,
   ]);
 
-  // Eklenen satırın ID'sini al
   const insertedId = (result as any).insertId;
 
-  // Yeni eklenen satırı geri çekmek isterseniz:
   const [rows] = await db.query<RowDataPacket[]>(
     "SELECT * FROM dm_messages WHERE id = ?",
     [insertedId]
@@ -48,58 +55,64 @@ async function insertMessage({
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { attachmentBase64, attachmentType, receiverId } = body;
+    const { attachmentBase64, attachmentType, receiverId } = await request.json();
 
-    // Gerekli parametrelerin varlığını kontrol ediyoruz
     if (!attachmentBase64 || !attachmentType) {
       return NextResponse.json(
         { error: "Missing attachment data or type" },
         { status: 400 }
       );
     }
-    // Valid attachmentType kontrolü
+
     if (!["image", "video"].includes(attachmentType)) {
       return NextResponse.json({ error: "Invalid attachmentType" }, { status: 400 });
     }
-    // receiverId doğrulaması: receiverId'nin geçerli bir sayı olduğundan emin oluyoruz.
+
     if (!receiverId || isNaN(Number(receiverId))) {
       return NextResponse.json({ error: "Invalid receiverId" }, { status: 400 });
     }
 
-    // Kimlik doğrulama: Authorization header kontrolü
+    // ✅ Authorization header ile token al
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    // Token değerini trim ederek temizliyoruz
     const token = authHeader.split(" ")[1].trim();
     const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error("JWT_SECRET is not defined");
-    const decoded = jwt.verify(token, secret) as { id: number };
-    const senderId = decoded.id; // Artık senderId doğru şekilde elde ediliyor
+    if (!secret) {
+      return NextResponse.json({ error: "JWT_SECRET not defined" }, { status: 500 });
+    }
 
-    // Mesaj içeriğinin boşluklardan arındırılması (attachmentBase64 verisinin işlenmesi)
+    let decoded;
+    try {
+      decoded = jwt.verify(token, secret) as { id: number };
+    } catch (err) {
+      return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+    }
+
+    const senderId = decoded.id;
+
+    // Base64 verisini ayrıştır
     let base64Str = attachmentBase64;
     const match = base64Str.match(/^data:(.*?);base64,(.*)$/);
     if (match) {
       base64Str = match[2];
     }
-    // Ek: base64Str'in boş olmadığından emin olun
+
     if (!base64Str) {
       return NextResponse.json({ error: "Invalid attachment data" }, { status: 400 });
     }
-    // Dosya adını oluştururken, dosya türüne uygun uzantı eklemek isteğe bağlıdır
+
     const fileName = `dm_${Date.now()}_${attachmentType}`;
 
-    // ImageKit'e yükleme işlemi
+    // ImageKit'e yükle
     const uploadRes = await imagekit.upload({
       file: base64Str,
-      fileName: fileName,
+      fileName,
       folder: "/dm_messages",
     });
 
-    // DB'ye eklemeden önce receiverId'yi sayıya çeviriyoruz
+    // Veritabanına ekle
     const newMessage = await insertMessage({
       senderId,
       receiverId: Number(receiverId),
@@ -108,7 +121,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ newMessage }, { status: 200 });
-  } catch (err: any) {
+  } catch (err) {
     console.error("createMedia error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }

@@ -1,4 +1,9 @@
 // src/app/api/posts/route.ts
+/*Bu dosya, kullanıcıdan gelen sorgu parametrelerine (post_id, user_id, lang) göre gönderileri filtreleyip, 
+gönderi bilgileriyle birlikte yazar bilgilerini, beğeni, yorum ve repost sayılarını da içeren detaylı bir 
+liste döndüren GET /api/posts endpoint’ini tanımlar. Eğer JWT token varsa, kullanıcı ile gönderi sahibi 
+arasında karşılıklı engel (block) durumu olup olmadığını kontrol eder ve bu durumda ilgili gönderileri 
+hariç tutar. Sonuçlar oluşturulup son eklenme tarihine göre sıralanarak JSON olarak döndürülür.*/
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
@@ -7,12 +12,10 @@ import jwt from "jsonwebtoken";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    // Query parametrelerini alıp, temizliyoruz.
     const postIdParam = searchParams.get("post_id");
     const userIdParam = searchParams.get("user_id");
     const lang = searchParams.get("lang");
 
-    // Temel sorgu: gönderi bilgileri ve yazar bilgileri
     let query = `
       SELECT 
         p.id,
@@ -37,7 +40,6 @@ export async function GET(request: Request) {
     const conditions: string[] = [];
     const queryParams: any[] = [];
 
-    // Post ID parametresi varsa, sayıya çevirip kontrol ediyoruz.
     if (postIdParam) {
       const trimmedPostId = postIdParam.trim();
       const numericPostId = Number(trimmedPostId);
@@ -48,7 +50,6 @@ export async function GET(request: Request) {
       queryParams.push(numericPostId);
     }
 
-    // User ID parametresi varsa, sayıya çevirip kontrol ediyoruz.
     if (userIdParam) {
       const trimmedUserId = userIdParam.trim();
       const numericUserId = Number(trimmedUserId);
@@ -59,13 +60,11 @@ export async function GET(request: Request) {
       queryParams.push(numericUserId);
     }
 
-    // Dil parametresi varsa, doğrudan ekliyoruz.
     if (lang) {
       conditions.push("p.lang = ?");
       queryParams.push(lang.trim());
     }
 
-    // Eğer istek doğrulanmışsa (token varsa), blok kontrolü ekleyelim.
     let myId: number | null = null;
     const authHeader = request.headers.get("authorization");
     if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -80,8 +79,8 @@ export async function GET(request: Request) {
         }
       }
     }
+
     if (myId !== null) {
-      // NOT EXISTS kullanarak, eğer gönderi sahibinin (p.user_id) ile myId arasında blok ilişkisi varsa gönderiyi hariç tutuyoruz.
       conditions.push(`NOT EXISTS (
         SELECT 1 FROM blocks b
         WHERE (b.blocker_id = ? AND b.blocked_id = p.user_id)
@@ -97,6 +96,30 @@ export async function GET(request: Request) {
 
     const [rows] = await db.query<RowDataPacket[]>(query, queryParams);
     console.log("📌 API'den dönen gönderiler:", rows);
+
+    // ✅ Yapay Zeka Uyarı Kontrolü (tekrarı önler)
+    const spamWords = ["aptal", "salak", "nefret", "öldür", "bok", "iğrenç"];
+
+    for (const post of rows) {
+      const contentLower = (post.content || "").toLowerCase();
+      const matchedWord = spamWords.find(word => contentLower.includes(word));
+
+      if (matchedWord) {
+        const [existing] = await db.query<RowDataPacket[]>(
+          `SELECT id FROM user_warnings WHERE post_id = ? AND triggered_by = 'ai' LIMIT 1`,
+          [post.id]
+        );
+
+        if (existing.length === 0) {
+          await db.query(
+            `INSERT INTO user_warnings (user_id, post_id, reason, triggered_by, severity) 
+             VALUES (?, ?, ?, 'ai', 'high')`,
+            [post.user_id, post.id, `Gönderide uygunsuz içerik bulundu: '${matchedWord}'`]
+          );
+          console.log(`⚠️ AI Uyarı eklendi: Kullanıcı ID ${post.user_id} | Post ID ${post.id}`);
+        }
+      }
+    }
 
     return NextResponse.json({ posts: rows }, { status: 200 });
   } catch (error: any) {

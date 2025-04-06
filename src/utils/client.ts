@@ -1,4 +1,8 @@
 // src/utils/client.ts
+/*Bu dosya, istemci tarafında (tarayıcıda) kullanılmak üzere imagekit-javascript kütüphanesiyle bir ImageKit 
+istemcisi (clientImageKit) oluşturur; bu istemci, güvenlik gereği private key içermeden yalnızca publicKey 
+ve urlEndpoint ile yapılandırılır ve medya dosyalarının ImageKit üzerinden kolayca erişilip yönetilmesini sağlar.*/
+// src/utils/client.ts
 import ImageKit from "imagekit-javascript";
 
 // İstemci tarafında kullanılan ImageKit instance'ı (privateKey olmadan)

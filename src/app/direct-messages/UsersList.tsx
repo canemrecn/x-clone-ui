@@ -1,8 +1,14 @@
+//src/app/api/direct-messages/UserList.tsx
+/*Bu dosya, kullanıcının mesajlaştığı kişileri (buddy list) gösteren bir React bileşenidir. Giriş yapan kullanıcının JWT token’ı kullanılarak 
+/api/users endpoint’inden mutual takipte olduğu kullanıcılar çekilir ve listelenir. Her kullanıcıya tıklanınca, ilgili kişiden gelen mesajlar 
+okunmuş olarak işaretlenir ve eğer onSelectBuddy fonksiyonu tanımlıysa (örneğin masaüstü mesajlaşma panelinden), bu fonksiyon çağrılır; değilse 
+kullanıcı /direct-messages?buddyId=... sayfasına yönlendirilir. Ayrıca, yeni mesajlar varsa avatar yanında kırmızı bildirim noktası gösterilir.*/
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import Cookies from "js-cookie"; // Use js-cookie to manage cookies
 
 interface Buddy {
   id: number;
@@ -12,7 +18,6 @@ interface Buddy {
 }
 
 interface UsersListProps {
-  // DesktopMessages.tsx vs. 'onSelectBuddy' şeklinde bir prop atıyorsak
   onSelectBuddy?: (buddyId: number) => void;
 }
 
@@ -20,46 +25,50 @@ export default function UsersList({ onSelectBuddy }: UsersListProps) {
   const auth = useAuth();
   const router = useRouter();
   const [buddyList, setBuddyList] = useState<Buddy[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!auth?.user) return;
 
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
     async function fetchBuddies() {
       try {
+        const token = Cookies.get("token"); // Retrieve token from cookies
+        if (!token) return;
+
         const res = await fetch("/api/users", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`, // Send token in the Authorization header
+          },
         });
+
         if (res.ok) {
           const data = await res.json();
           setBuddyList(data.users || []);
+        } else {
+          throw new Error("Error fetching buddies");
         }
-      } catch (error) {
-        console.error("Kullanıcı listesi çekilirken hata:", error);
+      } catch (err) {
+        console.error("Kullanıcı listesi çekilirken hata:", err);
+        setError("Unable to load buddy list");
       }
     }
     fetchBuddies();
   }, [auth?.user]);
 
   async function handleSelectBuddy(buddyId: number) {
-    // Masaüstü panelinden geliyorsa => onSelectBuddy
     if (onSelectBuddy) {
-      // Mesajları okundu işaretleme vb.
       await markMessagesAsRead(buddyId);
       onSelectBuddy(buddyId);
     } else {
-      // Normal akış => direct-messages sayfasına push
       await markMessagesAsRead(buddyId);
       router.push(`/direct-messages?buddyId=${buddyId}`);
     }
   }
 
-  // Mesajları okundu işaretle
   async function markMessagesAsRead(buddyId: number) {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token"); // Retrieve token from cookies
     if (!token) return;
+
     try {
       await fetch("/api/dm_messages/markRead", {
         method: "POST",
@@ -69,7 +78,6 @@ export default function UsersList({ onSelectBuddy }: UsersListProps) {
         },
         body: JSON.stringify({ fromUserId: buddyId }),
       });
-      // Local state güncelle => hasNewMessage = false
       setBuddyList((prev) =>
         prev.map((b) => (b.id === buddyId ? { ...b, hasNewMessage: false } : b))
       );
@@ -82,11 +90,14 @@ export default function UsersList({ onSelectBuddy }: UsersListProps) {
     return <div className="text-red-500">Lütfen giriş yapın.</div>;
   }
 
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
   return (
     <div className="flex flex-col w-full h-full bg-gradient-to-br from-gray-800 to-gray-700 rounded shadow-2xl p-4 text-white">
-      {/* Geri Butonu */}
       <button
-        onClick={() => router.push("/")}
+        onClick={() => router.back()}
         className="flex items-center gap-2 mb-4 hover:opacity-80 transition self-start"
       >
         <img

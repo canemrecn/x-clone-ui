@@ -1,3 +1,8 @@
+//src/components/GeminiChat.tsx
+/*Bu dosya, kullanıcıyla yapay zekâ arasında sohbet etmeyi sağlayan GeminiChat bileşenini tanımlar; kullanıcı mesajlarını alır, yapay zekâya 
+(chatWithGemini) gönderir ve cevapları kullanıcıya gösterir. Mesajlardaki her kelime üzerine gelindiğinde çeviri yapan araç ipuçları (tooltip) 
+sunar. Sohbet penceresi minimize edilebilir ve masaüstü köşesine sabitlenmiş olarak görüntülenebilir. Görsel olarak kullanıcı ve bot mesajları 
+farklı konum ve stillerle gösterilir, animasyonlar ve framer-motion ile geçiş efektleri eklenmiştir.*/
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -14,6 +19,7 @@ const translateWord = async (word: string): Promise<string> => {
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include", // HTTP‑only çerezlerin gönderilmesi için
       body: JSON.stringify({ word, targetLang }),
     });
     const data = await res.json();
@@ -143,11 +149,11 @@ const GeminiChatContent = () => {
         })}
         <div ref={messagesEndRef} />
       </div>
-      <div className="p-2 flex items-center border-t border-gray-300 bg-gradient-to-br from-gray-800 to-gray-800">
+      <div className="p-2 flex items-center">
         <input
           ref={inputRef}
           type="text"
-          className="flex-1 p-2 rounded-lg bg-gradient-to-br from-gray-800 to-gray-800 text-white outline-none border border-gray-300 focus:border-gray-600"
+          className="flex-1 p-2 rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 text-white outline-none border border-gray-300 focus:border-gray-600"
           placeholder="Type your message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -155,7 +161,7 @@ const GeminiChatContent = () => {
         />
         <button
           onClick={handleSendMessage}
-          className="ml-2 px-4 py-2 bg-gradient-to-br from-gray-800 to-gray-800 text-white rounded-lg border border-gray-300 hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-700 transition"
+          className="ml-2 px-4 py-2 bg-gradient-to-br from-gray-800 to-gray-700 text-white rounded-lg border border-gray-300 hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-700 transition"
         >
           Send
         </button>
@@ -174,15 +180,15 @@ const GeminiChat = ({ onClose }: { onClose?: () => void }) => {
   const MinimizedBar = () => (
     <div
       onClick={() => setIsMinimized(false)}
-      className="fixed z-[9999] bottom-0 right-4 w-48 h-12 bg-gradient-to-br from-gray-800 to-gray-800 text-white flex items-center justify-center cursor-pointer rounded-t-lg shadow-lg border border-gray-300 hover:text-gray-300 transition"
+      className="fixed z-[9999] bottom-0 right-4 w-48 h-12 bg-gradient-to-br from-gray-800 to-gray-700 text-white flex items-center justify-center cursor-pointer rounded-t-lg shadow-lg border border-gray-300 hover:text-gray-300 transition"
     >
       <span className="font-bold">Chat AI</span>
     </div>
   );
 
   const FullChatWindow = () => (
-    <div className="fixed z-[9999] bottom-0 right-4 w-96 border border-gray-300 rounded-lg bg-gradient-to-br from-gray-800 to-gray-800 text-white shadow-lg flex flex-col h-[500px]">
-      <div className="flex justify-between items-center bg-gradient-to-br from-gray-800 to-gray-800 text-white p-2 rounded-t-lg w-full">
+    <div className="fixed z-[9999] bottom-0 right-4 w-96 border border-gray-300 rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 text-white shadow-lg flex flex-col h-[500px]">
+      <div className="flex justify-between items-center bg-gradient-to-br from-gray-800 to-gray-700 text-white p-2 rounded-t-lg w-full">
         <span className="font-bold">Chat AI</span>
         <div className="flex gap-2">
           <button onClick={handleMinimize} className="text-white hover:text-gray-300 transition">
@@ -193,7 +199,7 @@ const GeminiChat = ({ onClose }: { onClose?: () => void }) => {
           </button>
         </div>
       </div>
-      <div className="h-full overflow-y-auto bg-gradient-to-br from-gray-800 to-gray-800 p-2 rounded-b-lg">
+      <div className="h-full overflow-y-auto bg-gradient-to-br from-gray-800 to-gray-700 p-2 rounded-b-lg">
         <GeminiChatContent />
       </div>
     </div>

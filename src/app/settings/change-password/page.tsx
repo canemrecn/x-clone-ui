@@ -1,7 +1,12 @@
+//src/app/settings/change-password/page.tsx
+/*Bu dosya, kullanıcıların mevcut şifrelerini ve güvenlik sorusunun cevabını girerek yeni bir şifre belirlemelerini sağlayan bir 
+"Şifre Değiştir" sayfası sunar; JWT ile kimlik doğrulaması yapıldıktan sonra /api/auth/change-password endpoint’ine gerekli bilgiler 
+gönderilir, işlem başarılı olursa kullanıcıya bilgilendirme mesajı gösterilir.*/
 "use client";
 
-import { useState, FormEvent, useCallback, useMemo, useEffect } from "react";
+import { useState, FormEvent, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie"; // Import js-cookie to get the token from HttpOnly cookies
 
 export default function ChangePassword() {
   const [oldPassword, setOldPassword] = useState("");
@@ -14,10 +19,10 @@ export default function ChangePassword() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  // Token'ı cache'leyerek her render'da yeniden okumayı önlüyoruz
-  const token = useMemo(() => localStorage.getItem("token"), []);
+  // Get token from cookies
+  const token = Cookies.get("token");
 
-  // Kullanıcı bilgilerini alarak güvenlik sorusunu set ediyoruz.
+  // Fetch the user's security question using the token
   useEffect(() => {
     if (!token) return;
     async function fetchUser() {
@@ -68,7 +73,7 @@ export default function ChangePassword() {
           setError(data.message || "Şifre değiştirme hatası");
         } else {
           setMessage(data.message);
-          // İsteğe bağlı: başarılı işlem sonrası yönlendirme yapılabilir.
+          // Success message and possible redirect after success
           // router.push("/profile");
         }
       } catch (err: any) {

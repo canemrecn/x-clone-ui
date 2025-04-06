@@ -1,7 +1,12 @@
+//src/app/settings/account-links/page.tsx
+/*Bu dosya, kullanıcının sosyal medya hesaplarını yönetebileceği bir "Hesap Bağlantıları" sayfasını oluşturur; kullanıcı mevcut sosyal 
+hesaplarını listeleyebilir, yeni bir platform ve hesap bağlantısı ekleyebilir, mevcut hesaplarını silebilir; veriler SWR ile 
+/api/social-accounts üzerinden çekilir ve tüm işlemler JWT ile kimlik doğrulaması gerektirir.*/
 "use client";
 
 import useSWR, { mutate } from "swr";
 import { useState, FormEvent, useCallback, useMemo } from "react";
+import Cookies from "js-cookie"; // Import js-cookie to access cookies
 
 interface SocialAccount {
   id: number;
@@ -10,22 +15,23 @@ interface SocialAccount {
   created_at: string;
 }
 
-// SWR fetcher: Token'ı localStorage'dan okuyoruz
+// SWR fetcher: Token'ı HTTP-only cookie üzerinden alıyoruz
 const fetcher = (url: string) => {
-  const token = localStorage.getItem("token");
+  const token = Cookies.get("token"); // Get the token from cookies
   return fetch(url, {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token || ""}`, // Use token in Authorization header
     },
   }).then((res) => {
-    if (!res.ok) throw new Error("Error fetching social accounts");
+    if (!res.ok) {
+      throw new Error("Error fetching social accounts");
+    }
     return res.json();
   });
 };
 
 export default function AccountLinksPage() {
-  // SWR ile sosyal hesapları çekiyoruz.
   const { data, error } = useSWR<{ socialAccounts: SocialAccount[] }>(
     "/api/social-accounts",
     fetcher,
@@ -35,20 +41,19 @@ export default function AccountLinksPage() {
   const [platform, setPlatform] = useState("");
   const [accountLink, setAccountLink] = useState("");
   const [message, setMessage] = useState("");
-
-  const loading = !data && !error;
+  const [loading, setLoading] = useState(false);
 
   const handleAddAccount = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
       setMessage("");
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("token"); // Get the token from cookies
       try {
         const res = await fetch("/api/social-accounts", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token || ""}`, // Use token in Authorization header
           },
           body: JSON.stringify({ platform, accountLink }),
         });
@@ -70,13 +75,13 @@ export default function AccountLinksPage() {
   );
 
   const handleDeleteAccount = useCallback(async (accountId: number) => {
-    const token = localStorage.getItem("token");
+    const token = Cookies.get("token"); // Get the token from cookies
     try {
       const res = await fetch("/api/social-accounts", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token || ""}`, // Use token in Authorization header
         },
         body: JSON.stringify({ id: accountId }),
       });

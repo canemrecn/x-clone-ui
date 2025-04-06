@@ -1,3 +1,5 @@
+//src/app/api/dm_messages/markRead/route.ts
+// src/app/api/dm_messages/markRead/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";

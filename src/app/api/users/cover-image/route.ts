@@ -1,4 +1,8 @@
 // src/app/api/users/cover-image/route.ts
+/*Bu dosya, bir kullanıcının kapak fotoğrafını güncelleyen bir API endpoint’idir. POST isteğiyle çalışır; istek gövdesinden alınan 
+JWT token doğrulanarak kullanıcı ID’si elde edilir, ardından Base64 formatında gelen cover_image verisi ImageKit’e yüklenir ve 
+elde edilen görsel URL’si, ilgili kullanıcının users tablosundaki cover_image alanına kaydedilir. Başarılı işlem sonrası güncellenen 
+görsel URL’si ile birlikte olumlu bir yanıt döner, hata durumlarında ise uygun hata mesajı ve 500 hatası verilir.*/
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
@@ -16,16 +20,31 @@ export async function POST(req: Request) {
     // JWT token doğrulaması yapılarak kullanıcı ID'si elde ediliyor.
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined in environment variables");
-    const decoded = jwt.verify(token, secret) as { id: number };
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, secret);
+    } catch (err: any) {
+      if (err.name === "TokenExpiredError") {
+        return NextResponse.json({ message: "Token expired" }, { status: 401 });
+      }
+      return NextResponse.json({ message: "Invalid token", error: err.message }, { status: 401 });
+    }
+
     const userId = decoded.id;
 
+    // Base64 formatında olup olmadığını kontrol ediyoruz.
+    if (!cover_image.startsWith("data:image")) {
+      return NextResponse.json({ message: "Invalid image format" }, { status: 400 });
+    }
+
     // ImageKit sunucusu üzerinden kapak fotoğrafı yüklemesi yapılıyor.
-    // cover_image, beklenen formatta (ör. Base64 string) sağlanmalıdır.
     const uploadResponse = await serverImageKit.upload({
       file: cover_image,
       fileName: `cover_${userId}_${Date.now()}.jpg`,
       folder: "/users/cover_images",
     });
+
     const imageUrl = uploadResponse.url;
 
     // Kullanıcının cover_image alanı güncelleniyor.

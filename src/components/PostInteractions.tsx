@@ -1,3 +1,15 @@
+//src/components/PostInteractions.tsx
+/*Bu dosya, gönderi (post) ile ilgili etkileşimleri yöneten bir PostInteractions bileşeni tanımlar. Kullanıcılar 
+bir gönderiyi beğenebilir (like), yorum yapabilir (comment) ve doğrudan mesajla (DM) başkalarına gönderebilir. 
+Beğeni sayısı ve yorum sayısı anlık olarak güncellenir, gönder butonuna basıldığında arkadaş listesinden bir 
+kullanıcı seçilerek gönderi paylaşılabilir. Her işlemde token kontrolü yapılır ve görsel ikonlar kullanılarak 
+kullanıcı etkileşimi sağlanır. Ayrıca, modal açılarak kullanıcı seçimiyle gönderme işlemi yapılır.*/
+// src/components/PostInteractions.tsx
+/*Bu dosya, gönderi (post) ile ilgili etkileşimleri yöneten bir PostInteractions bileşeni tanımlar. Kullanıcılar 
+bir gönderiyi beğenebilir (like), yorum yapabilir (comment) ve doğrudan mesajla (DM) başkalarına gönderebilir. 
+Beğeni sayısı ve yorum sayısı anlık olarak güncellenir, gönder butonuna basıldığında arkadaş listesinden bir 
+kullanıcı seçilerek gönderi paylaşılabilir. Her işlemde kimlik doğrulaması yapılır ve görsel ikonlar kullanılarak 
+kullanıcı etkileşimi sağlanır. Ayrıca, modal açılarak kullanıcı seçimiyle gönderme işlemi yapılır.*/
 "use client";
 
 import React, { useState, useCallback } from "react";
@@ -19,12 +31,13 @@ const PostInteractions: React.FC<PostInteractionsProps> = React.memo(
     const [showSendModal, setShowSendModal] = useState(false);
 
     const handleLike = useCallback(async () => {
-      const token = localStorage.getItem("token");
       try {
         const res = await fetch(`/api/posts/${postId}/like`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // HTTP-only cookie gönderimi için gerekli
         });
         if (res.ok) {
           const data = await res.json();
@@ -44,12 +57,15 @@ const PostInteractions: React.FC<PostInteractionsProps> = React.memo(
     const handleComment = useCallback(async () => {
       const text = prompt("Yorumunuzu yazın:") || "";
       if (!text.trim()) return;
-      const token = localStorage.getItem("token");
+
       try {
         const res = await fetch(`/api/posts/${postId}/comment`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, text }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // HTTP-only cookie gönderimi için gerekli
+          body: JSON.stringify({ text }),
         });
         if (res.ok) {
           setCommentCount((prev) => prev + 1);
@@ -59,33 +75,28 @@ const PostInteractions: React.FC<PostInteractionsProps> = React.memo(
       }
     }, [postId]);
 
-    // Update the function to accept a number (buddyId) instead of an object.
     const handleSendPost = useCallback(
       async (buddyId: number) => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
-
         try {
           const res = await fetch("/api/dm_messages/send", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
             },
+            credentials: "include", // HTTP-only cookie gönderimi için gerekli
             body: JSON.stringify({ toUserId: buddyId, postId }),
           });
           if (res.ok) {
             const data = await res.json();
             console.log("DM sent successfully:", data);
-            // Optionally, show a success notification here.
+            alert("Gönderi başarıyla gönderildi!");
           } else {
             console.error("Failed to send DM:", res.status);
+            alert("Gönderi gönderilemedi.");
           }
         } catch (error) {
           console.error("Error sending DM:", error);
+          alert("Gönderi gönderilirken hata oluştu.");
         } finally {
           setShowSendModal(false);
         }
@@ -134,7 +145,7 @@ const PostInteractions: React.FC<PostInteractionsProps> = React.memo(
           </button>
         </div>
 
-        {/* Send Modal */}
+        {/* Gönder Modalı */}
         {showSendModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
             <div className="bg-gradient-to-br from-gray-800 to-gray-800 p-4 rounded shadow-lg w-full max-w-md">

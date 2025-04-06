@@ -1,3 +1,8 @@
+//src/components/Video.tsx
+/*Bu dosya, bir görsel (image) veya video (video) içeriğini kullanıcıya gösteren ve üzerine tıklanınca büyütülmüş 
+modal içinde açılmasını sağlayan Media adında çok amaçlı bir medya bileşeni sunar; medya dosyasının URL'sini 
+doğru biçimde işler, image tipindeyse IKImage bileşeniyle gösterir, video ise HTML video etiketiyle oynatır ve 
+her ikisi de tıklanabilir şekilde modal açılımıyla desteklenir.*/
 "use client";
 
 import React, { useState } from "react";

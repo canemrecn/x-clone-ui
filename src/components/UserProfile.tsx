@@ -1,3 +1,8 @@
+//src/components/UserProfile.tsx
+/*Bu dosya, verilen kullanıcı adını (username) kullanarak ilgili kullanıcının bilgilerini ve gönderilerini 
+/api/users/get-by-username ve /api/posts endpoint’lerinden SWR kütüphanesi ile çeken, ardından bu kullanıcıya 
+ait profili ve gönderi akışını (Feed) görüntüleyen UserProfile bileşenini tanımlar; ayrıca kullanıcı oturum 
+açmışsa gönderi paylaşma bileşeni (Share) da gösterilir.*/
 "use client";
 
 import React from "react";
@@ -12,7 +17,7 @@ interface UserProfileProps {
 }
 
 const fetcher = (url: string) =>
-  fetch(url).then((res) => {
+  fetch(url, { credentials: "include" }).then((res) => {
     if (!res.ok) {
       throw new Error(`Error: ${res.status}`);
     }
@@ -22,14 +27,14 @@ const fetcher = (url: string) =>
 export default function UserProfile({ username, auth }: UserProfileProps) {
   const router = useRouter();
 
-  // Kullanıcı bilgilerini SWR ile çekiyoruz
+  // Fetch user data using SWR
   const { data: userData, error: userError } = useSWR(
     username ? `/api/users/get-by-username?username=${username}` : null,
     fetcher,
     { revalidateOnFocus: false }
   );
 
-  // Kullanıcı bilgileri hazırsa, gönderileri çekiyoruz
+  // Fetch posts after user data is available
   const { data: postsData, error: postsError } = useSWR(
     userData && userData.user && userData.user.id
       ? `/api/posts?user_id=${userData.user.id}`
@@ -54,7 +59,7 @@ export default function UserProfile({ username, auth }: UserProfileProps) {
       <h1 className="text-2xl font-bold text-center my-4 bg-gradient-to-r from-gray-800 to-gray-800 p-4 rounded shadow-md">
         @{profileUser.username}
       </h1>
-      <Share />
+      <Share lang={profileUser.lang || "en"} />
       {postsError ? (
         <p className="text-center">Error loading posts.</p>
       ) : (

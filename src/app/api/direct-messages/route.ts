@@ -1,11 +1,29 @@
+//src/app/api/direct-messages/route.ts
+//Bu dosya, kullanıcılar arası doğrudan mesajlaşmayı yöneten 
+//bir API endpoint’idir (/api/direct-messages) ve iki HTTP 
+//metodunu destekler: GET isteğiyle JWT token üzerinden 
+//kimliği doğrulanan kullanıcının belirli bir kişiyle 
+//(buddyId) olan tüm mesaj geçmişini veritabanından alır 
+//ve kronolojik sırayla döner; POST isteğiyle yine token 
+//ile doğrulanan kullanıcıdan gelen mesaj metni ve alıcı 
+//ID’si alınarak yeni mesaj veritabanına kaydedilir. 
+//Her iki işlemde de JWT doğrulama zorunludur, eksik 
+//veya hatalı bilgilerde uygun yanıtlar, hata durumlarında 
+//ise 500 hata kodu döner.
+// src/app/api/direct-messages/route.ts
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db"; // Örnek DB bağlantısı (mysql2/promise)
 import jwt from "jsonwebtoken";
+import { db } from "@/lib/db";
+import { RowDataPacket } from "mysql2";
+
+/**
+ * GET: İki kullanıcı arasındaki mesaj geçmişini getir
+ * POST: Yeni mesaj gönder
+ */
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    // Parametreleri trim edip temizliyoruz
     const buddyIdRaw = searchParams.get("buddyId");
     const tokenRaw = searchParams.get("token");
 
@@ -15,17 +33,16 @@ export async function GET(request: Request) {
         { status: 400 }
       );
     }
+
     const buddyId = buddyIdRaw.trim();
     const token = tokenRaw.trim();
 
-    // Token'dan user_id çek (örnek)
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
 
     const decoded = jwt.verify(token, secret) as { id: number };
     const currentUserId = decoded.id;
 
-    // İki kullanıcı arasındaki mesajları getir (opsiyonel: buddyId'nin numeric olup olmadığını kontrol edebilirsiniz)
     const [rows] = await db.query(
       `
       SELECT * FROM messages
@@ -51,30 +68,27 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    // Verileri trim ederek temizliyoruz
     const tokenRaw = body.token;
     const buddyIdRaw = body.buddyId;
     const textRaw = body.text;
-    
+
     if (!tokenRaw || !buddyIdRaw || !textRaw) {
       return NextResponse.json(
         { message: "Missing fields" },
         { status: 400 }
       );
     }
+
     const token = tokenRaw.toString().trim();
     const buddyId = buddyIdRaw.toString().trim();
-    // text içeriğinin de trim edilmesi (opsiyonel: minimum uzunluk kontrolü eklenebilir)
     const text = textRaw.toString().trim();
 
-    // Token'dan user_id çek
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
 
     const decoded = jwt.verify(token, secret) as { id: number };
     const currentUserId = decoded.id;
 
-    // Mesajı veritabanına ekle (parametrik sorgu)
     await db.query(
       `INSERT INTO messages (sender_id, receiver_id, text) VALUES (?, ?, ?)`,
       [currentUserId, buddyId, text]

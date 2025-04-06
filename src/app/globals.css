@@ -1,4 +1,9 @@
 /* src/app/globals.css */
+/*Bu dosya, projeye global CSS stillerini tanımlar; Tailwind CSS’in temel, bileşen ve yardımcı 
+sınıflarını içeri aktarır, mesaj kutuları gibi animasyonlu geçişler için özel sınıflar tanımlar 
+(message-appear, message-enter, message-exit vb.), gövdeye siyah arka plan ve açık metin rengi 
+atar, sayfa taşmalarını engeller, yazı tipini belirler ve .fade-in sınıfıyla basit bir görünme 
+animasyonu uygular.*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

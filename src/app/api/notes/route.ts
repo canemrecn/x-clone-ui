@@ -1,32 +1,38 @@
 // src/app/api/notes/route.ts
+//Bu dosya, kullanıcının notlarını yönetmesini sağlayan bir API endpoint’idir (/api/notes) ve iki işlemi 
+//destekler: GET methodu ile JWT token doğrulaması sonrası kullanıcının veritabanındaki notlarını tarihe 
+//göre sıralı şekilde getirir; POST methodu ile yine token doğrulaması yaparak, gelen text verisini kontrol 
+//eder ve temizleyerek notes tablosuna yeni bir not olarak ekler. Yetkisiz erişim, eksik veri veya sunucu 
+//hatalarında uygun hata mesajı ve durum kodları döndürülür.
+// src/app/api/notes/route.ts
+
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { RowDataPacket, OkPacket } from "mysql2/promise";
 
-// Yardımcı: Authorization header'dan token alma fonksiyonu
-function getTokenFromHeader(request: Request): string | null {
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
-  return authHeader.split(" ")[1].trim();
+// Cookie'den token çekme
+async function getTokenFromCookie(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  return token || null;
 }
 
-// GET: Kullanıcının notlarını çek
-export async function GET(request: Request) {
+// GET: Kullanıcının notlarını getir
+export async function GET() {
   try {
-    // Authorization header'dan token alınıyor
-    const token = getTokenFromHeader(request);
+    const token = await getTokenFromCookie();
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // JWT doğrulaması
     const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error("JWT_SECRET not defined in .env");
+    if (!secret) throw new Error("JWT_SECRET not defined");
+
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
-    // Kullanıcının notlarını veritabanından çekiyoruz (parametrik sorgu)
     const [rows] = await db.query<RowDataPacket[]>(
       "SELECT id, text, created_at FROM notes WHERE user_id = ? ORDER BY created_at DESC",
       [userId]
@@ -42,38 +48,46 @@ export async function GET(request: Request) {
   }
 }
 
-// POST: Yeni not ekler
+// POST: Yeni not ekle
 export async function POST(request: Request) {
   try {
-    // Token'ı Authorization header'dan alıyoruz (POST için de tutarlı olması açısından)
-    const token = getTokenFromHeader(request);
+    const token = await getTokenFromCookie();
     if (!token) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // JWT doğrulaması
     const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error("JWT_SECRET not defined in .env");
+    if (!secret) throw new Error("JWT_SECRET not defined");
+
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
-    // İstek gövdesinden not metnini alıyoruz
     const { text } = await request.json();
     if (!text || typeof text !== "string" || !text.trim()) {
       return NextResponse.json({ message: "Missing text" }, { status: 400 });
     }
+
     const trimmedText = text.trim();
 
-    // Notu veritabanına ekliyoruz (parametrik sorgu kullanılarak)
     const [result] = await db.query<OkPacket>(
       "INSERT INTO notes (user_id, text) VALUES (?, ?)",
       [userId, trimmedText]
     );
 
-    return NextResponse.json(
-      { message: "Note created", noteId: result.insertId },
-      { status: 201 }
+    // Yeni notun detaylarını al
+    const [rows] = await db.query<RowDataPacket[]>(
+      "SELECT id, text, created_at FROM notes WHERE id = ?",
+      [result.insertId]
     );
+    if (!rows || rows.length === 0) {
+      return NextResponse.json(
+        { message: "Note created, but note retrieval failed" },
+        { status: 500 }
+      );
+    }
+    const newNote = rows[0];
+
+    return NextResponse.json({ message: "Note created", note: newNote }, { status: 201 });
   } catch (error: any) {
     console.error("Notes POST error:", error);
     return NextResponse.json(

@@ -1,4 +1,11 @@
 // src/app/api/posts/delete/route.ts
+/*Bu dosya, kullanıcıların yalnızca kendilerine ait gönderileri silebileceği güvenli bir 
+DELETE /api/posts/delete?postId=... endpoint’idir. JWT token ile kimlik doğrulaması 
+yapıldıktan sonra, postId parametresi alınır ve veritabanındaki gönderinin sahibi olup 
+olmadığı kontrol edilir. Eğer doğrulama başarılıysa, ilgili gönderi veritabanından 
+silinir; aksi halde yetkisiz işlem uyarısı verilir.*/
+// src/app/api/posts/delete/route.ts
+// src/app/api/posts/delete/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";

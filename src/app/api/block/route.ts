@@ -1,4 +1,15 @@
 // src/app/api/block/route.ts
+//Bu dosya, kullanıcılar arası engelleme işlemlerini yöneten bir 
+//API endpoint’idir (/api/block) ve üç HTTP metodunu destekler: 
+//GET isteğiyle JWT doğrulaması yapılan kullanıcının engellediği 
+//kullanıcılar listelenir, POST isteğiyle belirtilen blockedUserId 
+//veritabanındaki blocks tablosuna eklenerek kullanıcı engellenir, 
+//DELETE isteğiyle ise mevcut engel kaldırılır. Tüm işlemler için 
+//JWT ile kimlik doğrulaması zorunludur ve her işlemde uygun 
+//hata kontrolü, status kodları ve açıklayıcı yanıtlar sağlanır.
+// src/app/api/block/route.ts
+// Kullanıcılar arası engelleme işlemleri için HttpOnly cookie uyumlu endpoint
+// src/app/api/block/route.ts
 // src/app/api/block/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
@@ -17,6 +28,7 @@ export async function GET(request: NextRequest) {
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
+
     // Token değerini trim edip temizliyoruz
     const token = authHeader.split(" ")[1].trim();
     const secret = process.env.JWT_SECRET;
@@ -51,6 +63,7 @@ export async function POST(request: NextRequest) {
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
+
     const token = authHeader.split(" ")[1].trim();
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
@@ -90,6 +103,7 @@ export async function DELETE(request: NextRequest) {
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
+
     const token = authHeader.split(" ")[1].trim();
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");

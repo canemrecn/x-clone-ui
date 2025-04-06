@@ -1,4 +1,10 @@
 // src/app/api/social-accounts/route.ts
+/*Bu dosya, kullanıcıların sosyal medya hesaplarını yönetmesini sağlayan bir API endpoint’idir. JWT ile kimlik 
+doğrulaması yaparak; GET metoduyla kullanıcının eklemiş olduğu sosyal hesapları listeleyen, POST metoduyla yeni 
+bir sosyal medya hesabı (platform adı ve bağlantı) ekleyen, DELETE metoduyla ise yalnızca kendisine ait olan 
+sosyal hesap kaydını silen işlemleri güvenli bir şekilde gerçekleştirir.*/
+// src/app/api/social-accounts/route.ts
+// src/app/api/social-accounts/route.ts
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";

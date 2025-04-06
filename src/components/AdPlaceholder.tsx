@@ -1,3 +1,10 @@
+// src/components/AdPlaceholder.tsx
+/* Bu dosya, dinamik genişlik (width) ve yükseklik (height) değerleri alabilen,
+   görsel ve metin içeren bir reklam bileşeni olan AdPlaceholder bileşenini tanımlar.
+   İçeriğinde bir logo ve "Reklam Alanı: Yeni Özellikleri Keşfedin!" metni bulunur ve
+   bu metne tıklanıldığında kullanıcı /advertise sayfasına yönlendirilir.
+   Bu bileşen, farklı alanlarda kolayca kullanılabilecek şekilde esnek ve şık bir reklam kutusu sunar.
+*/
 "use client";
 
 import React from "react";
@@ -5,12 +12,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 /**
- * AdPlaceholder: Reklam bileşeni örneği.
- * - width ve height prop'larını alarak boyutunu dinamik ayarlayabiliriz.
+ * AdPlaceholder: Advertisement component example.
+ * - Allows dynamic width and height through props.
  */
 interface AdPlaceholderProps {
-  width?: number | string;  // Ör: 200, "300px", "50%"
-  height?: number | string; // Ör: 200, "300px", "50%"
+  width?: number | string;  // Example: 200, "300px", "50%"
+  height?: number | string; // Example: 200, "300px", "50%"
 }
 
 export default function AdPlaceholder({

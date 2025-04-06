@@ -1,3 +1,12 @@
+// src/components/LanguageHome.tsx
+/* 
+Bu dosya, lang parametresine göre filtrelenmiş gönderileri listeleyen ve 
+kullanıcıların o dile özel gönderi paylaşmasını sağlayan LanguageHome bileşenini tanımlar.
+Üstte dil başlığını gösterir, ardından Share bileşeniyle gönderi paylaşım alanı sunar ve 
+Feed bileşeniyle ilgili dildeki gönderileri kullanıcıya gösterir.
+HTTP‑only çerezlerin gönderilmesi için Share ve Feed bileşenleri içerisindeki fetch çağrılarında 
+{ credentials: "include" } kullanılmıştır.
+*/
 "use client";
 
 import React from "react";

@@ -1,3 +1,7 @@
+// src/utils/points.ts
+/*Bu dosya, updateUserPoints fonksiyonu aracılığıyla bir kullanıcının mevcut puanını veritabanından alır, 
+belirtilen puanı ekleyerek güncellenmiş puanı hesaplar ve ardından bu yeni puanı veritabanına kaydeder; 
+işlem sırasında yalnızca points sütunu güncellenir, kullanıcı seviyesi (level) bu sürümde dikkate alınmaz.*/
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
 

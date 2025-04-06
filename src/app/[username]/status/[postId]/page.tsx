@@ -1,9 +1,15 @@
+//src/app/[username]/status/[postId]/page.tsx
+//Bu dosya, belirli bir kullanıcının belirli bir gönderisini (/username/status/postId yoluyla) 
+//görüntülemek için kullanılan bir React bileşenidir. URL'deki username ve postId parametrelerini alır, useSWR ile postId'ye 
+//ait gönderi verisini /api/posts?post_id= üzerinden çeker, yüklenme ve hata durumlarını yönetir, eğer gönderi bulunursa Post 
+//bileşeniyle gösterir; aksi takdirde uygun mesajları sunar. Ayrıca, üst kısımda geri dönüş (back) butonu ve gönderi başlığı yer 
+//alır, sayfa şık bir arka plan ve kutu stiliyle düzenlenmiştir.
+// src/app/[username]/status/[postId]/page.tsx
+// src/app/[username]/status/[postId]/page.tsx
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
 import Post from "@/components/Post";
-import Comments from "@/components/Comments";
-import Image1 from "@/components/image";
 import Link from "next/link";
 import useSWR from "swr";
 import { PostData } from "@/components/Post";
@@ -21,6 +27,9 @@ const fetcher = (url: string) => {
         throw new Error(`Network response was not ok (status: ${res.status})`);
       }
       return res.json();
+    })
+    .catch((error) => {
+      throw new Error(`Failed to fetch: ${error.message}`);
     });
 };
 

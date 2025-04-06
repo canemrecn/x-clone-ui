@@ -1,6 +1,13 @@
+//src/pages/api/writeWord.ts
+/*Bu dosya, bir kullanıcının yazılı gönderisini (content) veritabanına kaydeden ve içerikteki kelime sayısına göre 
+puan kazandıran bir API endpoint’tir. Sadece POST isteği kabul eder; gelen içerik ve kullanıcı ID’si geçerliyse 
+gönderiyi posts tablosuna ekler, ardından her kelime için 2 puan ve her gönderi için 3 ek puan olmak üzere toplam 
+puanı hesaplayarak updateUserPoints fonksiyonu ile kullanıcının puanını günceller. Başarılı işlem sonrası puan 
+bilgisiyle birlikte yanıt döner, hata durumlarında uygun hata mesajı verir.*/
 import type { NextApiRequest, NextApiResponse } from "next";
 import { db } from "@/lib/db";
 import { updateUserPoints } from "@/utils/points";
+import { getAuthUser } from "@/utils/getAuthUser";
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,41 +18,39 @@ export default async function handler(
   }
 
   try {
-    const { content, userId } = req.body;
+    // Get the authenticated user using the HttpOnly cookie
+    const user = await getAuthUser(req);
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized. Please log in." });
+    }
+
+    const { content } = req.body;
 
     if (!content || typeof content !== "string") {
-      return res
-        .status(400)
-        .json({ error: "Geçerli bir içerik giriniz." });
+      return res.status(400).json({ error: "A valid content is required." });
     }
 
-    if (!userId || typeof userId !== "number") {
-      return res
-        .status(400)
-        .json({ error: "Geçerli bir kullanıcı ID'si gereklidir." });
-    }
+    // Calculate word count
+    const wordCount = content.split(" ").filter(Boolean).length;
 
-    // Gönderideki kelime sayısını hesapla
-    const wordCount = content.split(" ").length;
-
-    // Gönderiyi veritabanına kaydet
+    // Insert post into the database
     const [result] = await db.query(
       "INSERT INTO posts (user_id, content) VALUES (?, ?)",
-      [userId, content]
+      [user.id, content]
     );
 
-    console.log("📌 Gönderi kaydedildi:", result);
+    console.log("📌 Post saved:", result);
 
-    // Kelime başına 2 puan + gönderi başına 3 puan ekle
+    // Calculate total points: 2 points per word + 3 points for the post
     const totalPoints = wordCount * 2 + 3;
-    await updateUserPoints(userId, totalPoints);
+    await updateUserPoints(user.id, totalPoints);
 
     return res.status(200).json({
-      message: "Gönderi başarıyla kaydedildi.",
+      message: "Post successfully saved.",
       pointsAdded: totalPoints,
     });
-  } catch (error) {
-    console.error("Hata:", error);
-    return res.status(500).json({ error: "Sunucu hatası oluştu." });
+  } catch (error: any) {
+    console.error("Server error:", error);
+    return res.status(500).json({ error: "Server error occurred." });
   }
 }

@@ -1,4 +1,7 @@
 // src/app/auth/verify/page.tsx
+/*Bu dosya, kullanıcıların e-posta adreslerini doğrulamasını sağlayan bir Next.js istemci bileşenidir. Kullanıcı, doğrulama kodunu ve e-postasını 
+girerek formu gönderdiğinde, /api/auth/verification API’sine POST isteği yapılır. Eğer doğrulama başarılı olursa kullanıcıya onay mesajı gösterilir 
+ve /login sayfasına yönlendirilir; başarısız olursa hata mesajı gösterilir. Arayüz, koyu tonlarda şık bir doğrulama formu olarak tasarlanmıştır.*/
 "use client";
 
 import React, { useState } from "react";

@@ -1,5 +1,12 @@
-// File: src/app/api/auth/sendVerification/route.ts
-// File: src/app/api/auth/sendVerification/route.ts
+//src/app/api/auth/sendVerification/route.ts
+//Bu dosya, belirli bir e-posta adresine ve verilen doğrulama koduna sahip 
+//kullanıcıya doğrulama e-postası gönderen bir API endpoint’idir 
+//(/api/auth/sendVerification); gelen istekten e-posta ve doğrulama kodunu 
+//alır, geçerlilik kontrollerini yaptıktan sonra Gmail SMTP ayarlarıyla 
+//Nodemailer üzerinden doğrulama kodunu içeren bir e-posta gönderir. Ortam 
+//değişkenleri eksikse veya hata oluşursa uygun hata mesajı döner, başarı 
+//durumunda "Verification email sent" yanıtı verir.
+// src/app/api/auth/sendVerification/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
@@ -21,6 +28,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
     // Email formatı kontrolü
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -56,8 +64,7 @@ export async function POST(req: NextRequest) {
       from: gmailUser,
       to: email,
       subject: "Hesap Doğrulama Kodu",
-      text: `
-Merhaba,
+      text: `Merhaba,
 
 Hesabınızı doğrulamak için lütfen aşağıdaki doğrulama kodunu kullanın:
 

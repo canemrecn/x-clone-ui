@@ -1,3 +1,10 @@
+//src/components/LanguageFeed.tsx
+/*Bu dosya, belirli bir dil (lang) parametresine göre filtrelenmiş gönderileri /api/posts?lang=... endpoint'inden çeken ve 
+kullanıcıya bu gönderileri listeleyen LanguageFeed bileşenini tanımlar; her beş gönderiden sonra bir reklam bileşeni 
+(AdPlaceholder) eklenir, hata veya yüklenme durumları için kullanıcıya bilgi verilir ve ayrıca yeni gönderi paylaşımı 
+için Share bileşeni de içerir.*/
+// src/components/LanguageFeed.tsx
+// src/components/LanguageFeed.tsx
 "use client";
 
 import useSWR from "swr";
@@ -5,7 +12,7 @@ import Share from "./Share";
 import Post from "./Post";
 import { useMemo, useEffect, useState } from "react";
 
-// Örnek reklam bileşeni. Kendi tasarımınızı veya bileşeninizi kullanabilirsiniz.
+// AdPlaceholder component (for ads every 5th post)
 function AdPlaceholder() {
   return (
     <div className="bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 rounded shadow my-4">
@@ -18,34 +25,35 @@ interface LanguageFeedProps {
   lang: string;
 }
 
-const fetcher = (url: string) => {
-  const token = localStorage.getItem("token");
-  return fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token || ""}`,
-    },
-  }).then((res) => {
-    if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
-    return res.json();
-  });
-};
+// Define fetcher function to fetch posts, ensuring token is sent via cookies (credentials: 'include')
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Failed to fetch: ${res.status}`);
+      }
+      return res.json();
+    })
+    .catch((error) => {
+      console.error("Error fetching posts:", error);
+      throw error;
+    });
 
 export default function LanguageFeed({ lang }: LanguageFeedProps) {
   const { data, error } = useSWR<{ posts: any[] }>(
-    `/api/posts?lang=${lang}`,
-    fetcher,
+    `/api/posts?lang=${lang}`, 
+    fetcher, 
     { revalidateOnFocus: false }
   );
 
-  // Gönderiler
+  // If posts are available, handle them with pagination and ads
   const posts = data?.posts || [];
 
-  // "her 5 gönderide bir reklam" mantığı => finalPosts dizisi
+  // Add ad after every 5 posts
   const finalPosts = useMemo(() => {
-    const arr: Array<any> = [];
+    const arr: any[] = [];
     for (let i = 0; i < posts.length; i++) {
       arr.push(posts[i]);
-      // 5'in katına gelince reklam ekle
       if ((i + 1) % 5 === 0) {
         arr.push({ isAd: true, id: `ad-${i}` });
       }
@@ -53,20 +61,16 @@ export default function LanguageFeed({ lang }: LanguageFeedProps) {
     return arr;
   }, [posts]);
 
-  // finalPosts'i render
+  // Render posts and ads
   const renderedItems = useMemo(
     () =>
-      finalPosts.map((item) => {
-        if (item.isAd) {
-          // Reklam bileşeni
-          return <AdPlaceholder key={item.id} />;
-        }
-        // Normal gönderi
-        return <Post key={item.id} postData={item} />;
-      }),
+      finalPosts.map((item) =>
+        item.isAd ? <AdPlaceholder key={item.id} /> : <Post key={item.id} postData={item} />
+      ),
     [finalPosts]
   );
 
+  // Handle loading and error states
   return (
     <div className="p-4 bg-gradient-to-br from-gray-800 to-gray-700 text-white">
       <h1 className="mb-4 text-center">

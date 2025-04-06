@@ -1,4 +1,10 @@
 // src/app/api/dm_messages/unreadCount/route.ts
+//Bu dosya, kullanıcıya gelen okunmamış özel mesajların sayısını döndüren bir API endpoint’idir 
+//(/api/dm_messages/unreadCount, GET methodu); JWT token üzerinden kullanıcının kimliğini doğrular, 
+//ardından veritabanında receiverId eşleşen ve isRead değeri 0 veya NULL olan mesajları sayarak 
+//toplam okunmamış mesaj sayısını unreadCount olarak JSON formatında döner. Yetkisiz erişim veya 
+//sistem hatalarında uygun hata mesajı ve durum kodu ile yanıt verir.
+// src/app/api/dm_messages/unreadCount/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";

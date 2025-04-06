@@ -1,12 +1,13 @@
+// src/components/YoutubeEmbed.tsx
+/*Bu dosya, verilen bir YouTube URL'sinden video ID’sini ayıklayarak ilgili videoyu iframe aracılığıyla sayfada 
+gömülü (embed) şekilde oynatmaya yarayan YouTubeEmbed adlı React bileşenini tanımlar; eğer geçerli bir YouTube 
+bağlantısı değilse hata mesajı gösterir, aksi takdirde responsive (duyarlı) bir şekilde videoyu render eder.*/
 "use client";
 
 import React from "react";
 
-/**
- * URL içinden video ID'sini ayıklamak için basit bir yardımcı fonksiyon
- */
+// URL içinden video ID'sini ayıklamak için basit bir yardımcı fonksiyon
 function extractYouTubeVideoId(url: string): string | null {
-  // YouTube linklerini yakalamak için basit bir regex
   const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]+)/;
   const match = url.match(regex);
   return match ? match[1] : null;
@@ -17,14 +18,16 @@ interface YouTubeEmbedProps {
 }
 
 export default function YouTubeEmbed({ url }: YouTubeEmbedProps) {
+  if (!url || typeof url !== "string") {
+    return <p className="text-red-500">Geçersiz YouTube URL'si.</p>; // URL geçerli değilse, hata mesajı göster
+  }
+
   const videoId = extractYouTubeVideoId(url);
 
   if (!videoId) {
-    // Geçerli bir video ID bulunamazsa bir mesaj göster
     return <p className="text-red-500">Geçerli bir YouTube linki bulunamadı.</p>;
   }
 
-  // Embed linkini oluşturuyoruz (backtick gerekli!)
   const embedUrl = `https://www.youtube.com/embed/${videoId}`;
 
   return (

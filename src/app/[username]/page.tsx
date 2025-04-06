@@ -1,18 +1,21 @@
 //src/app/[username]/page.tsx
+//Bu dosya, bir kullanıcının profil sayfasını oluşturan React bileşenidir; URL'deki username parametresine göre ilgili kullanıcı bilgilerini, 
+//gönderilerini ve sosyal medya hesaplarını useSWR ile API'den çeker, profil ve kapak fotoğraflarının yanı sıra profil bilgilerini düzenleme, 
+//dil seçimi yapma, takip etme/bırakma ve engelleme işlemlerine izin verir. Ayrıca kullanıcıya ait her 5 gönderiden sonra bir reklam kutusu ekler 
+//ve eğer username bir dil koduysa, dil anasayfasını gösterir. Görsel ve fonksiyonel olarak zenginleştirilmiş, kişisel profil görüntüleme ve etkileşim sayfasıdır.
 //src/app/[username]/page.tsx
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import Image1 from "@/components/image";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { useState, useEffect, useRef, ChangeEvent } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import useSWR from "swr";
 import Post from "@/components/Post";
 import LanguageHome from "@/components/LanguageHome";
-import useSWR from "swr";
 
-// Basit reklam bileşeni örneği
+// Reklam bileşeni
 function AdPlaceholder() {
   return (
     <div className="bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 rounded shadow-md my-4">
@@ -21,12 +24,15 @@ function AdPlaceholder() {
   );
 }
 
-// Geliştirilmiş fetcher: AbortController, zaman aşımı ve hata kontrolü eklendi.
 const fetcher = (url: string, options?: RequestInit) => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 saniyelik zaman aşımı
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-  return fetch(url, { ...options, signal: controller.signal })
+  return fetch(url, {
+    ...options,
+    signal: controller.signal,
+    credentials: "include", // HTTP-only cookie için
+  })
     .then((res) => {
       clearTimeout(timeoutId);
       if (!res.ok) {
@@ -40,13 +46,11 @@ export default function UserPage() {
   const auth = useAuth();
   const { username } = useParams() as { username: string };
 
-  // DİL KODLARI KONTROLÜ
   const languageCodes = ["en", "de", "it", "es", "ru"];
   if (languageCodes.includes(username)) {
     return <LanguageHome lang={username} />;
   }
 
-  // PROFİL VERİSİNİN GETİRİLMESİ
   const { data: userData, mutate: refetchProfile } = useSWR(
     username !== "profile"
       ? `/api/users/get-by-username?username=${username}`
@@ -56,7 +60,6 @@ export default function UserPage() {
   );
   const profileUser = username === "profile" ? auth?.user : userData?.user;
 
-  // KULLANICI GÖNDERİLERİ
   const { data: postsData } = useSWR(
     profileUser?.id ? `/api/posts?user_id=${profileUser.id}` : null,
     fetcher,
@@ -64,29 +67,13 @@ export default function UserPage() {
   );
   const userPosts = postsData?.posts || [];
 
-  // SOSYAL HESAPLAR
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const { data: socialData } = useSWR(
-    profileUser?.id ? [`/api/social-accounts?userId=${profileUser.id}`, token] : null,
-    (url: string, token: string | null) =>
-      fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-      }).then((res) => {
-        if (!res.ok) {
-          throw new Error(`Network response was not ok (status: ${res.status})`);
-        }
-        return res.json();
-      }),
+    profileUser?.id ? `/api/social-accounts?userId=${profileUser.id}` : null,
+    fetcher,
     { revalidateOnFocus: false }
   );
   const socialAccounts = socialData?.socialAccounts || [];
 
-  // TAKİP DURUMU
   const { data: followingData, mutate: mutateFollowing } = useSWR(
     profileUser?.id && auth?.user
       ? `/api/follows/status?user_id=${auth.user.id}&following_id=${profileUser.id}`
@@ -96,7 +83,6 @@ export default function UserPage() {
   );
   const isFollowing = followingData?.isFollowing || false;
 
-  // DİL SEÇİMİ
   const [targetLanguage, setTargetLanguage] = useState("tr");
   useEffect(() => {
     const savedLang = localStorage.getItem("targetLanguage");
@@ -110,29 +96,30 @@ export default function UserPage() {
     localStorage.setItem("targetLanguage", newLang);
   };
 
-  // Dosya input referansları
   const profileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
-  // TAKİP / TAKİBİ BIRAK
   const handleFollow = async () => {
     if (!auth?.user || !profileUser) return;
     const action = isFollowing ? "unfollow" : "follow";
-    const token = localStorage.getItem("token");
     try {
       const res = await fetch("/api/follows", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include", // Cookie'ler otomatik eklenir
         body: JSON.stringify({ following_id: profileUser.id, action }),
       });
       if (res.ok) {
         mutateFollowing();
         refetchProfile();
       } else {
-        console.error("Follow/unfollow işlemi başarısız");
+        const errorData = await res.json();
+        console.error(
+          "Follow/unfollow işlemi başarısız:",
+          errorData.message || "Bilinmeyen hata"
+        );
       }
     } catch (error) {
       console.error("Follow/unfollow hatası:", error);
@@ -142,17 +129,16 @@ export default function UserPage() {
   // PROFİL FOTOĞRAFI GÜNCELLEME
   const handleProfilePhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    // (İyileştirme: Dosya tipi ve boyutu kontrol edilebilir.)
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = async () => {
       const imageUrl = reader.result as string;
-      const token = localStorage.getItem("token");
       try {
         const res = await fetch("/api/users/profile-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, profile_image: imageUrl }),
+          credentials: "include",
+          body: JSON.stringify({ profile_image: imageUrl }),
         });
         if (res.ok) {
           refetchProfile();
@@ -167,17 +153,16 @@ export default function UserPage() {
   // KAPAK FOTOĞRAFI GÜNCELLEME
   const handleCoverPhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
-    // (İyileştirme: Dosya tipi ve boyutu kontrol edilebilir.)
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = async () => {
       const imageUrl = reader.result as string;
-      const token = localStorage.getItem("token");
       try {
         const res = await fetch("/api/users/cover-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, cover_image: imageUrl }),
+          credentials: "include",
+          body: JSON.stringify({ cover_image: imageUrl }),
         });
         if (res.ok) {
           refetchProfile();
@@ -196,12 +181,12 @@ export default function UserPage() {
       profileUser?.profile_info || ""
     );
     if (newInfo === null) return;
-    const token = localStorage.getItem("token");
     try {
       const res = await fetch("/api/users/profile-info", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, profile_info: newInfo }),
+        credentials: "include",
+        body: JSON.stringify({ profile_info: newInfo }),
       });
       if (res.ok) {
         refetchProfile();
@@ -217,16 +202,13 @@ export default function UserPage() {
   // Engelle butonu
   async function handleBlock() {
     if (!auth?.user || !profileUser) return;
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
     try {
       const res = await fetch("/api/block", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify({ blockedUserId: profileUser.id }),
       });
       if (res.ok) {
@@ -247,19 +229,7 @@ export default function UserPage() {
     );
   }
 
-  // ---------------------------------------
-  // HER 5 GÖNDERİDE BİR REKLAM EKLEME
-  // ---------------------------------------
-  // Basit reklam bileşeni (inline)
-  function AdPlaceholder() {
-    return (
-      <div className="bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 rounded shadow-md my-4">
-        <p className="font-bold text-center">[ Reklam Alanı ]</p>
-      </div>
-    );
-  }
-
-  // userPosts dizisine her 5 gönderide bir isAd item ekliyoruz
+  // HER 5 gönderide bir reklam ekleme
   const finalPosts = [];
   for (let i = 0; i < userPosts.length; i++) {
     finalPosts.push(userPosts[i]);
@@ -267,7 +237,6 @@ export default function UserPage() {
       finalPosts.push({ isAd: true, id: `ad-${i}` });
     }
   }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white">
       {/* Üst Bar */}
@@ -299,7 +268,6 @@ export default function UserPage() {
 
       {/* Kapak + Profil Fotoğrafı */}
       <div className="relative w-full">
-        {/* Kapak Fotoğrafı */}
         <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-gray-800 to-gray-700 shadow-lg relative">
           <div className="absolute inset-0 bg-black opacity-20"></div>
           <input
@@ -311,7 +279,6 @@ export default function UserPage() {
           />
         </div>
 
-        {/* Profil Fotoğrafı ve Aksiyonlar */}
         <div className="absolute bottom-0 w-full flex flex-col sm:flex-row items-center justify-between px-4 sm:px-7 translate-y-1/2">
           <div className="relative">
             <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-black bg-gradient-to-br from-gray-800 to-gray-700 shadow-2xl">
@@ -372,15 +339,13 @@ export default function UserPage() {
             href={`/profile/${profileUser.username}/followers`}
             className="hover:underline hover:text-cyan-400 text-white"
           >
-            <span className="font-bold">{profileUser.follower_count || 0}</span>{" "}
-            Followers
+            <span className="font-bold">{profileUser.follower_count || 0}</span> Followers
           </Link>
           <Link
             href={`/profile/${profileUser.username}/following`}
             className="hover:underline hover:text-cyan-400 text-white"
           >
-            <span className="font-bold">{profileUser.following_count || 0}</span>{" "}
-            Following
+            <span className="font-bold">{profileUser.following_count || 0}</span> Following
           </Link>
         </div>
 
@@ -408,12 +373,10 @@ export default function UserPage() {
           </div>
         )}
 
-        {/* DİL SEÇİMİ */}
+        {/* Dil Seçimi */}
         {isMyProfile && (
           <div className="mt-4 flex flex-col gap-2">
-            <label htmlFor="targetLang" className="font-semibold">
-              Çeviri Dili
-            </label>
+            <label htmlFor="targetLang" className="font-semibold">Çeviri Dili</label>
             <select
               id="targetLang"
               value={targetLanguage}
@@ -437,15 +400,14 @@ export default function UserPage() {
         {postsData === undefined ? (
           <p>Gönderiler yükleniyor...</p>
         ) : userPosts.length > 0 ? (
-          // finalPosts dizisi => her 5 gönderide bir reklam
           <>
-            {finalPosts.map((item: any, index: number) => {
-              if (item.isAd) {
-                return <AdPlaceholder key={item.id} />;
-              } else {
-                return <Post key={item.id} postData={item} />;
-              }
-            })}
+            {finalPosts.map((item: any, index: number) =>
+              item.isAd ? (
+                <AdPlaceholder key={item.id} />
+              ) : (
+                <Post key={item.id} postData={item} />
+              )
+            )}
           </>
         ) : (
           <p>Henüz gönderi paylaşılmamış.</p>

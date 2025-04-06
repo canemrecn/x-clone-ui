@@ -1,3 +1,7 @@
+//src/app/page.tsx
+/*Bu dosya, uygulamanın ana sayfasını (Homepage) tanımlar; kullanıcı giriş yapmamışsa /register sayfasına yönlendirir, giriş yapılmışsa dil 
+seçici, arama bileşeni (Search), kare ele geçirme oyunu (Square_Conquest_Game), izlenecek film önerisi kartı (WhatToWatchCard) ve içerik 
+akışı (Feed) gibi bileşenleri sırasıyla gösterir ve bu yapıyı mobil ve masaüstü cihazlara duyarlı bir şekilde düzenler.*/
 "use client";
 
 import { useEffect, useMemo } from "react";
@@ -16,31 +20,24 @@ export default function Homepage() {
 
   useEffect(() => {
     if (!auth?.user) {
-      router.push("/register");
+      // Eğer kullanıcı yoksa login sayfasına yönlendir
+      router.push("/login");
     }
   }, [auth?.user, router]);
 
   if (!auth?.user) {
-    return null;
+    return <div className="text-center text-lg font-bold">Yükleniyor...</div>;
   }
 
-  // Dil seçici verileri
   const languages = [
     { code: "tr", image: "/icons/turkey.png" },
     { code: "en", image: "/icons/united-kingdom.png" },
   ];
 
-  // İçerik: Square_Conquest_Game, WhatToWatchCard ve Feed bileşenleri
   const content = useMemo(
     () => (
       <div className="bg-gradient-to-br from-gray-800 to-gray-700 p-4 rounded-lg shadow-md">
-        {/* 
-          Mobilde (md:altında) dil seçici üstte,
-          arama bileşeni altta görünecek.
-          Masaüstünde (md:üstünde) ise yan yana.
-        */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 gap-4">
-          {/* Dil Seçici */}
           <ul className="flex gap-6">
             {languages.map((lang) => (
               <li key={lang.code}>
@@ -53,7 +50,6 @@ export default function Homepage() {
             ))}
           </ul>
 
-          {/* Arama Bileşeni */}
           <div className="w-full md:w-auto">
             <Search />
           </div>

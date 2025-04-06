@@ -1,3 +1,9 @@
+//src/app/arrangement/page.tsx
+/*Bu dosya, kullanıcıların genel sıralamasını (puan bazlı) gösteren bir Next.js istemci bileşenidir. Sayfa yüklendiğinde /api/arrangement?all=1 
+API'sine istek atarak tüm kullanıcıların sıralamasını çeker. Gelen verilerden her kullanıcı, sıralama numarası, profil fotoğrafı, adı, 
+kullanıcı adı ve puanı ile birlikte liste halinde gösterilir. Liste öğelerine tıklanabilir bağlantılar eklenerek her kullanıcı profil 
+sayfasına yönlendirme yapılır. Yüklenme sürecinde “Loading ranking...”, hata durumunda hata mesajı gösterilir. Arayüzde koyu renkli, 
+responsive ve görsel olarak zengin bir tasarım kullanılmıştır.*/
 "use client";
 
 import { useEffect, useState } from "react";

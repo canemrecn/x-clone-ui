@@ -1,4 +1,11 @@
 // src/app/api/posts/like.ts
+/*Bu dosya, bir gönderiyi beğenme işlemini gerçekleştiren POST /api/posts/like endpoint’ini tanımlar. 
+Kullanıcıdan gelen token ve post_id bilgileri doğrulanarak JWT ile kimlik doğrulaması yapılır. 
+Ardından, kullanıcı aynı gönderiyi tekrar beğenemesin diye INSERT IGNORE kullanılarak likes tablosuna 
+kayıt eklenir. İşlem başarılı olursa "Post liked" mesajı ile 201 durumu döner, hata oluşursa 500 durum 
+kodu ile hata mesajı gönderilir.*/
+// src/pages/api/posts/like.ts
+// src/app/api/posts/like.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";

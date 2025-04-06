@@ -1,3 +1,7 @@
+//src/components/NewChat.tsx
+/*Bu dosya, kullanıcı ile Gemini yapay zekası arasında sohbet etmeyi sağlayan bir sohbet arayüzü (NewChatGemini bileşeni) oluşturur; kullanıcıdan 
+metin girişi alır, gönderilen mesajları ve bot yanıtlarını animasyonlu olarak ekranda gösterir, her kelime üzerine gelindiğinde anlık çeviri 
+balonu sunar, mesajları kullanıcı ve bot avatarlarıyla birlikte sıralar, mobil uyumludur ve mesajları otomatik kaydırarak güncel tutar.*/
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
@@ -20,12 +24,13 @@ interface MessageItemProps {
 
 // Çeviri fonksiyonu: /api/translate endpoint’ine POST isteği gönderir.
 const translateWord = async (word: string): Promise<string> => {
-  const targetLang = localStorage.getItem("targetLanguage") || "tr";
+  const targetLang = "tr"; // Replace with dynamic way to get the target language, e.g., context or API
   try {
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ word, targetLang }),
+      credentials: "include", // Ensure cookies are sent for authentication
     });
     const data = await res.json();
     return data.translation || `(${targetLang}) Çeviri mevcut değil`;
@@ -80,7 +85,7 @@ const TranslatableText: React.FC<{ text: string }> = ({ text }) => {
       )}
     </>
   );
-};
+}; // Buradaki fazladan parantez kapama kaldırıldı
 
 function MessageItem({ msg, userAvatar, botAvatar }: MessageItemProps) {
   const avatar = msg.sender === "user" ? userAvatar : botAvatar;
@@ -129,7 +134,7 @@ export default function NewChatGemini() {
     if (!inputValue.trim()) return;
     const userMsg: Message = { text: inputValue.trim(), sender: "user" };
     setMessages((prev) => [...prev, userMsg]);
-
+  
     try {
       const botReply = await chatWithGemini(inputValue.trim());
       const botMsg: Message = { text: botReply, sender: "bot" };
@@ -141,7 +146,7 @@ export default function NewChatGemini() {
       ]);
     }
     setInputValue("");
-  }, [inputValue]);
+  }, [inputValue]); // Burada parantez doğru şekilde kapanmalı
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {

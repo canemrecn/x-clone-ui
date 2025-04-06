@@ -1,8 +1,17 @@
 // src/app/api/posts/[postId]/comment/[commentId]/like/route.ts
+//Bu dosya, belirli bir gönderiye ait belirli bir yorumun beğeni (like) sayısını artırmak için kullanılan bir API 
+//endpoint'idir (/api/posts/[postId]/comment/[commentId]/like). JWT ile doğrulanan kullanıcıdan alınan token 
+//sayesinde kullanıcı kimliği doğrulanır, ardından commentId ile ilişkili yorumun likes sütunu 1 artırılır ve 
+//güncellenmiş beğeni sayısı döndürülür. Hatalı commentId, geçersiz token veya veritabanı hataları uygun HTTP 
+//kodlarıyla ele alınır.
+// src/app/api/posts/[postId]/comment/[commentId]/like/route.ts
+//Bu dosya, belirli bir gönderiye ait belirli bir yorumun beğeni sayısını artırmak için kullanılır.
+//JWT, yalnızca HttpOnly cookie üzerinden alınır. Token body'den alınmaz.
+// src/app/api/posts/[postId]/comment/[commentId]/like/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
-import type { RowDataPacket, OkPacket } from "mysql2/promise";
+import { RowDataPacket, OkPacket } from "mysql2/promise";
 
 /**
  * LikeRow: "updatedLikes" alanını içerir.
@@ -31,19 +40,18 @@ export async function POST(request: Request, context: Context) {
       return NextResponse.json({ message: "Invalid commentId" }, { status: 400 });
     }
 
-    // İstek gövdesinden token bilgisini alıyoruz.
-    const { token: rawToken } = await request.json() as { token?: string };
-    if (!rawToken) {
-      return NextResponse.json({ message: "No token" }, { status: 401 });
+    // Authorization header'dan token alıyoruz
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const token = rawToken.trim();
 
-    // JWT doğrulaması için gerekli secret
+    const token = authHeader.split(" ")[1].trim();
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined in environment variables");
+
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
-    // userId, toggle veya kullanıcıya özel beğeni işlemleri için kullanılabilir.
 
     // Yorumun "likes" sütununu 1 arttırıyoruz.
     await db.query<OkPacket>(

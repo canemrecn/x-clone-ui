@@ -1,3 +1,7 @@
+// /tailwind.config.ts
+/*Bu dosya, projede Tailwind CSS’in nasıl çalışacağını belirleyen yapılandırmayı içerir; hangi dosyalarda Tailwind 
+sınıflarının aranacağını (content), özel ekran boyutlarını (screens), özel renk paletlerini (colors) ve tema 
+genişletmelerini tanımlar; böylece responsive tasarım ve özel stil kullanımı kolaylaşır.*/
 import type { Config } from "tailwindcss";
 
 export default {

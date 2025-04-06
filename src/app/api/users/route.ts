@@ -1,29 +1,51 @@
 // src/app/api/users/route.ts
+/*Bu dosya, JWT ile kimliği doğrulanmış kullanıcının karşılıklı olarak (mutual) takip ettiği kullanıcıları ve bu kullanıcılardan gelen okunmamış 
+direkt mesaj (DM) sayısını sorgulayan bir GET API endpoint’idir. users tablosundan mutual takip ilişkisi olan kullanıcılar çekilir ve her 
+kullanıcı için dm_messages tablosundan okunmamış mesaj sayısı kontrol edilerek hasNewMessage bilgisi hesaplanır. Sonuç olarak, mutual takip 
+edilen kullanıcıların kimlikleri, kullanıcı adları, profil resimleri ve yeni mesaj olup olmadığı bilgisi JSON olarak döndürülür.*/
+// src/app/api/users/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
 import jwt from "jsonwebtoken";
+import { cookies } from "next/headers"; // cookies fonksiyonunu import et
+import { getRefreshToken } from "@/lib/auth"; // Refresh token alabilmek için fonksiyon ekleyin
 
 export async function GET(request: Request) {
   try {
-    // 1) Authorization: Bearer token kontrolü
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ message: "Authorization header missing or invalid" }, { status: 401 });
     }
-    // Token değeri trim edilerek temizleniyor.
     const token = authHeader.split(" ")[1].trim();
 
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
 
-    // 2) Token decode => userId
-    const decoded = jwt.verify(token, secret) as { id: number };
+    let decoded;
+    try {
+      decoded = jwt.verify(token, secret) as { id: number };
+    } catch (err) {
+      if (err instanceof jwt.TokenExpiredError) {
+        const cookieStore = await cookies(); 
+        const refreshToken = cookieStore.get("refreshToken")?.value; 
+        if (!refreshToken) {
+          return NextResponse.json({ message: "Refresh token missing" }, { status: 401 });
+        }
+
+        const newAccessToken = await getRefreshToken(refreshToken);
+        if (!newAccessToken) {
+          return NextResponse.json({ message: "Unable to refresh token" }, { status: 401 });
+        }
+
+        decoded = jwt.verify(newAccessToken, secret) as { id: number };
+      } else {
+        throw err;
+      }
+    }
+
     const myId = decoded.id;
 
-    // 3) Mutual takip sorgusu: 
-    // f1: benim -> u.id, f2: u.id -> benim
-    // Ayrıca subquery ile dm_messages tablosundan okunmamış mesaj sayısı çekiliyor.
     const query = `
       SELECT 
         u.id, 
@@ -42,10 +64,8 @@ export async function GET(request: Request) {
       WHERE u.id != ?
     `;
 
-    // Parametreler: myId, myId, myId, myId
     const [rows] = await db.query<RowDataPacket[]>(query, [myId, myId, myId, myId]);
 
-    // Sonuç: mutual takip edilen kullanıcılar + unreadCount bilgisi
     const result = rows.map((r) => ({
       id: r.id,
       username: r.username,
@@ -56,6 +76,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ users: result }, { status: 200 });
   } catch (error: any) {
     console.error("❌ Error fetching mutual-follow users:", error);
-    return NextResponse.json({ message: error.message || "Error fetching users" }, { status: 500 });
+    return NextResponse.json({ message: error.message || "An error occurred while fetching mutual follow users" }, { status: 500 });
   }
 }

@@ -1,8 +1,14 @@
-// File: src/app/api/auth/resend-verification/route.ts
-// File: src/app/api/auth/resend-verification/route.ts
+// src/app/api/auth/resend-verification/route.ts
+//Bu dosya, kayıtlı bir kullanıcıya yeniden e-posta doğrulama kodu göndermek 
+//için kullanılan bir API endpoint’idir (/api/auth/resend-verification); 
+//gelen e-posta adresinin geçerliliğini kontrol eder, ardından 4 haneli 
+//yeni bir doğrulama kodu üretir ve bu kodu Gmail ve Nodemailer kullanarak 
+//belirtilen e-posta adresine gönderir. Kodun veritabanına kaydedilmesi 
+//şu anda yorum satırına alınmıştır. Ortam değişkenlerinden e-posta 
+//bilgileri alınır ve eksiklik durumunda hata döner. Başarılı işlem 
+//sonunda "Doğrulama kodu gönderildi" mesajı ile yanıt verir.
+// src/app/api/auth/resend-verification/route.ts
 import { NextRequest, NextResponse } from "next/server";
-// Eğer veritabanı üzerinden doğrulama kodunu güncellemek isterseniz aşağıdaki satırı kullanabilirsiniz.
-// import { db } from "@/lib/db";
 import nodemailer from "nodemailer";
 
 // Basit email regex (temel kontrol)
@@ -65,8 +71,7 @@ export async function POST(req: NextRequest) {
       from: gmailUser,
       to: email,
       subject: "Doğrulama Kodu",
-      text: `
-Merhaba,
+      text: `Merhaba,
 
 Hesabınızı doğrulamak için doğrulama kodunuz:
 

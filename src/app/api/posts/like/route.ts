@@ -1,4 +1,9 @@
 // src/app/api/posts/like/route.ts
+/*Bu dosya, bir kullanıcının belirli bir gönderiyi beğenmesini sağlayan POST /api/posts/like endpoint’ini tanımlar. 
+JWT ile kimlik doğrulaması yapıldıktan sonra, gelen post_id’ye göre kullanıcı likes tablosuna INSERT IGNORE 
+komutuyla eklenir (aynı kullanıcı aynı gönderiyi tekrar beğenemez). Ardından, gönderi sahibi veritabanından 
+sorgulanır ve başarıyla işlem tamamlanır. Bu işlem sonunda, gerekirse gönderi sahibine puan da kazandırılabilir.*/
+// src/app/api/posts/like/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";

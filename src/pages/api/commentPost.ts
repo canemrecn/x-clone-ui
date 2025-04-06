@@ -1,3 +1,9 @@
+//src/pages/api/commentPost.ts
+/*Bu dosya, bir gönderiye yorum yapıldığında çalıştırılan bir API endpoint’idir ve yalnızca POST isteğini kabul eder. 
+postId ve userId verileriyle birlikte gelen isteklerde, ilgili gönderinin sahibini veritabanından sorgular ve 
+updateUserPoints fonksiyonunu kullanarak gönderi sahibine 1 puan ekler. Bu işlem başarıyla tamamlanırsa, 200 
+durum kodu ile başarı mesajı ve eklenen puanı döner; eksik veri ya da sunucu hatalarında ise uygun hata 
+mesajlarıyla yanıt verir.*/
 import type { NextApiRequest, NextApiResponse } from "next";
 import { db } from "@/lib/db";
 import { updateUserPoints } from "@/utils/points";
@@ -21,7 +27,7 @@ export default async function handler(
     }
 
     // Yorum yapıldığında gönderi sahibine 1 puan ekle
-    const [rows] = await db.query<RowDataPacket[]>(
+    const [rows] = await db.query<RowDataPacket[]>( 
       "SELECT user_id FROM posts WHERE id = ?",
       [postId]
     );

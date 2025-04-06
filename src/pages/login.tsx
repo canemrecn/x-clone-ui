@@ -1,12 +1,19 @@
+//src/pages/login.tsx
+/*Bu dosya, kullanıcıların e-posta ve şifre bilgileriyle güvenli bir şekilde giriş yapmasını sağlayan React 
+tabanlı bir Login sayfasıdır. Kullanıcı bilgileri bir form aracılığıyla toplanır ve AuthContext içindeki 
+login fonksiyonu çağrılarak oturum başlatılır. Giriş işlemi başarılı olduğunda anasayfaya (/) yönlendirme 
+yapılır. Aynı zamanda kullanıcıya "Şifremi unuttum?" ve "Kayıt ol" seçenekleri sunulur. Giriş işlemi 
+sırasında KVKK ve GDPR uyumu için gerekli açık rıza bayrakları (consent) da otomatik olarak gönderilir. 
+Arayüz, mobil ve masaüstü için duyarlıdır ve sade, karanlık tema ile tasarlanmıştır.*/
 "use client";
 
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext"; // useAuth burada doğru şekilde kullanılmalı
 import Image from "next/image";
-import { useAuth } from "@/context/AuthContext";
 
 export default function Login() {
-  const auth = useAuth();
+  const auth = useAuth();  // useAuth ile AuthContext'e erişim
   const [user, setUser] = useState({ email: "", password: "" });
   const router = useRouter();
 
@@ -16,8 +23,8 @@ export default function Login() {
       console.log("Gelen Login Bilgileri:", user);
 
       if (auth?.login) {
-        await auth.login(user.email, user.password);
-        router.push("/");
+        await auth.login({ email: user.email, password: user.password });
+        router.push("/"); // Giriş başarılıysa anasayfaya yönlendir
       } else {
         console.error("❌ AuthContext içinde `login` fonksiyonu bulunamadı!");
       }
@@ -34,9 +41,9 @@ export default function Login() {
         <Image
           src="/icons/logom2.png"
           alt="Left column background"
-          width={900}
-          height={900}
-          className="object-contain drop-shadow-2xl"
+          width={300}
+          height={300}
+          className="object-contain drop-shadow-xl"
         />
       </div>
 
@@ -48,7 +55,7 @@ export default function Login() {
             alt="Mobile top image"
             width={150}
             height={150}
-            className="object-contain drop-shadow-2xl"
+            className="object-contain drop-shadow-xl"
           />
         </div>
 

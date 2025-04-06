@@ -1,4 +1,9 @@
 // src/app/api/words/read/route.ts
+/*Bu dosya, kullanıcının okuduğu bir kelimeyi işleyen bir POST API endpoint’idir. Gelen istekteki kelime temizlenip doğrulandıktan sonra, 
+Authorization başlığından alınan JWT token doğrulanarak kullanıcı kimliği belirlenir. Ardından bu kullanıcıya 0.1 puan eklenerek 
+veritabanında güncelleme yapılır ve başarılı yanıt olarak "Kelime okundu, +0.1 puan" mesajı döndürülür. Amaç, kullanıcıların okudukları 
+kelimelerden puan kazanmasını sağlamaktır.*/
+// src/app/api/words/read/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";

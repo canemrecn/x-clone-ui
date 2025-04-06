@@ -1,4 +1,8 @@
-// utils/blockHelpers.ts
+// src/utils/blockHelpers.ts
+/*Bu dosya, veritabanında iki kullanıcı arasında bir bloklama ilişkisi olup olmadığını kontrol eden 
+areUsersBlocked adlı yardımcı bir fonksiyon tanımlar; fonksiyon, her iki yönde de (user1 → user2 veya 
+user2 → user1) bir bloklama kaydı olup olmadığını SQL sorgusuyla kontrol eder ve varsa true, yoksa false döner.*/
+// src/utils/blockHelpers.ts
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
 

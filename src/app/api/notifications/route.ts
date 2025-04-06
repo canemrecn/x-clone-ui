@@ -1,4 +1,15 @@
 // src/app/api/notifications/route.ts
+//Bu dosya, kullanıcıya ait bildirimleri yönetmek için kullanılan bir API endpoint’idir (/api/notifications). 
+//GET isteğinde, JWT ile kimliği doğrulanan kullanıcının tüm bildirimlerini, bildirimi gönderen kullanıcı 
+//bilgileri (kullanıcı adı ve profil fotoğrafı) ile birlikte veritabanından çekip en son oluşturulana göre 
+//sıralı şekilde döner. DELETE isteğinde ise, gönderilen bildirim ID'sine karşılık gelen bildirimi siler. 
+//Her iki işlemde de güvenlik için JWT doğrulama ve parametrik SQL sorguları kullanılır.
+// src/app/api/notifications/route.ts
+//Bu dosya, kullanıcıya ait bildirimleri yönetmek için kullanılan bir API endpoint’idir (/api/notifications). 
+//GET: JWT doğrulamasıyla kullanıcının tüm bildirimlerini getirir. 
+//DELETE: Bildirim ID ile belirtilen bildirimi siler.
+
+// src/app/api/notifications/route.ts
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";

@@ -1,3 +1,11 @@
+//src/components/PostInfo.tsx
+/*Bu dosya, PostInfo adında görsel olarak bir bilgi simgesi (infoMore.svg) gösteren küçük, yuvarlak ve tıklanabilir bir bileşen tanımlar; 
+genellikle bir gönderiyle ilgili daha fazla bilgi veya seçenek sunmak için kullanılır. Görselin üzerine gelindiğinde hafif büyür (hover efekti) 
+ve bileşen performans optimizasyonu için React.memo ile sarmalanmıştır.*/
+// src/components/PostInfo.tsx
+/*Bu dosya, PostInfo adında görsel olarak bir bilgi simgesi (infoMore.svg) gösteren küçük, yuvarlak ve tıklanabilir bir bileşen tanımlar; 
+genellikle bir gönderiyle ilgili daha fazla bilgi veya seçenek sunmak için kullanılır. Görselin üzerine gelindiğinde hafif büyür (hover efekti) 
+ve bileşen performans optimizasyonu için React.memo ile sarmalanmıştır.*/
 "use client";
 
 import React from "react";
@@ -9,8 +17,8 @@ const PostInfo = React.memo(function PostInfo() {
       <Image
         src="https://ik.imagekit.io/n6qnlu3rx/tr:q-20,bl-6/icons/infoMore.svg"
         alt="Info More"
-        width={50} // İhtiyacınıza göre ayarlayın
-        height={50} // İhtiyacınıza göre ayarlayın
+        width={50}
+        height={50}
       />
     </div>
   );

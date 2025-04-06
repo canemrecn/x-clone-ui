@@ -1,4 +1,14 @@
 // src/app/api/auth/register/route.ts
+//Bu dosya, yeni kullanıcı kaydı işlemini gerçekleştiren bir API endpoint’idir 
+//(/api/auth/register); kullanıcıdan ad, kullanıcı adı, e-posta, şifre, 
+//güvenlik sorusu ve cevabı alır, geçerlilik kontrollerini yapar, eğer 
+//e-posta veya kullanıcı adı sistemde yoksa şifre ve güvenlik cevabını 
+//hash’leyerek kullanıcıyı is_verified false olacak şekilde veritabanına 
+//kaydeder. Ardından rastgele oluşturulan 4 haneli doğrulama kodunu 
+//kullanıcıya e-posta ile gönderir. E-posta gönderimi için Gmail ve 
+//Nodemailer kullanılır. Hatalarda anlamlı geri bildirimler verir, 
+//başarılı durumda kullanıcıdan e-postasını kontrol etmesi istenir.
+// src/app/api/auth/register/route.ts
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
@@ -27,10 +37,12 @@ export async function POST(req: Request) {
     if (!full_name || !username || !email || !password || !securityQuestion || !securityAnswer) {
       return NextResponse.json({ message: "All fields are required" }, { status: 400 });
     }
+
     // Email formatının geçerliliğini kontrol ediyoruz
     if (!emailRegex.test(email)) {
       return NextResponse.json({ message: "Invalid email format" }, { status: 400 });
     }
+
     // Şifre için minimum uzunluk kontrolü
     if (password.length < MIN_PASSWORD_LENGTH) {
       return NextResponse.json({ message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters long` }, { status: 400 });

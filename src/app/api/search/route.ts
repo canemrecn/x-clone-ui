@@ -1,4 +1,9 @@
 // src/app/api/search/route.ts
+/*Bu dosya, kullanıcıların kullanıcı adı (username) veya tam adlarına (full_name) göre arama yapabilmesini sağlayan 
+GET /api/search endpoint’ini tanımlar. URL'den gelen query parametresi temizlenir ve SQL enjeksiyonuna karşı 
+güvenli bir şekilde %query% formatında veritabanında aranır. Eşleşen ilk 10 kullanıcı id, username ve full_name 
+bilgileriyle birlikte JSON formatında döndürülür.*/
+// src/app/api/search/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 

@@ -1,3 +1,9 @@
+//src/pages/register.tsx
+/*Bu dosya, kullanıcıların yeni bir hesap oluşturmasını sağlayan kayıt (register) sayfasını tanımlar. Kullanıcıdan 
+ad-soyad, kullanıcı adı, e-posta, şifre, güvenlik sorusu ve cevabı gibi bilgileri alır ve /api/auth/register 
+endpoint’ine POST isteğiyle gönderir. Kayıt başarılı olursa, e-posta doğrulama sayfasına yönlendirir 
+(/auth/verify?email=...). Sayfa, mobil ve masaüstü için duyarlı tasarlanmış şık bir arayüze sahiptir ve 
+kullanıcının giriş sayfasına geçiş yapabilmesini sağlayan buton da içerir.*/
 "use client";
 
 import React, { useState, useCallback } from "react";
@@ -57,7 +63,6 @@ export default function Register() {
 
       {/* Sağ Taraf: mobilde tam genişlik, md ve üzeri ekranlarda yarı genişlik */}
       <div className="w-full md:w-1/2 flex items-center justify-center relative z-10">
-
         <div className="relative p-10 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-800 border border-gray-300 shadow-lg before:absolute before:inset-0 before:bg-gradient-to-br before:from-gray-800 before:to-gray-800/20 before:blur-xl before:rounded-2xl">
           <div className="p-6 md:p-10 relative z-10">
             <form onSubmit={handleRegister} className="flex flex-col gap-6">

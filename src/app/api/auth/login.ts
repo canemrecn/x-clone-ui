@@ -1,4 +1,12 @@
 // src/app/api/auth/login.ts
+//Bu dosya, kullanıcıların e-posta ve şifre ile giriş yapmasını sağlayan 
+//bir API endpoint’idir (/api/auth/login, Next.js API Route formatında); 
+//sadece POST isteğini kabul eder, e-posta ve şifreyi doğrulayıp kullanıcıyı 
+//veritabanında arar, şifre doğruysa ve e-posta doğrulanmışsa 30 gün geçerli 
+//bir JWT token oluşturur, giriş yapan cihazın bilgilerini (user-agent, IP 
+//adresi, tarih) user_devices tablosuna kaydeder ve başarılı giriş 
+//durumunda token ve kullanıcı bilgileriyle birlikte yanıt döner. 
+//Hatalı bilgilerde uygun uyarılar, sistem hatalarında ise 500 yanıtı verir.
 // src/app/api/auth/login.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import jwt from "jsonwebtoken";
@@ -25,6 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!email || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
+
   // Email format kontrolü
   if (!emailRegex.test(email)) {
     return res.status(400).json({ message: "Invalid email format" });
@@ -73,6 +82,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await db.query(
       `INSERT INTO user_devices (userId, deviceName, ipAddress, lastLogin)
        VALUES (?, ?, ?, ?)`,
+
       [user.id, deviceName, ipAddress, lastLogin]
     );
     // --- /Cihaz bilgilerini ekleme işlemi ---

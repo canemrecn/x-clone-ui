@@ -1,4 +1,12 @@
 // src/app/api/posts/[postId]/repost/route.ts
+//Bu dosya, bir gönderinin "repost" (yeniden paylaşım) yapılmasını sağlayan API endpoint’idir. JWT token 
+//ile kimlik doğrulaması yapıldıktan sonra, orijinal gönderi veritabanından alınır; varsa kullanıcıdan 
+//gelen ek içerikle birleştirilerek yeni bir gönderi olarak posts tablosuna kaydedilir. Yeni kayıt, 
+//orijinal gönderinin repost_id'siyle ilişkilendirilir. Ayrıca, orijinal gönderi sahibine bir "repost" 
+//bildirimi oluşturularak notifications tablosuna eklenir. Böylece içerik yeniden paylaşılır ve içerik 
+//sahibine bilgi verilir.
+// src/app/api/posts/[postId]/repost/route.ts
+// src/app/api/posts/[postId]/repost/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
@@ -30,8 +38,8 @@ export async function POST(request: Request, { params }: Context) {
     const userId = decoded.id;
 
     // Orijinal gönderi veritabanından çekiliyor. LIMIT 1 ekleyerek verimlilik artırılabilir.
-    const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT user_id, category_id, title, content, media_url, media_type FROM posts WHERE id = ? LIMIT 1",
+    const [rows] = await db.query<RowDataPacket[]>( 
+      "SELECT user_id, category_id, title, content, media_url, media_type FROM posts WHERE id = ? LIMIT 1", 
       [post_id]
     );
     if (!rows || rows.length === 0) {

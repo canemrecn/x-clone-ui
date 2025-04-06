@@ -1,3 +1,10 @@
+// src/components/LeftBar.tsx
+
+/*
+Bu bileşen, kullanıcının kimliğine göre dinamik olarak menü ve kullanıcı bilgilerini gösteren bir sol menü (LeftBar) sunar.
+Masaüstünde sabit bir sidebar, mobilde ise alt sabit bir navbar olarak davranır.
+HTTP-only cookie uyumludur; logout işlemi dahil fetch çağrıları context içinde yapılır ve credentials: "include" desteklenmelidir.
+*/
 "use client";
 
 import Link from "next/link";
@@ -13,7 +20,7 @@ const menuList = [
   { id: 2, name: "Notification", link: "/notifications", icon: "notification.svg" },
   { id: 3, name: "Chat AI", icon: "generative.png" },
   { id: 9, name: "Reels", link: "/reels", icon: "film-reel.png" },
-  { id: 7, name: "Notes", link: "/notes", icon: "sticky-notes.png" },
+  //{ id: 7, name: "Notes", link: "/notes", icon: "sticky-notes.png" },
   { id: 6, name: "Overall Ranking", link: "/arrangement", icon: "king.png" },
   { id: 8, name: "Direct Messages", link: "/direct-messages", icon: "messages.png" },
 ];
@@ -27,11 +34,15 @@ export default function LeftBar() {
 
   const [unreadDMCount] = useState(0); // Placeholder
 
-  const handleLogout = () => {
-    if (auth && typeof auth.logout === "function") {
-      auth.logout();
+  const handleLogout = async () => {
+    try {
+      if (auth?.logout) {
+        await auth.logout(); // AuthContext içinde logout fonksiyonu fetch ile /api/logout yapmalı ve credentials: "include" içermeli
+      }
+      setShowUserOptions(false);  // Kullanıcı çıkış yaptıktan sonra menü kapatılır
+    } catch (err) {
+      console.error("Logout hatası:", err);
     }
-    setShowUserOptions(false);
   };
 
   const handleChatClick = () => {

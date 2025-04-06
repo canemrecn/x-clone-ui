@@ -1,4 +1,10 @@
 // src/app/api/auth/forgot-password/route.ts
+//Bu dosya, şifresini unutan kullanıcıların hesaplarını güvenlik sorusu yoluyla doğrulayarak 
+//yeni bir şifre belirlemesini sağlayan bir API endpoint’idir (/api/auth/forgot-password); 
+//kullanıcıdan e-posta, kullanıcı adı, güvenlik cevabı ve yeni şifre ister, bilgileri 
+//veritabanında doğrular, güvenlik cevabı doğruysa yeni şifreyi hash’leyerek günceller 
+//ve başarılı işlem sonrası bilgilendirme mesajı döner. Eksik veya hatalı bilgilerde uyarı 
+//mesajları verir, sistemsel hatalarda ise 500 hata kodu ile yanıt verir.
 // src/app/api/auth/forgot-password/route.ts
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";

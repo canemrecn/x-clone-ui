@@ -1,4 +1,9 @@
 // src/app/api/movies/random/route.ts
+/*Bu dosya, TMDb (The Movie Database) API’si üzerinden popüler filmleri çekerek içlerinden rastgele bir tanesini 
+seçen GET /api/movies/random endpoint’ini tanımlar. Seçilen filmin başlığı, açıklaması ve afiş URL’si düzenlenerek 
+istemciye JSON formatında döndürülür. Afiş bulunamazsa yerel bir yedek görsel gösterilir ve performans için 
+önbellekleme başlıkları eklenir.*/
+// src/app/api/movies/random/route.ts
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -30,7 +35,7 @@ export async function GET() {
     // Film afişi URL'si: TMDb, poster_path ile sağlanıyor. Eğer poster yoksa yerel yedek görsel kullanılıyor.
     const poster = randomMovie.poster_path
       ? `https://image.tmdb.org/t/p/w500${randomMovie.poster_path}`
-      : "/images/no-poster.png";
+      : "/images/no-poster.png";  // Yedek görsel yolu belirtilmiş
 
     // Film bilgileri bir obje halinde hazırlanıyor.
     const movie = {

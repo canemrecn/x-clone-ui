@@ -1,74 +1,94 @@
+// src/app/api/auth/login/route.ts
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";
-import { updateUserPoints } from "@/utils/points";
 import { RowDataPacket } from "mysql2";
+import { cookies } from "next/headers"; // HTTP-only cookie işlemleri için
+import { updateUserPoints } from "@/utils/points";
 
 export async function POST(req: Request) {
   try {
-    // İstek gövdesinden email ve şifre alınması
     const { email, password } = await req.json();
 
-    // Giriş verilerinin tip kontrolü ve boşluk temizliği (input validasyonu)
-    if (typeof email !== "string" || typeof password !== "string" || !email.trim() || !password) {
+    if (
+      typeof email !== "string" ||
+      typeof password !== "string" ||
+      !email.trim() ||
+      !password
+    ) {
       return NextResponse.json(
-        { message: "Email and password are required and must be valid." },
+        { message: "Email and password are required" },
         { status: 400 }
       );
     }
 
-    // Kullanıcıyı email'e göre veritabanından çekme (hazırlanmış sorgu kullanılarak)
     const [rows] = await db.query<RowDataPacket[]>(
       "SELECT * FROM users WHERE email = ?",
       [email.trim()]
     );
     if (!rows || rows.length === 0) {
       return NextResponse.json(
-        { message: "Email not found" },
-        { status: 404 }
-      );
-    }
-    const user = rows[0];
-
-    // Şifre doğrulama
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return NextResponse.json(
-        { message: "Invalid password" },
+        { message: "Invalid email or password" },
         { status: 401 }
       );
     }
 
-    // Günlük giriş ödülü: +0.5 puan
-    // Tarihi YYYY-MM-DD formatında alıyoruz
-    const today = new Date().toISOString().slice(0, 10);
-    // Eğer kullanıcının son giriş tarihi farklıysa veya ayarlanmadıysa, puan güncellemesi yapıyoruz
-    if (!user.last_login_date || user.last_login_date !== today) {
-      await updateUserPoints(user.id, 0.5);
-      await db.query("UPDATE users SET last_login_date = ? WHERE id = ?", [
-        today,
-        user.id,
-      ]);
+    const user = rows[0];
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { message: "Invalid email or password" },
+        { status: 401 }
+      );
     }
 
-    // JWT_SECRET'in tanımlı olup olmadığını kontrol ediyoruz
     const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error("JWT_SECRET is not defined");
-    }
+    if (!secret) throw new Error("JWT_SECRET is not defined");
 
-    // JWT oluşturma
-    const token = jwt.sign({ id: user.id, email: user.email }, secret, {
-      expiresIn: "1d",
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role, // ✅ role eklendi
+      },
+      secret,
+      { expiresIn: "7d" }
+    );
+
+    const cookieStore = await cookies();
+    cookieStore.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 gün
     });
 
-    return NextResponse.json(
-      { message: "Login successful", token },
-      { status: 200 }
+    // ✅ Aktivite log kaydı
+    const ip = req.headers.get("x-forwarded-for") || "localhost";
+    const userAgent = req.headers.get("user-agent") || "unknown";
+
+    await db.query(
+      "INSERT INTO activity_logs (user_id, action, ip_address, user_agent) VALUES (?, ?, ?, ?)",
+      [user.id, "login", ip, userAgent]
     );
+
+    return NextResponse.json({
+      message: "Login successful",
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        full_name: user.full_name,
+        points: user.points,
+        level: user.level,
+        profile_image: user.profile_image,
+        role: user.role,
+      },
+    });
   } catch (error) {
-    console.error("Login Error:", error);
+    console.error("Login error:", error);
     return NextResponse.json(
       { message: "Server error" },
       { status: 500 }

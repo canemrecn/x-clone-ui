@@ -1,37 +1,36 @@
+//src/pages/direct-messages.tsx
+/*Bu dosya, /direct-messages sayfasını tanımlar ve URL'deki buddyId sorgu parametresine göre içerik gösterir; 
+eğer buddyId parametresi yoksa kullanıcı listesi (<UsersList />) görüntülenir, varsa ilgili kullanıcıyla 
+birebir mesajlaşma penceresi (<ChatWindow />) açılır. Sayfa, koyu gri degrade arka plan ve beyaz metinle 
+şık bir sohbet arayüzü sunar.*/
 "use client";
 
-import React from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useEffect } from "react";
+import { useRouter } from "next/router";
+import { useAuth } from "@/context/AuthContext";
 import UsersList from "@/app/direct-messages/UsersList";
 import ChatWindow from "@/components/ChatWindow";
 
 export default function DirectMessagesPage() {
-  // Bazı durumlarda useSearchParams() null dönebiliyor.
-  // Bunu ele almak için:
-  const searchParams = useSearchParams();
-  if (!searchParams) {
-    // Eğer gerçekten null dönecek bir senaryo varsa, fallback
-    return (
-      <div className="text-white">
-        Parametreler alınamadı. Lütfen sayfayı yenileyin.
-      </div>
-    );
-  }
+  const auth = useAuth();
+  const router = useRouter();
 
-  // buddyId parametresini al
-  const buddyIdParam = searchParams.get("buddyId");
-  // buddyId'yi number'a çevir (yoksa null)
+  useEffect(() => {
+    if (!auth?.user) {
+      router.push("/login"); // Or "/register"
+    }
+  }, [auth?.user, router]);
+
+  if (!auth?.user) return null;
+
+  const { query } = router;  // Use useRouter to access query parameters
+  const buddyIdParam = query.buddyId;
   const buddyId = buddyIdParam ? Number(buddyIdParam) : null;
 
   return (
     <div className="bg-gradient-to-br from-gray-800 to-gray-700 p-4 text-white">
       <div className="md:min-w-[768px] md:h-[800px] w-full h-full bg-gradient-to-br from-gray-800 to-gray-800 rounded-lg shadow-lg mx-auto">
-        {!buddyId ? (
-          <UsersList />
-        ) : (
-          // buddyId varsa ChatWindow'a prop olarak veriyoruz
-          <ChatWindow buddyId={buddyId} />
-        )}
+        {!buddyId ? <UsersList /> : <ChatWindow buddyId={buddyId} />}
       </div>
     </div>
   );

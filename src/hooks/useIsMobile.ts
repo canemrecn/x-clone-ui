@@ -1,3 +1,7 @@
+//src/hooks/uselsMobile.ts
+/*Bu dosya, useIsMobile adlı özel bir React hook'u tanımlar; ekran genişliği 768 pikselin altına düştüğünde 
+true döndürerek cihazın mobil olup olmadığını belirlemeye yarar ve pencere boyutu değiştikçe bu durumu 
+dinamik olarak günceller.*/
 "use client";
 
 import { useState, useEffect } from "react";

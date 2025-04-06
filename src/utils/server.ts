@@ -1,4 +1,7 @@
-//src/utils/servert.ts
+//src/utils/server.ts
+/*Bu dosya, sunucu tarafında kullanılmak üzere ImageKit kütüphanesinden bir serverImageKit örneği oluşturur; 
+bu örnek, ortam değişkenleri (publicKey, privateKey, urlEndpoint) ile yapılandırılır ve eksik değişkenler 
+varsa hata fırlatılarak yapılandırma güvence altına alınır.*/
 import ImageKit from "imagekit";
 
 // Gerekli ortam değişkenlerinin varlığını kontrol ediyoruz.

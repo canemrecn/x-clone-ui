@@ -1,3 +1,9 @@
+#/.gitignore
+#Bu .gitignore dosyası, Git'in takip etmeyeceği dosya ve klasörleri belirtir; proje içerisindeki node_modules, 
+#derleme çıktıları (.next, build, out), test kapsamı sonuçları (coverage), geçici ve hata logları 
+#(örneğin npm-debug.log), ortam değişkenleri dosyaları (.env), TypeScript yapı bilgileri (*.tsbuildinfo), 
+#macOS sistem dosyaları (.DS_Store) ve Vercel yapılandırmaları gibi dosyaların versiyon kontrolüne dahil 
+#edilmesini engeller, böylece sadece gerekli kaynak kod ve konfigürasyonlar repoya eklenir.
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies

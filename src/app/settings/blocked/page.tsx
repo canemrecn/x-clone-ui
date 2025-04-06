@@ -1,7 +1,12 @@
+//src/app/settings/blocked/page.tsx
+/*Bu dosya, giriş yapmış kullanıcının engellediği kullanıcıları listeleyen ve isterse bu engelleri kaldırmasına olanak 
+tanıyan bir "Engellenenler" sayfasını oluşturur; /api/block endpoint'i üzerinden veriler çekilir ve silme işlemi JWT 
+doğrulamasıyla yapılır; kullanıcı engeli kaldırdığında liste anında güncellenir.*/
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import Cookies from "js-cookie"; // Import js-cookie to access cookies
 
 interface BlockedUser {
   id: number;
@@ -12,51 +17,68 @@ interface BlockedUser {
 export default function BlockedUsersPage() {
   const auth = useAuth();
   const [blockedList, setBlockedList] = useState<BlockedUser[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!auth?.user) return;
-    const token = localStorage.getItem("token");
-    if (!token) return;
 
-    // Engellenen kullanıcıları çek
+    // Engellenen kullanıcıları çekme işlemi
     async function fetchBlockedUsers() {
+      setLoading(true);
       try {
-        // /api/block => GET => { blocked: [...] }
+        const token = Cookies.get("token"); // Get the token from cookies
+        if (!token) return;
+
         const res = await fetch("/api/block", {
-          headers: { Authorization: `Bearer ${token}` },
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`, // Use token in Authorization header
+          },
+          credentials: "include", // Include cookies
         });
+
         if (res.ok) {
           const data = await res.json();
           setBlockedList(data.blocked || []);
+        } else {
+          console.error("Failed to fetch blocked users");
         }
       } catch (err) {
-        console.error("Engellenenler listesi çekilirken hata:", err);
+        console.error("Error fetching blocked users:", err);
+      } finally {
+        setLoading(false);
       }
     }
 
     fetchBlockedUsers();
   }, [auth?.user]);
 
-  // Engeli kaldır
+  // Engeli kaldırma işlemi
   async function handleUnblock(userId: number) {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
+    setLoading(true);
     try {
+      const token = Cookies.get("token"); // Get the token from cookies
+      if (!token) return;
+
       const res = await fetch("/api/block", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Use token in Authorization header
         },
         body: JSON.stringify({ blockedUserId: userId }),
       });
+
       if (res.ok) {
-        // Listeden kaldır
+        // Listeden engellenen kullanıcıyı kaldırıyoruz
         setBlockedList((prev) => prev.filter((b) => b.id !== userId));
+      } else {
+        console.error("Error unblocking user");
       }
     } catch (err) {
-      console.error("Engeli kaldırma hatası:", err);
+      console.error("Error unblocking user:", err);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -70,7 +92,9 @@ export default function BlockedUsersPage() {
         Engellenenler
       </h1>
 
-      {blockedList.length === 0 ? (
+      {loading ? (
+        <p className="text-white">Yükleniyor...</p>
+      ) : blockedList.length === 0 ? (
         <p className="text-white">Hiç kimseyi engellemediniz.</p>
       ) : (
         <div className="flex flex-col gap-2">

@@ -1,4 +1,12 @@
 // src/app/api/follows/route.ts
+//Bu dosya, kullanıcıların başka kullanıcıları takip etme veya takibi bırakma işlemlerini gerçekleştiren 
+//bir API endpoint’idir (/api/follows, POST methodu); JWT token ile kimliği doğrulanan kullanıcının 
+//isteği doğrultusunda action değeri "follow" ise daha önce takip etmediyse follows tablosuna kayıt 
+//ekler ve aynı zamanda bir takip bildirimi oluşturur, "unfollow" ise ilgili takip kaydını siler. 
+//Ayrıca, kullanıcılar arasında engelleme (blok) varsa işlem engellenir. Eksik veya hatalı veri, 
+//geçersiz işlem veya yetkisiz erişim durumlarında uygun mesaj ve durum kodlarıyla yanıt verir.
+// src/app/api/follows/route.ts
+// src/app/api/follows/route.ts
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";
@@ -20,7 +28,13 @@ export async function POST(req: Request) {
     const token = authHeader.split(" ")[1].trim();
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
-    const decoded = jwt.verify(token, secret) as { id: number };
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, secret) as { id: number };
+    } catch (jwtError) {
+      return NextResponse.json({ message: "Invalid or malformed token" }, { status: 401 });
+    }
     const follower_id = decoded.id;
 
     // Blok kontrolü: Eğer iki kullanıcı arasında blok varsa, takip işlemi yapılamaz.
@@ -41,16 +55,19 @@ export async function POST(req: Request) {
       if (rows.length > 0) {
         return NextResponse.json({ message: "Already following" }, { status: 200 });
       }
+
       // Takip ilişkisini ekleme
       await db.query(
         "INSERT INTO follows (follower_id, following_id) VALUES (?, ?)",
         [follower_id, following_id]
       );
+
       // Bildirim ekleme: Takip bildirimi oluşturuluyor. (post_id NULL olarak gönderiliyor)
       await db.query(
         "INSERT INTO notifications (user_id, type, from_user_id, post_id) VALUES (?, ?, ?, ?)",
         [following_id, "follow", follower_id, null]
       );
+
       return NextResponse.json({ message: "Followed" }, { status: 200 });
     } else if (action === "unfollow") {
       // Takip ilişkisini kaldırma

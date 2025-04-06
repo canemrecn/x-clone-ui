@@ -1,3 +1,8 @@
+// src/components/Comments.tsx
+/*Bu dosya, bir gönderiye ait yorumları listeleyen, kullanıcıların yorum yapmasına, yorumlara yanıt vermesine, yorumları beğenmesine ve 
+yorumlardaki kelimeler üzerine gelindiğinde anlık çeviri yapılmasına olanak tanıyan interaktif bir Comments bileşeni sunar; ayrıca 
+yorumlar hiyerarşik (ağaç yapısında) olarak gösterilir ve tüm işlemler HTTP‑only çerezlerle (token HTTP‑only cookie üzerinden sağlanır) 
+yapılır.*/
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
@@ -15,6 +20,7 @@ type CommentData = {
   profile_image?: string;
   likes: number;
   parent_comment_id?: number | null;
+  is_deleted: boolean; // 'is_deleted' ekledik
   replies?: CommentData[];
 };
 
@@ -36,10 +42,15 @@ export default function Comments({ postId }: CommentsProps) {
   useEffect(() => {
     async function fetchComments() {
       try {
-        const res = await fetch(`/api/posts/${postId}/comment`);
+        const res = await fetch(`/api/posts/${postId}/comment`, {
+          credentials: "include", // Send cookies with request
+        });
         if (!res.ok) throw new Error("Yorumlar alınamadı");
         const data = await res.json();
-        setComments(data.comments || []);
+        
+        // Silinmiş yorumları filtreleyerek sadece aktif yorumları al
+        const activeComments = data.comments.filter((comment: CommentData) => !comment.is_deleted);
+        setComments(activeComments || []);
       } catch (error) {
         console.error("Yorum çekme hatası:", error);
       } finally {
@@ -75,10 +86,11 @@ export default function Comments({ postId }: CommentsProps) {
     setLoadingTranslation(true);
 
     try {
-      const targetLang = localStorage.getItem("targetLanguage") || "tr";
+      const targetLang = "tr"; // Assuming 'tr' as default target language (can be dynamically set later)
       const res = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // Send cookies with request
         body: JSON.stringify({ word, targetLang }),
       });
       const data = await res.json();
@@ -99,12 +111,12 @@ export default function Comments({ postId }: CommentsProps) {
     }
     if (!text.trim()) return;
 
-    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`/api/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, text }),
+        credentials: "include", // Send cookies with request
+        body: JSON.stringify({ text }), // No need for token in the body, it is managed via HTTP-only cookie
       });
       if (res.ok) {
         const data = await res.json();
@@ -124,12 +136,12 @@ export default function Comments({ postId }: CommentsProps) {
       alert("Giriş yapmalısınız!");
       return;
     }
-    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`/api/posts/${postId}/comment/${commentId}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
+        credentials: "include", // Send cookies with request
+        body: JSON.stringify({}), // No need for token in the body, it is managed via HTTP-only cookie
       });
       if (res.ok) {
         const data = await res.json();
@@ -151,12 +163,12 @@ export default function Comments({ postId }: CommentsProps) {
     const replyText = prompt("Yanıtınızı yazın:") || "";
     if (!replyText.trim()) return;
 
-    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`/api/posts/${postId}/comment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, text: replyText, parent_comment_id: parentId }),
+        credentials: "include", // Send cookies with request
+        body: JSON.stringify({ text: replyText, parent_comment_id: parentId }), // No need for token in the body, it is managed via HTTP-only cookie
       });
       if (res.ok) {
         const data = await res.json();
@@ -215,6 +227,7 @@ export default function Comments({ postId }: CommentsProps) {
             <span className="text-xs text-white">
               {new Date(c.created_at).toLocaleString()}
             </span>
+            <p className="text-xs text-gray-300">Yorum ID: {c.id}</p> {/* Yorum ID bilgisi ekleniyor */}
           </div>
         </div>
         <div className="flex items-center gap-4 pl-10 text-sm">

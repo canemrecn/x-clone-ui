@@ -1,3 +1,8 @@
+// src/utils/level.ts
+/*Bu dosya, kullanıcıların puanlarını ve seviyelerini yöneten iki ana işlev içerir: getLevelByPoints 
+fonksiyonu verilen puana göre kullanıcı seviyesini (Beginner'dan Legend'a kadar) belirlerken, 
+updateUserPoints fonksiyonu bir kullanıcıya puan ekler veya çıkarır, ardından veritabanında bu 
+kullanıcının puan ve seviyesini günceller; ayrıca bu işlemleri loglayarak hata durumlarını yakalar.*/
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
 

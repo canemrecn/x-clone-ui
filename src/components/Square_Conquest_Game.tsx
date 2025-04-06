@@ -1,3 +1,8 @@
+//src/components/Square_Conquest_Game.tsx
+/*Bu dosya, kullanıcıyı /square-conquest-game sayfasına yönlendiren tıklanabilir bir oyun kutusu 
+bileşeni olan Square_Conquest_Game bileşenini tanımlar. React useCallback ve useRouter kullanılarak, 
+kutuya tıklanınca yönlendirme işlemi yapılır. Görsel olarak gri tonlarda, kenarlıklı ve hover efektiyle 
+vurgulanan bir başlık kutusu sunar.*/
 "use client";
 
 import React, { useCallback } from "react";

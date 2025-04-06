@@ -1,4 +1,13 @@
 //src/app/api/dm_messages/create/route.ts
+//Bu dosya, kullanıcıların özel mesaj göndermesini sağlayan bir 
+//API endpoint’idir (/api/dm_messages/create, POST methodu); 
+//gelen istekten mesaj içeriği ve alıcı ID’sini alır, JWT 
+//token ile gönderen kullanıcıyı doğrular, mesaj boş değilse 
+//dm_messages tablosuna kaydeder ve ardından yeni eklenen 
+//mesajı veritabanından çekerek yanıt olarak döner. Eksik 
+//bilgi, yetkisiz erişim veya sistem hatalarında uygun hata 
+//mesajı ve HTTP durum kodlarıyla cevap verir.
+// src/app/api/dm_messages/create/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";

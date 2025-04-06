@@ -1,4 +1,12 @@
 // src/app/api/auth/change-password/route.ts
+//Bu dosya, kullanıcıların şifrelerini değiştirmesine olanak 
+//tanıyan güvenli bir API endpoint’idir (/api/auth/change-password); 
+//JWT token ile kimlik doğrulaması yapar, kullanıcının mevcut 
+//şifresini ve güvenlik sorusu cevabını kontrol eder, yeni şifreyi 
+//minimum 8 karakter uzunluk şartıyla hash'leyerek veritabanında 
+//günceller ve başarılı işlem sonrası bilgi mesajı döner. Hatalı 
+//girişlerde detaylı uyarılar verir ve sistemsel sorunlarda 500 
+//hatası gönderir.
 // src/app/api/auth/change-password/route.ts
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
@@ -49,7 +57,7 @@ export async function POST(req: Request) {
     }
 
     // Kullanıcının mevcut şifresini ve güvenlik cevabını veritabanından çekelim
-    const [rows] = await db.query<RowDataPacket[]>(
+    const [rows] = await db.query<RowDataPacket[]>( 
       "SELECT password, security_answer FROM users WHERE id = ?",
       [userId]
     );

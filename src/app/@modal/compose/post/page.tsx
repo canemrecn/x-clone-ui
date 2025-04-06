@@ -1,5 +1,9 @@
 // src/app/@modal/compose/post/page.tsx
-// src/app/@modal/compose/post/page.tsx
+//Bu dosya, kullanıcıların gönderi oluşturması için açılan bir modal pencereyi tanımlar; @modal/compose/post yoluyla çalışır, 
+//modal arka planına veya “Escape” tuşuna basıldığında kapanır (router.back ile), giriş yapılmışsa placeholder’da kullanıcının 
+//adı görünür, tasarımı odaklanılabilir ve erişilebilir olacak şekilde optimize edilmiştir. İçerik girişi ve “Post” butonu içerir, 
+//ancak gönderi işlemi henüz işlevsel değildir. Bu modal, kullanıcı deneyimini geliştirmek için sayfa yerine üstte açılır şekilde 
+//tasarlanmıştır.
 "use client";
 
 import { useRouter } from "next/navigation";

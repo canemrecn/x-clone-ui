@@ -1,47 +1,67 @@
+//src/app/report/page.tsx
+/*Bu dosya, bir gönderiyi şikayet etmek için kullanıcıdan şikayet sebebini alan bir form sunar; URL'den postId parametresini alır, 
+kullanıcı formu gönderdiğinde bu postId ve şikayet sebebini /api/report API'sine POST isteği ile gönderir, başarılı olursa ana sayfaya 
+yönlendirir, başarısız olursa hata mesajı gösterir.*/
 "use client";
 
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Cookies from "js-cookie"; // Import js-cookie to access cookies
 
 export default function ReportPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // "searchParams" tipik olarak null dönebiliyor ama TS uyarı verebiliyor
-  // Aşağıda "!" ile TS'ye null olmadığını söylüyoruz.
-  const postIdParam = searchParams!.get("postId");
+  // URL'den postId parametresini güvenli şekilde alıyoruz
+  const postIdParam = searchParams?.get("postId");
   const postId = postIdParam ? Number(postIdParam) : null;
 
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: FormEvent) {
+  // Formu gönderme işlemi
+  const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
+    setError(null); // Önceki hataları sıfırlıyoruz
+
+    // Boş şikayet sebebine izin vermiyoruz
+    if (!reason.trim()) {
+      setError("Lütfen geçerli bir şikayet sebebi girin.");
+      return;
+    }
+
     if (!postId) {
-      alert("Geçersiz postId");
+      setError("Geçersiz postId.");
       return;
     }
 
     setLoading(true);
     try {
+      const token = Cookies.get("token"); // Get the token from cookies
+
       const res = await fetch("/api/report", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token || ""}`, // Use token in Authorization header
+        },
         body: JSON.stringify({ postId, reason }),
       });
+
       if (res.ok) {
         alert("Şikayetiniz alındı, teşekkürler.");
-        router.push("/");
+        router.push("/"); // Ana sayfaya yönlendir
       } else {
-        alert("Şikayet gönderilirken hata oluştu.");
+        const errorData = await res.json();
+        setError(errorData.message || "Şikayet gönderilirken bir hata oluştu.");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Şikayet gönderilemedi, lütfen tekrar deneyin.");
+    } catch (err: any) {
+      setError(err.message || "Şikayet gönderilemedi, lütfen tekrar deneyin.");
     } finally {
       setLoading(false);
     }
-  }
+  }, [reason, postId, router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 max-w-md mx-auto">
@@ -64,6 +84,8 @@ export default function ReportPage() {
                 rows={5}
               />
             </label>
+
+            {error && <p className="text-red-500 text-sm">{error}</p>}
 
             <button
               type="submit"
