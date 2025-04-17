@@ -12,18 +12,18 @@ import Image from "next/image";
 import { chatWithGemini } from "@/utils/gemini";
 import { useAuth } from "@/context/AuthContext";
 
-// Çeviri fonksiyonu: /api/translate endpoint’ine POST isteği gönderir.
+// Çeviri fonksiyonu
 const translateWord = async (word: string): Promise<string> => {
   const targetLang = localStorage.getItem("targetLanguage") || "tr";
   try {
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", // HTTP‑only çerezlerin gönderilmesi için
+      credentials: "include",
       body: JSON.stringify({ word, targetLang }),
     });
     const data = await res.json();
-    return data.translation || `(${targetLang}) Çeviri mevcut değil`;
+    return data.translation || `(${targetLang}) çeviri mevcut değil`;
   } catch (error) {
     console.error("Çeviri hatası:", error);
     return word;
@@ -54,7 +54,7 @@ const HoverTranslateWord: React.FC<{ word: string }> = ({ word }) => {
     >
       {word}
       {showTooltip && translation && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gradient-to-br from-gray-800 to-gray-800 text-white text-xs rounded shadow-lg whitespace-nowrap z-10">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded shadow-lg whitespace-nowrap z-10">
           {translation}
         </div>
       )}
@@ -117,22 +117,23 @@ const GeminiChatContent = () => {
   }, [messages]);
 
   return (
-    <div className="w-full h-full flex flex-col bg-gradient-to-br from-gray-800 to-gray-700 text-white">
-      <div className="flex flex-col flex-1 p-5 overflow-y-auto bg-gradient-to-br from-gray-800 to-gray-700">
+    <div className="w-full h-full flex flex-col bg-gray-800 text-white">
+      <div className="flex flex-col flex-1 p-5 overflow-y-auto">
         {messages.map((msg, index) => {
           const userAvatar = auth?.user?.profile_image || "/icons/pp.png";
           const botAvatar = "/general/aii.webp";
+
           return (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: msg.sender === "user" ? 50 : -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className={`flex items-start gap-3 p-3 rounded-lg max-w-[75%] ${
+              className={`flex items-start gap-3 p-3 rounded-lg max-w-[75%] shadow-md ${
                 msg.sender === "user"
-                  ? "self-end flex-row-reverse bg-gradient-to-br from-gray-800 to-gray-800 text-white"
-                  : "self-start bg-gradient-to-br from-gray-800 to-gray-800 text-white"
-              } shadow-md`}
+                  ? "self-end flex-row-reverse bg-gray-700"
+                  : "self-start bg-gray-700"
+              }`}
             >
               <Image
                 src={msg.sender === "user" ? userAvatar : botAvatar}
@@ -153,17 +154,17 @@ const GeminiChatContent = () => {
         <input
           ref={inputRef}
           type="text"
-          className="flex-1 p-2 rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 text-white outline-none border border-gray-300 focus:border-gray-600"
-          placeholder="Type your message..."
+          className="flex-1 p-2 rounded-lg bg-gray-700 text-white outline-none border border-gray-500"
+          placeholder="Mesajınızı yazın..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
         />
         <button
           onClick={handleSendMessage}
-          className="ml-2 px-4 py-2 bg-gradient-to-br from-gray-800 to-gray-700 text-white rounded-lg border border-gray-300 hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-700 transition"
+          className="ml-2 px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-500 hover:bg-gray-600 transition"
         >
-          Send
+          Gönder
         </button>
       </div>
     </div>
@@ -173,33 +174,29 @@ const GeminiChatContent = () => {
 const GeminiChat = ({ onClose }: { onClose?: () => void }) => {
   const [isMinimized, setIsMinimized] = useState(false);
 
-  const handleMinimize = useCallback(() => {
+  const handleMinimize = () => {
     setIsMinimized((prev) => !prev);
-  }, []);
+  };
 
   const MinimizedBar = () => (
     <div
       onClick={() => setIsMinimized(false)}
-      className="fixed z-[9999] bottom-0 right-4 w-48 h-12 bg-gradient-to-br from-gray-800 to-gray-700 text-white flex items-center justify-center cursor-pointer rounded-t-lg shadow-lg border border-gray-300 hover:text-gray-300 transition"
+      className="fixed z-[9999] bottom-0 right-4 w-48 h-12 bg-gray-700 text-white flex items-center justify-center cursor-pointer rounded-t-lg shadow-lg border border-gray-500 hover:text-gray-300 transition"
     >
       <span className="font-bold">Chat AI</span>
     </div>
   );
 
   const FullChatWindow = () => (
-    <div className="fixed z-[9999] bottom-0 right-4 w-96 border border-gray-300 rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 text-white shadow-lg flex flex-col h-[500px]">
-      <div className="flex justify-between items-center bg-gradient-to-br from-gray-800 to-gray-700 text-white p-2 rounded-t-lg w-full">
+    <div className="fixed z-[9999] bottom-0 right-4 w-96 border border-gray-500 rounded-lg bg-gray-800 text-white shadow-lg flex flex-col h-[500px]">
+      <div className="flex justify-between items-center bg-gray-800 text-white p-2 rounded-t-lg w-full">
         <span className="font-bold">Chat AI</span>
         <div className="flex gap-2">
-          <button onClick={handleMinimize} className="text-white hover:text-gray-300 transition">
-            —
-          </button>
-          <button onClick={onClose} className="text-red-400 hover:text-red-600 transition">
-            ✖
-          </button>
+          <button onClick={handleMinimize} className="text-white hover:text-gray-300 transition">—</button>
+          <button onClick={onClose} className="text-red-400 hover:text-red-600 transition">✖</button>
         </div>
       </div>
-      <div className="h-full overflow-y-auto bg-gradient-to-br from-gray-800 to-gray-700 p-2 rounded-b-lg">
+      <div className="h-full overflow-y-auto bg-gray-800 p-2 rounded-b-lg">
         <GeminiChatContent />
       </div>
     </div>

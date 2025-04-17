@@ -25,12 +25,9 @@ export default function Notes() {
     async function fetchNotes() {
       try {
         if (!auth?.user) return;
-        const res = await fetch("/api/notes", {
-          credentials: "include", // HTTP-only cookie gönderimi
-        });
+        const res = await fetch("/api/notes", { credentials: "include" });
         if (!res.ok) throw new Error("Notlar alınamadı");
         const data = await res.json();
-        // data.notes olup olmadığını kontrol ediyoruz
         if (data?.notes) {
           setNotes(data.notes || []);
         } else {
@@ -46,13 +43,23 @@ export default function Notes() {
     fetchNotes();
   }, [auth]);
 
-  // Yeni not ekle
   const handleAddNote = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
       setError("");
+
+      if (notes.length >= 2) {
+        setError("En fazla 2 not ekleyebilirsin.");
+        return;
+      }
+
       if (!text.trim()) {
         setError("Not boş bırakılamaz.");
+        return;
+      }
+
+      if (text.trim().length > 45) {
+        setError("Not en fazla 45 karakter olabilir.");
         return;
       }
 
@@ -64,16 +71,13 @@ export default function Notes() {
       try {
         const res = await fetch("/api/notes", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", // HTTP-only cookie gönderimi
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ text }),
         });
 
         if (res.ok) {
           const data = await res.json();
-          // data.note olup olmadığını kontrol ediyoruz
           if (data?.note) {
             setNotes((prev) => [
               { id: data.note.id, text: data.note.text, created_at: data.note.created_at },
@@ -93,8 +97,28 @@ export default function Notes() {
         setError("Not eklenirken bir hata oluştu.");
       }
     },
-    [auth, text]
+    [auth, text, notes]
   );
+
+  const handleDelete = async (noteId: number) => {
+    try {
+      const res = await fetch(`/api/notes/${noteId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        setNotes((prev) => prev.filter((note) => note.id !== noteId));
+      } else {
+        const data = await res.json();
+        console.error("Note silme hatası:", data);
+        setError(data.message || "Not silinemedi.");
+      }
+    } catch (error) {
+      console.error("handleDelete error:", error);
+      setError("Not silinirken bir hata oluştu.");
+    }
+  };
 
   const renderedNotes = useMemo(() => {
     if (notes.length === 0) {
@@ -112,31 +136,13 @@ export default function Notes() {
         >
           X
         </button>
-        <p className="text-white">{note.text}</p>
-        <p className="text-xs text-gray-400 mt-2">{new Date(note.created_at).toLocaleString()}</p>
+        <p className="text-white break-words">{note.text}</p>
+        <p className="text-xs text-gray-400 mt-2">
+          {new Date(note.created_at).toLocaleString("tr-TR")}
+        </p>
       </div>
     ));
   }, [notes]);
-
-  const handleDelete = async (noteId: number) => {
-    try {
-      const res = await fetch(`/api/notes/${noteId}`, {
-        method: "DELETE",
-        credentials: "include", // HTTP-only cookie gönderimi
-      });
-
-      if (res.ok) {
-        setNotes((prev) => prev.filter((note) => note.id !== noteId));
-      } else {
-        const data = await res.json();
-        console.error("Note silme hatası:", data);
-        setError(data.message || "Not silinemedi.");
-      }
-    } catch (error) {
-      console.error("handleDelete error:", error);
-      setError("Not silinirken bir hata oluştu.");
-    }
-  };
 
   if (loading) {
     return <p className="text-center p-4 text-white">Notlar yükleniyor...</p>;
@@ -149,22 +155,32 @@ export default function Notes() {
   return (
     <div className="p-4 rounded-2xl border border-gray-300 flex flex-col gap-4 bg-gradient-to-br from-gray-800 to-gray-700 shadow-2xl w-full max-w-3xl mx-auto text-white">
       <h1 className="text-xl font-bold text-center">Notlarım</h1>
+
       <form onSubmit={handleAddNote} className="flex gap-2">
         <input
           type="text"
-          placeholder="Yeni not ekle..."
+          maxLength={45}
+          placeholder="Yeni not ekle... (Max 45 karakter)"
           className="flex-1 p-2 border border-gray-300 rounded text-white bg-gray-900 placeholder-white outline-none"
           value={text}
           onChange={(e) => setText(e.target.value)}
+          disabled={notes.length >= 2}
         />
         <button
           type="submit"
-          className="bg-gradient-to-br from-gray-800 to-gray-700 border border-gray-300 text-white px-4 py-2 rounded font-bold hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition"
+          className={`px-4 py-2 rounded font-bold border ${
+            notes.length >= 2
+              ? "bg-gray-500 cursor-not-allowed border-gray-500 text-gray-300"
+              : "bg-gradient-to-br from-gray-800 to-gray-700 text-white border-gray-300 hover:from-gray-700 hover:to-gray-600 transition"
+          }`}
+          disabled={notes.length >= 2}
         >
           Ekle
         </button>
       </form>
+
       {error && <p className="text-center text-red-400">{error}</p>}
+
       {renderedNotes}
     </div>
   );

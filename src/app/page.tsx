@@ -11,8 +11,6 @@ import Link from "next/link";
 import Image from "next/image";
 import Feed from "@/components/Feed";
 import WhatToWatchCard from "@/components/WhatToWatchCard";
-import Square_Conquest_Game from "@/components/Square_Conquest_Game";
-import Search from "@/components/Search";
 
 export default function Homepage() {
   const auth = useAuth();
@@ -36,8 +34,7 @@ export default function Homepage() {
 
   const content = useMemo(
     () => (
-      <div className="bg-gradient-to-br from-gray-800 to-gray-700 p-4 rounded-lg shadow-md">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 gap-4">
+      <div className="bg-gradient-to-br from-gray-800 to-gray-700 p-0 rounded-lg shadow-md">
           <ul className="flex gap-6">
             {languages.map((lang) => (
               <li key={lang.code}>
@@ -49,13 +46,6 @@ export default function Homepage() {
               </li>
             ))}
           </ul>
-
-          <div className="w-full md:w-auto">
-            <Search />
-          </div>
-        </div>
-
-        <Square_Conquest_Game />
         <WhatToWatchCard />
         <Feed />
       </div>

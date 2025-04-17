@@ -14,15 +14,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import GeminiChat from "./GeminiChat";
 import useIsMobile from "@/hooks/useIsMobile";
+import Search from "./Search";
 
 const menuList = [
-  { id: 1, name: "Discover", link: "/", icon: "home.svg" },
+  { id: 1, name: "Homepage", link: "/", icon: "home.svg" },
   { id: 2, name: "Notification", link: "/notifications", icon: "notification.svg" },
   { id: 3, name: "Chat AI", icon: "generative.png" },
-  { id: 9, name: "Reels", link: "/reels", icon: "film-reel.png" },
+  { id: 11, name: "Sentence Structure", link: "/sentence-structure", icon: "write.png" },
+  { id: 9, name: "", link: "/reels", icon: "film-reel.png" },
+  { id: 10, name: "Daily", link: "/daily", icon: "daily.png" },
   //{ id: 7, name: "Notes", link: "/notes", icon: "sticky-notes.png" },
-  { id: 6, name: "Overall Ranking", link: "/arrangement", icon: "king.png" },
-  { id: 8, name: "Direct Messages", link: "/direct-messages", icon: "messages.png" },
+  { id: 6, name: "Arrangement", link: "/arrangement", icon: "king.png" },
+  //{ id: 8, name: "", link: "/direct-messages", icon: "messages.png" },
 ];
 
 export default function LeftBar() {
@@ -64,9 +67,9 @@ export default function LeftBar() {
   return (
     <>
       {/* MASAÜSTÜ: Sol sabit sidebar - Gelişmiş ışıklandırma ve gölgeler */}
-      <div className="hidden lg:flex flex-col fixed top-16 left-0 w-64 bg-gradient-to-br from-gray-700 to-gray-900 shadow-2xl justify-between pt-5 pb-9 z-50">
+      <div className="hidden lg:flex flex-col fixed top-0 left-0 w-30 bg-gradient-to-br from-gray-700 to-gray-900 shadow-2xl items-center pt-1 pb-1 z-50">
         <div className="flex justify-center mb-6">
-          <Image src="/icons/logom2.png" alt="Logo" width={100} height={100} />
+          <Image src="/icons/logom2.png" alt="Logo" width={50} height={50} />
         </div>
         <div className="flex flex-col gap-4 px-2 mt-2">
           {filteredMenu.map((item) =>
@@ -93,16 +96,12 @@ export default function LeftBar() {
         </div>
         {auth?.user && (
           <div
-            className="flex flex-col items-center relative px-4 py-2 rounded-lg shadow-lg cursor-pointer mx-2 bg-gray-800 hover:shadow-2xl transition"
+            className="flex flex-col items-center relative px-4 py-2 rounded-lg shadow-lg cursor-pointer mx-2  hover:shadow-2xl transition"
             onClick={() => setShowUserOptions((prev) => !prev)}
           >
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 relative rounded-full overflow-hidden border-2 border-gray-300">
                 <Image src={auth.user.profile_image || "/icons/pp.png"} alt="Profile" width={40} height={40} />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-white">{auth.user.full_name}</span>
-                <span className="text-sm text-white">@{auth.user.username}</span>
               </div>
             </div>
             {showUserOptions && (
@@ -125,46 +124,73 @@ export default function LeftBar() {
         )}
       </div>
 
-      {/* MOBİL: Alt sabit navbar (değiştirilmedi) */}
-      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#3B3B3B] shadow-lg border-t border-[#D9D9D9] flex justify-around py-2 z-[1000] items-center">
-        {menuList.map((item) =>
-          item.link ? (
-            // REELS seçeneği sadece mobilde gösterilecek
-            (isMobile || (item.id !== 9 && item.id !== 8)) && (
-              <Link key={item.id} href={item.link} className="p-2 relative">
-                <Image src={`/icons/${item.icon}`} alt={item.name} width={30} height={30} />
-              </Link>
-            )
-          ) : (
-            <button key={item.id} onClick={handleChatClick} className="p-2">
-              <Image src={`/icons/${item.icon}`} alt={item.name} width={30} height={30} />
-            </button>
-          )
-        )}
-        {auth?.user && (
-          <div className="p-2 relative" onClick={() => setShowUserOptions((prev) => !prev)}>
-            <div className="w-8 h-8 relative rounded-full overflow-hidden ">
-              <Image src={auth.user.profile_image || "/icons/pp.png"} alt="Profile" width={32} height={32} />
-            </div>
-            {showUserOptions && (
-              <div className="absolute bottom-10 right-0 rounded-md px-3 py-1 flex flex-col gap-2">
-                <button
-                  onClick={() => {
-                    setShowUserOptions(false);
-                    router.push("/profile");
-                  }}
-                  className="text-[#FFFFFF]"
-                >
-                  Profile
-                </button>
-                <button onClick={handleLogout} className="text-[#FFFFFF]">
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+
+{/* MOBİL: Üst sabit navbar – DM, Arama, Profil */}
+<div className="lg:hidden fixed top-0 left-0 w-full bg-[#1F2937] shadow-[0_4px_12px_rgba(0,0,0,0.3)] border-b border-gray-400 flex justify-between items-center px-3 py-2 z-[1000] backdrop-blur-md">
+  {/* Sol: Direct Messages */}
+  <Link href="/direct-messages" className="p-2 hover:scale-105 transition-transform duration-200">
+    <Image src="/icons/send2.png" alt="DM" width={28} height={28} />
+  </Link>
+
+  {/* Orta: Arama bileşeni */}
+  <div className="flex-1 mx-3">
+    <Search />
+  </div>
+
+  {/* Sağ: Profil */}
+  {auth?.user && (
+    <div className="p-1 relative" onClick={() => setShowUserOptions((prev) => !prev)}>
+      <Image
+        src={auth.user.profile_image || "/icons/pp.png"}
+        alt="Profile"
+        width={34}
+        height={34}
+        className="rounded-full border border-white shadow-lg hover:scale-105 transition-transform duration-200"
+      />
+      {showUserOptions && (
+        <div className="absolute top-12 right-0 rounded-lg px-3 py-2 flex flex-col gap-2 bg-[#f0f0f0] text-[#1c1c1c] z-[1010] shadow-md border border-gray-400">
+          <button
+            onClick={() => {
+              setShowUserOptions(false);
+              router.push("/profile");
+            }}
+            className="hover:text-gray-600 transition"
+          >
+            Profile
+          </button>
+          <button
+            onClick={handleLogout}
+            className="hover:text-red-500 transition"
+          >
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  )}
+</div>
+
+
+
+
+{/* MOBİL: Alt sabit navbar */}
+<div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#1F2937] shadow-[0_-4px_12px_rgba(0,0,0,0.3)] border-t border-gray-400 flex justify-around items-center py-2 z-[1000] backdrop-blur-md">
+  {menuList.map((item) =>
+    item.link ? (
+      (isMobile || (item.id !== 9 && item.id !== 8)) && (
+        <Link key={item.id} href={item.link} className="p-2 hover:scale-110 transition-transform duration-200">
+          <Image src={`/icons/${item.icon}`} alt={item.name} width={28} height={28} />
+        </Link>
+      )
+    ) : (
+      <button key={item.id} onClick={handleChatClick} className="p-2 hover:scale-110 transition-transform duration-200">
+        <Image src={`/icons/${item.icon}`} alt={item.name} width={28} height={28} />
+      </button>
+    )
+  )}
+</div>
+
+
 
       {isChatOpen && !isMobile && (
         <div className="fixed inset-0 flex items-center justify-center z-[1100] bg-[#000000] bg-opacity-50">
@@ -173,4 +199,6 @@ export default function LeftBar() {
       )}
     </>
   );
+  
 }
+

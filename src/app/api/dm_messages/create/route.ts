@@ -12,35 +12,32 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
+import { cookies } from "next/headers";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { message, receiverId } = body;
 
-    // Ek: receiverId kontrolü
     if (!receiverId) {
       return NextResponse.json({ error: "Receiver ID is required" }, { status: 400 });
     }
 
-    // Kimlik doğrulama
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    // ✅ Token artık cookie'den alınacak
+    const cookieStore =await cookies();
+    const token = cookieStore.get("token")?.value;
+    const secret = process.env.JWT_SECRET;
+    if (!token || !secret) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    // Token değeri trim edilerek temizleniyor
-    const token = authHeader.split(" ")[1].trim();
-    const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error("JWT_SECRET is not defined");
+
     const decoded = jwt.verify(token, secret) as { id: number };
     const senderId = decoded.id;
 
-    // Mesaj boş mu?
     if (!message?.trim()) {
       return NextResponse.json({ error: "Message is empty" }, { status: 400 });
     }
 
-    // DB insert: created_at otomatik atansın
     const insertQuery = `
       INSERT INTO dm_messages (senderId, receiverId, message)
       VALUES (?, ?, ?)
@@ -48,8 +45,6 @@ export async function POST(request: NextRequest) {
     const [result] = await db.query(insertQuery, [senderId, receiverId, message]);
 
     const insertedId = (result as any).insertId;
-
-    // Yeni mesajı geri çek
     const [rows] = await db.query<RowDataPacket[]>(
       "SELECT * FROM dm_messages WHERE id = ?",
       [insertedId]

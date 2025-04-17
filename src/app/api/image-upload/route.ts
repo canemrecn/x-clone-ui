@@ -16,7 +16,6 @@ const imagekit = new ImageKit({
 
 export async function POST(req: NextRequest) {
   try {
-    // ✅ Token artık cookie'den alınıyor
     const cookieHeader = req.headers.get("cookie") || "";
     const tokenMatch = cookieHeader.match(/token=([^;]+)/);
     const token = tokenMatch?.[1];
@@ -46,6 +45,9 @@ export async function POST(req: NextRequest) {
       file: buffer,
       fileName: file.name,
       folder: "/uploads",
+      // ImageKit otomatik tanır ama MIME tipi video ise belirtmek daha sağlıklıdır
+      responseFields: ["url", "fileType", "thumbnailUrl"],
+      useUniqueFileName: true,
     });
 
     return NextResponse.json({
@@ -53,6 +55,7 @@ export async function POST(req: NextRequest) {
       fileType: file.type,
       uploadedBy: decoded.id,
     }, { status: 200 });
+
   } catch (error: any) {
     console.error("Image upload error:", error);
     return NextResponse.json({

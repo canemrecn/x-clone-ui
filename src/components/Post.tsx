@@ -10,9 +10,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import PostInfo from "./PostInfo";
 import PostInteractions from "./PostInteractions";
-import Media from "./Video";
 import { useAuth } from "@/context/AuthContext";
 import YouTubeEmbed from "./YouTubeEmbed";
 
@@ -33,111 +31,75 @@ export interface PostData {
   lang?: string;
 }
 
-interface FileDetailsResponse {
-  width: number;
-  height: number;
-  filePath: string;
-  url: string;
-  fileType: string;
-}
-
 interface PostProps {
   postData: PostData;
 }
 
-function findYouTubeLinkInText(text: string): string | null {
-  const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/;
-  const match = text.match(regex);
-  return match ? match[0] : null;
-}
-
 export default function Post({ postData }: PostProps) {
-  const [fileDetails, setFileDetails] = useState<FileDetailsResponse | null>(null);
   const [hoveredWord, setHoveredWord] = useState<string | null>(null);
-  const [translatedWord, setTranslatedWord] = useState<string | null>(null);
-  const [loadingTranslation, setLoadingTranslation] = useState<boolean>(false);
-  const [showOptions, setShowOptions] = useState(false);
-  const [showSendModal, setShowSendModal] = useState(false);
+  const [correctTranslation, setCorrectTranslation] = useState<string | null>(null);
+  const [userInput, setUserInput] = useState<string>("");
+  const [showInput, setShowInput] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [showPointAnim, setShowPointAnim] = useState(false);
   const auth = useAuth();
   const router = useRouter();
+  const [showOptions, setShowOptions] = useState(false);
+  const [showSendModal, setShowSendModal] = useState(false);
 
-  useEffect(() => {
-    if (!postData.media_file_id) return;
-    async function fetchFileDetails() {
-      try {
-        const res = await fetch(`/api/posts/media?fileId=${postData.media_file_id}`, {
-          credentials: "include",
-        });
-        if (!res.ok) throw new Error("Medya bilgisi alınamadı");
-        const data = await res.json();
-        setFileDetails(data);
-      } catch (err) {
-        console.error("Dosya bilgisi hatası:", err);
-      }
-    }
-    fetchFileDetails();
-  }, [postData.media_file_id]);
-
-  const youTubeLinkInContent = findYouTubeLinkInText(postData.content);
-  const isYouTubeLink = postData.media_url && postData.media_url.includes("youtube.com");
-
-  const translateWord = async (word: string) => {
+  const translateWordWithInput = async (word: string) => {
     setHoveredWord(word);
-    setTranslatedWord(null);
-    setLoadingTranslation(true);
+    setCorrectTranslation(null);
+    setUserInput("");
+    setShowInput(true);
+    setFeedback(null);
+
     try {
       const res = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ word }),
         credentials: "include",
+        body: JSON.stringify({
+          word,
+          targetLang: "tr",
+        }),
       });
+
       const data = await res.json();
-      setTranslatedWord(data.translation || "Çeviri mevcut değil");
+      setCorrectTranslation(data.translation);
     } catch (error) {
       console.error("Çeviri hatası:", error);
-    } finally {
-      setLoadingTranslation(false);
+      setCorrectTranslation("Hata");
     }
   };
 
-  async function handleDeletePost() {
-    if (!auth?.user) return;
-    try {
-      const res = await fetch(`/api/posts/delete?postId=${postData.id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.ok) window.location.reload();
-      else console.error("Gönderi silinemedi.");
-    } catch (err) {
-      console.error("Gönderi silme hatası:", err);
+  const checkTranslation = () => {
+    if (userInput.trim().toLowerCase() === correctTranslation?.toLowerCase()) {
+      setFeedback("✅ Doğru! +1 puan");
+      setShowPointAnim(true);
+      setTimeout(() => setShowPointAnim(false), 1500);
+    } else {
+      setFeedback(`❌ Yanlış. Doğru: ${correctTranslation}`);
     }
-  }
 
-  async function handleSendPost(buddyId: number) {
-    if (!auth?.user) {
-      alert("Önce giriş yapmalısınız!");
-      return;
-    }
-    try {
-      const res = await fetch("/api/dm_messages/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ toUserId: buddyId, postId: postData.id }),
-      });
-      if (!res.ok) throw new Error("Gönderme işlemi başarısız oldu");
-      alert("Gönderi başarıyla gönderildi!");
-      setShowSendModal(false);
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Gönderme işlemi sırasında hata oluştu");
-    }
-  }
+    setTimeout(() => {
+      setHoveredWord(null);
+      setShowInput(false);
+      setUserInput("");
+      setFeedback(null);
+    }, 2000);
+  };
+
+  const isYouTubeLink = postData.media_url?.includes("youtube.com") ?? false;
 
   return (
-    <div className="p-4 border-y border-gray-300 w-full max-w-full overflow-hidden bg-gradient-to-br from-gray-800 to-gray-800 shadow-md rounded-lg text-white">
+    <div className="p-4 border-y border-gray-300 w-full max-w-full bg-gradient-to-br from-gray-800 to-gray-800 shadow-md rounded-lg text-white relative">
+      {showPointAnim && (
+        <div className="absolute top-4 right-4 text-green-400 font-bold text-lg animate-bounce">
+          +1 Puan!
+        </div>
+      )}
+
       <div className="flex gap-4">
         <Link href={`/${postData.username}`}>
           <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300 cursor-pointer">
@@ -146,15 +108,15 @@ export default function Post({ postData }: PostProps) {
         </Link>
 
         <div className="flex-1 flex flex-col gap-2">
-          <div className="w-full flex justify-between">
-            <div className="flex flex-col">
-              <span className="text-md font-bold text-white">@{postData.username}</span>
-            </div>
+          <div className="flex justify-between">
+            <span className="text-md font-bold text-white">@{postData.username}</span>
             <div className="relative">
               <button onClick={() => setShowOptions(!showOptions)} className="px-2 py-1 text-white hover:text-orange-500 transition">...</button>
               {showOptions && (
-                <div className="absolute right-0 top-full mt-1 bg-gradient-to-br from-gray-800 to-gray-800 border border-gray-300 rounded shadow-md w-24 text-sm">
-                  <button onClick={handleDeletePost} className="block w-full text-left px-2 py-1 hover:bg-orange-500 transition text-red-500">Delete</button>
+                <div className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-300 rounded shadow-md w-24 text-sm">
+                  <button className="block w-full text-left px-2 py-1 hover:bg-orange-500 transition text-red-500">
+                    Delete
+                  </button>
                 </div>
               )}
             </div>
@@ -164,55 +126,61 @@ export default function Post({ postData }: PostProps) {
             <h2 className="text-lg font-bold text-white">{postData.title}</h2>
           </Link>
 
-          <p className="break-words whitespace-pre-wrap w-full text-white">
+          <div className="flex flex-wrap text-white">
             {postData.content.split(" ").map((word, index) => (
               <span
                 key={index}
                 className="relative group cursor-pointer mx-1 inline-block"
-                onMouseEnter={() => translateWord(word)}
-                onMouseLeave={() => setHoveredWord(null)}
+                onMouseEnter={() => translateWordWithInput(word)}
+                onMouseLeave={() => {
+                  setHoveredWord(null);
+                  setShowInput(false);
+                  setUserInput("");
+                  setFeedback(null);
+                }}
               >
                 {word}
-                {hoveredWord === word && (
-                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gradient-to-br from-gray-800 to-gray-800 text-white text-xs px-2 py-1 rounded-md shadow-lg">
-                    {loadingTranslation ? "Çeviriliyor..." : translatedWord}
-                  </span>
+                {hoveredWord === word && showInput && (
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-xs p-3 rounded shadow-lg w-64 min-h-[130px] z-50 flex flex-col justify-start">
+                    {/* Reklam Bileşeni */}
+                    <div className="mb-3 w-full h-80 bg-gradient-to-r from-orange-400 to-red-500 text-center text-[11px] flex items-center justify-center rounded">
+                      🔥 UnderGo ile İngilizce öğren, puan kazan, seviye atla!
+                    </div>
+
+                    <input
+                      type="text"
+                      className="w-full text-black px-2 py-1 rounded mb-2"
+                      placeholder="Çeviriyi yaz..."
+                      value={userInput}
+                      onChange={(e) => setUserInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && checkTranslation()}
+                    />
+
+                    {feedback && <div className="text-center text-sm">{feedback}</div>}
+                  </div>
                 )}
+
+
               </span>
             ))}
-          </p>
+          </div>
 
-          {youTubeLinkInContent && (
-            <div className="mt-2">
-              <YouTubeEmbed url={youTubeLinkInContent} />
-            </div>
-          )}
-
-          {/* Medya gösterimi */}
           {postData.media_url && (
             <div className="mt-4 max-w-full">
               {isYouTubeLink ? (
                 <YouTubeEmbed url={postData.media_url} />
               ) : postData.media_type === "video" ? (
-                <div className="w-full max-w-xl mx-auto">
-                  <video
-                    controls
-                    className="w-full max-h-[400px] rounded-lg object-contain"
-                  >
-                    <source src={postData.media_url} type="video/mp4" />
-                    Tarayıcınız video etiketini desteklemiyor.
-                  </video>
-                </div>
+                <video controls className="w-full max-h-[400px] rounded-lg object-contain">
+                  <source src={postData.media_url} type="video/mp4" />
+                </video>
               ) : (
-                <div className="w-full max-w-xl mx-auto">
-                  <Image
-                    src={postData.media_url}
-                    alt="Post media"
-                    width={800}
-                    height={600}
-                    className="w-full max-h-[400px] rounded-lg object-contain"
-                  />
-                </div>
+                <Image
+                  src={postData.media_url}
+                  alt="Post media"
+                  width={800}
+                  height={600}
+                  className="w-full max-h-[400px] rounded-lg object-contain"
+                />
               )}
             </div>
           )}
@@ -229,7 +197,7 @@ export default function Post({ postData }: PostProps) {
           )}
 
           <span className="text-xs text-white">
-            {new Date(postData.created_at).toLocaleString("en-US", {
+            {new Date(postData.created_at).toLocaleString("tr-TR", {
               hour: "numeric",
               minute: "numeric",
               hour12: true,
@@ -239,8 +207,7 @@ export default function Post({ postData }: PostProps) {
             })}
           </span>
 
-          {/* Gönderi ID */}
-          <p className="text-xs text-gray-400 mt-2">Gönderi ID: {postData.id}</p> {/* Gönderi ID'si burada gösteriliyor */}
+          <p className="text-xs text-gray-400 mt-2">Gönderi ID: {postData.id}</p>
 
           <PostInteractions
             postId={postData.id}

@@ -7,7 +7,17 @@ adıyla birlikte listeler; veri yoksa "No following found" mesajı gösterir.*/
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import Cookies from "js-cookie"; // Import js-cookie to access cookies
+
+// ✅ fetcher fonksiyonu artık credentials: "include" içeriyor
+const fetcher = (url: string) =>
+  fetch(url, {
+    credentials: "include", // HttpOnly cookie’yi dahil eder
+  }).then((res) => {
+    if (!res.ok) {
+      throw new Error(`Error fetching following: ${res.status}`);
+    }
+    return res.json();
+  });
 
 interface User {
   id: number;
@@ -16,25 +26,9 @@ interface User {
   profile_image: string;
 }
 
-// Custom fetcher function using cookies
-const fetcher = (url: string) => {
-  const token = Cookies.get("token"); // Get the token from cookies
-  return fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token || ""}`,
-    },
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error(`Error fetching following: ${res.status}`);
-    }
-    return res.json();
-  });
-};
-
 export default function FollowingPage() {
   const { username } = useParams() as { username: string };
 
-  // Fetch data using SWR and our custom fetcher
   const { data, error } = useSWR<{ following: User[] }>(
     `/api/users/following?username=${username}`,
     fetcher,

@@ -10,12 +10,13 @@ import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef, ChangeEvent } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import useSWR from "swr";
 import Post from "@/components/Post";
 import LanguageHome from "@/components/LanguageHome";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
-// Reklam bileşeni
 function AdPlaceholder() {
   return (
     <div className="bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 rounded shadow-md my-4">
@@ -24,22 +25,34 @@ function AdPlaceholder() {
   );
 }
 
-const fetcher = (url: string, options?: RequestInit) => {
+const fetcher = async (url: string, options?: RequestInit) => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  const timeout = setTimeout(() => controller.abort(), 8000);
 
-  return fetch(url, {
-    ...options,
-    signal: controller.signal,
-    credentials: "include", // HTTP-only cookie için
-  })
-    .then((res) => {
-      clearTimeout(timeoutId);
-      if (!res.ok) {
-        throw new Error(`Network response was not ok (status: ${res.status})`);
-      }
-      return res.json();
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      credentials: "include",
     });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
+  } catch (error: any) {
+    throw new Error(`İstek başarısız: ${error.message}`);
+  }
+};
+
+const swrConfig = {
+  revalidateOnFocus: false,
+  dedupingInterval: 10000,
+  errorRetryCount: 2,
+  errorRetryInterval: 5000,
 };
 
 export default function UserPage() {
@@ -56,21 +69,21 @@ export default function UserPage() {
       ? `/api/users/get-by-username?username=${username}`
       : null,
     fetcher,
-    { revalidateOnFocus: false }
+    swrConfig
   );
   const profileUser = username === "profile" ? auth?.user : userData?.user;
 
   const { data: postsData } = useSWR(
     profileUser?.id ? `/api/posts?user_id=${profileUser.id}` : null,
     fetcher,
-    { revalidateOnFocus: false }
+    swrConfig
   );
   const userPosts = postsData?.posts || [];
 
   const { data: socialData } = useSWR(
     profileUser?.id ? `/api/social-accounts?userId=${profileUser.id}` : null,
     fetcher,
-    { revalidateOnFocus: false }
+    swrConfig
   );
   const socialAccounts = socialData?.socialAccounts || [];
 
@@ -79,17 +92,16 @@ export default function UserPage() {
       ? `/api/follows/status?user_id=${auth.user.id}&following_id=${profileUser.id}`
       : null,
     fetcher,
-    { revalidateOnFocus: false }
+    swrConfig
   );
   const isFollowing = followingData?.isFollowing || false;
 
   const [targetLanguage, setTargetLanguage] = useState("tr");
   useEffect(() => {
     const savedLang = localStorage.getItem("targetLanguage");
-    if (savedLang) {
-      setTargetLanguage(savedLang);
-    }
+    if (savedLang) setTargetLanguage(savedLang);
   }, []);
+
   const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newLang = e.target.value;
     setTargetLanguage(newLang);
@@ -105,28 +117,19 @@ export default function UserPage() {
     try {
       const res = await fetch("/api/follows", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // Cookie'ler otomatik eklenir
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ following_id: profileUser.id, action }),
       });
       if (res.ok) {
         mutateFollowing();
         refetchProfile();
-      } else {
-        const errorData = await res.json();
-        console.error(
-          "Follow/unfollow işlemi başarısız:",
-          errorData.message || "Bilinmeyen hata"
-        );
       }
     } catch (error) {
-      console.error("Follow/unfollow hatası:", error);
+      console.error("Takip/Çıkarma hatası:", error);
     }
   };
 
-  // PROFİL FOTOĞRAFI GÜNCELLEME
   const handleProfilePhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
@@ -137,12 +140,10 @@ export default function UserPage() {
         const res = await fetch("/api/users/profile-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          credentials: "include", // Cookie ile token gidiyor
           body: JSON.stringify({ profile_image: imageUrl }),
         });
-        if (res.ok) {
-          refetchProfile();
-        }
+        if (res.ok) refetchProfile();
       } catch (error) {
         console.error("Profil fotoğrafı güncelleme hatası:", error);
       }
@@ -150,7 +151,6 @@ export default function UserPage() {
     reader.readAsDataURL(file);
   };
 
-  // KAPAK FOTOĞRAFI GÜNCELLEME
   const handleCoverPhotoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
@@ -164,9 +164,7 @@ export default function UserPage() {
           credentials: "include",
           body: JSON.stringify({ cover_image: imageUrl }),
         });
-        if (res.ok) {
-          refetchProfile();
-        }
+        if (res.ok) refetchProfile();
       } catch (error) {
         console.error("Kapak fotoğrafı güncelleme hatası:", error);
       }
@@ -174,12 +172,8 @@ export default function UserPage() {
     reader.readAsDataURL(file);
   };
 
-  // PROFİL BİLGİSİ DÜZENLEME
   const handleEditProfileInfo = async () => {
-    const newInfo = prompt(
-      "Profiliniz hakkında bilgi girin:",
-      profileUser?.profile_info || ""
-    );
+    const newInfo = prompt("Profiliniz hakkında bilgi girin:", profileUser?.profile_info || "");
     if (newInfo === null) return;
     try {
       const res = await fetch("/api/users/profile-info", {
@@ -188,48 +182,51 @@ export default function UserPage() {
         credentials: "include",
         body: JSON.stringify({ profile_info: newInfo }),
       });
-      if (res.ok) {
-        refetchProfile();
-      }
+      if (res.ok) refetchProfile();
     } catch (error) {
       console.error("Profil bilgisi güncelleme hatası:", error);
     }
   };
 
-  const isMyProfile =
-    username === "profile" || (auth?.user && auth.user.username === username);
+  const isMyProfile = username === "profile" || (auth?.user && auth.user.username === username);
 
-  // Engelle butonu
-  async function handleBlock() {
+  const handleBlock = async () => {
     if (!auth?.user || !profileUser) return;
     try {
       const res = await fetch("/api/block", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ blockedUserId: profileUser.id }),
       });
-      if (res.ok) {
-        alert("Kullanıcı engellendi!");
-      } else {
-        console.error("Engelleme işlemi başarısız");
-      }
+      if (res.ok) alert("Kullanıcı engellendi!");
     } catch (error) {
       console.error("Engelleme hatası:", error);
     }
-  }
+  };
 
   if (!profileUser) {
     return (
-      <div className="p-4 text-center text-white">
-        Loading Profile...
+      <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-6">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <Skeleton height={220} borderRadius={10} />
+          <div className="flex gap-4 items-center">
+            <Skeleton circle width={100} height={100} />
+            <div className="flex-1 space-y-2">
+              <Skeleton width="40%" />
+              <Skeleton width="60%" />
+            </div>
+          </div>
+          <div className="space-y-3">
+            <Skeleton width="30%" />
+            <Skeleton width="20%" />
+            <Skeleton width="35%" />
+          </div>
+        </div>
       </div>
     );
   }
 
-  // HER 5 gönderide bir reklam ekleme
   const finalPosts = [];
   for (let i = 0; i < userPosts.length; i++) {
     finalPosts.push(userPosts[i]);
@@ -237,38 +234,28 @@ export default function UserPage() {
       finalPosts.push({ isAd: true, id: `ad-${i}` });
     }
   }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white">
-      {/* Üst Bar */}
       <div className="sticky top-0 z-10 backdrop-blur-md p-4 bg-gradient-to-br from-gray-800 to-gray-700 flex items-center justify-between flex-wrap shadow-md">
         <Link href="/">
-          <Image
-            src="/icons/left.png"
-            alt="back"
-            width={24}
-            height={24}
-            className="hover:bg-gray-600 p-1 rounded transition"
-          />
+          <Image src="/icons/left.png" alt="back" width={24} height={24} priority className="hover:bg-gray-600 p-1 rounded transition" />
         </Link>
         <h1 className="font-bold text-base md:text-lg">@{profileUser.username}</h1>
         {isMyProfile ? (
           <Link href="/settings">
-            <Image
-              src="/icons/setting.png"
-              alt="settings"
-              width={24}
-              height={24}
-              className="hover:bg-gray-600 p-1 rounded transition"
-            />
+            <Image src="/icons/setting.png" alt="settings" width={24} height={24} priority className="hover:bg-gray-600 p-1 rounded transition" />
           </Link>
         ) : (
           <div style={{ width: 24, height: 24 }}></div>
         )}
       </div>
 
-      {/* Kapak + Profil Fotoğrafı */}
       <div className="relative w-full">
-        <div className="w-full h-48 sm:h-64 bg-gradient-to-br from-gray-800 to-gray-700 shadow-lg relative">
+        <div
+          className="w-full h-48 sm:h-64 bg-cover bg-center shadow-lg relative"
+          style={{ backgroundImage: "url('/icons/bg2.png')" }}
+        >
           <div className="absolute inset-0 bg-black opacity-20"></div>
           <input
             type="file"
@@ -279,6 +266,7 @@ export default function UserPage() {
           />
         </div>
 
+
         <div className="absolute bottom-0 w-full flex flex-col sm:flex-row items-center justify-between px-4 sm:px-7 translate-y-1/2">
           <div className="relative">
             <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-black bg-gradient-to-br from-gray-800 to-gray-700 shadow-2xl">
@@ -288,39 +276,27 @@ export default function UserPage() {
                 width={160}
                 height={160}
                 className="object-cover"
+                priority
+                placeholder="blur"
+                blurDataURL="/icons/pp.png"
               />
             </div>
             {isMyProfile && (
               <>
-                <button
-                  onClick={() => profileInputRef.current?.click()}
-                  className="absolute bottom-2 right-2 bg-gray-800/50 hover:bg-gray-600/80 text-white px-2 py-1 text-xs rounded transition"
-                >
+                <button onClick={() => profileInputRef.current?.click()} className="absolute bottom-2 right-2 bg-gray-800/50 hover:bg-gray-600/80 text-white px-2 py-1 text-xs rounded transition">
                   Edit Photo
                 </button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={profileInputRef}
-                  className="hidden"
-                  onChange={handleProfilePhotoChange}
-                />
+                <input type="file" accept="image/*" ref={profileInputRef} className="hidden" onChange={handleProfilePhotoChange} />
               </>
             )}
           </div>
 
           {!isMyProfile && (
             <div className="flex gap-2 mt-4 sm:mt-0">
-              <button
-                onClick={handleFollow}
-                className="py-2 px-3 bg-gradient-to-br from-gray-800 to-gray-700 hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 text-white font-bold rounded-full shadow-md transition"
-              >
+              <button onClick={handleFollow} className="py-2 px-3 bg-gradient-to-br from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 text-white font-bold rounded-full shadow-md transition">
                 {isFollowing ? "Unfollow" : "Follow"}
               </button>
-              <button
-                onClick={handleBlock}
-                className="py-2 px-3 bg-gradient-to-br from-gray-800 to-gray-700 hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 text-white font-bold rounded-full shadow-md transition"
-              >
+              <button onClick={handleBlock} className="py-2 px-3 bg-gradient-to-br from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 text-white font-bold rounded-full shadow-md transition">
                 Engelle
               </button>
             </div>
@@ -328,28 +304,21 @@ export default function UserPage() {
         </div>
       </div>
 
-      {/* Kullanıcı Bilgileri */}
       <div className="mt-20 p-4 flex flex-col gap-2">
         <h1 className="text-2xl font-bold">{profileUser.full_name}</h1>
         <span className="text-sm">@{profileUser.username}</span>
         <p>Level: {profileUser.level}</p>
         <p>Points: {profileUser.points}</p>
+
         <div className="flex flex-wrap gap-4 mt-2">
-          <Link
-            href={`/profile/${profileUser.username}/followers`}
-            className="hover:underline hover:text-cyan-400 text-white"
-          >
+          <Link href={`/profile/${profileUser.username}/followers`} className="hover:underline hover:text-cyan-400 text-white">
             <span className="font-bold">{profileUser.follower_count || 0}</span> Followers
           </Link>
-          <Link
-            href={`/profile/${profileUser.username}/following`}
-            className="hover:underline hover:text-cyan-400 text-white"
-          >
+          <Link href={`/profile/${profileUser.username}/following`} className="hover:underline hover:text-cyan-400 text-white">
             <span className="font-bold">{profileUser.following_count || 0}</span> Following
           </Link>
         </div>
 
-        {/* Sosyal Medya Hesapları */}
         {socialAccounts?.length > 0 && (
           <div className="mt-4 p-4 bg-gradient-to-br from-gray-800 to-gray-700 rounded shadow">
             <h2 className="text-lg font-bold mb-2">Sosyal Medya Hesapları</h2>
@@ -357,13 +326,8 @@ export default function UserPage() {
               {socialAccounts.map((account: any) => (
                 <li key={account.id}>
                   <p>
-                    <strong>{account.platform}</strong>:{" "}
-                    <a
-                      href={account.accountLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:text-cyan-400 transition"
-                    >
+                    <strong>{account.platform}</strong>: {" "}
+                    <a href={account.accountLink} target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition">
                       {account.accountLink}
                     </a>
                   </p>
@@ -373,7 +337,6 @@ export default function UserPage() {
           </div>
         )}
 
-        {/* Dil Seçimi */}
         {isMyProfile && (
           <div className="mt-4 flex flex-col gap-2">
             <label htmlFor="targetLang" className="font-semibold">Çeviri Dili</label>
@@ -394,21 +357,27 @@ export default function UserPage() {
         )}
       </div>
 
-      {/* Gönderiler */}
       <div className="p-4">
         <h2 className="text-xl font-bold mb-4">Gönderiler</h2>
         {postsData === undefined ? (
-          <p>Gönderiler yükleniyor...</p>
+          [...Array(3)].map((_, idx) => (
+            <div key={idx} className="mb-4">
+              <Skeleton height={180} borderRadius={10} />
+              <div className="mt-2 space-y-2">
+                <Skeleton width="80%" />
+                <Skeleton width="60%" />
+                <Skeleton width="90%" />
+              </div>
+            </div>
+          ))
         ) : userPosts.length > 0 ? (
-          <>
-            {finalPosts.map((item: any, index: number) =>
-              item.isAd ? (
-                <AdPlaceholder key={item.id} />
-              ) : (
-                <Post key={item.id} postData={item} />
-              )
-            )}
-          </>
+          finalPosts.map((item: any) =>
+            item.isAd ? (
+              <AdPlaceholder key={item.id} />
+            ) : (
+              <Post key={item.id} postData={item} />
+            )
+          )
         ) : (
           <p>Henüz gönderi paylaşılmamış.</p>
         )}

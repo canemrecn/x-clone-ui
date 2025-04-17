@@ -21,8 +21,8 @@ interface AdPlaceholderProps {
 }
 
 export default function AdPlaceholder({
-  width = 520,
-  height = 170,
+  width = 330,
+  height = 130,
 }: AdPlaceholderProps) {
   return (
     <div

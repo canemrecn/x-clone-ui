@@ -11,60 +11,49 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+// TYPES
 interface Message {
   text: string;
   sender: "user" | "bot";
 }
 
-interface MessageItemProps {
-  msg: Message;
-  userAvatar: string;
-  botAvatar: string;
-}
-
-// Çeviri fonksiyonu: /api/translate endpoint’ine POST isteği gönderir.
+// ÇEVİRİ API
 const translateWord = async (word: string): Promise<string> => {
-  const targetLang = "tr"; // Replace with dynamic way to get the target language, e.g., context or API
   try {
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ word, targetLang }),
-      credentials: "include", // Ensure cookies are sent for authentication
+      body: JSON.stringify({ word, targetLang: "tr" }),
+      credentials: "include",
     });
     const data = await res.json();
-    return data.translation || `(${targetLang}) Çeviri mevcut değil`;
-  } catch (error) {
-    console.error("Çeviri hatası:", error);
+    return data.translation || word;
+  } catch {
     return word;
   }
 };
 
-const HoverTranslateWord: React.FC<{ word: string }> = ({ word }) => {
+const HoverTranslateWord = ({ word }: { word: string }) => {
   const [translation, setTranslation] = useState<string | null>(null);
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [show, setShow] = useState(false);
 
   const handleMouseEnter = async () => {
-    setShowTooltip(true);
+    setShow(true);
     if (!translation) {
-      const result = await translateWord(word);
-      setTranslation(result);
+      const t = await translateWord(word);
+      setTranslation(t);
     }
-  };
-
-  const handleMouseLeave = () => {
-    setShowTooltip(false);
   };
 
   return (
     <span
-      className="relative inline-block"
+      className="relative group inline-block mx-[2px]"
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={() => setShow(false)}
     >
       {word}
-      {showTooltip && translation && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-gradient-to-br from-gray-800 to-gray-800 text-white text-xs rounded shadow-lg whitespace-nowrap z-10">
+      {show && translation && (
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded shadow z-50 whitespace-nowrap">
           {translation}
         </div>
       )}
@@ -72,130 +61,132 @@ const HoverTranslateWord: React.FC<{ word: string }> = ({ word }) => {
   );
 };
 
-const TranslatableText: React.FC<{ text: string }> = ({ text }) => {
+const TranslatableText = ({ text }: { text: string }) => {
   const parts = text.split(/(\s+)/);
   return (
     <>
-      {parts.map((part, idx) =>
-        part.trim() === "" ? (
-          <span key={idx}>{part}</span>
-        ) : (
-          <HoverTranslateWord key={idx} word={part} />
-        )
+      {parts.map((part, i) =>
+        part.trim() === "" ? <span key={i}>{part}</span> : <HoverTranslateWord key={i} word={part} />
       )}
     </>
   );
-}; // Buradaki fazladan parantez kapama kaldırıldı
+};
 
-function MessageItem({ msg, userAvatar, botAvatar }: MessageItemProps) {
-  const avatar = msg.sender === "user" ? userAvatar : botAvatar;
-  const bubbleClass =
-    msg.sender === "user"
-      ? "self-end bg-gradient-to-br from-blue-800 to-blue-700 text-white"
-      : "self-start bg-gradient-to-br from-gray-800 to-gray-700 text-white";
+const MessageBubble = ({
+  msg,
+  avatar,
+  isUser,
+}: {
+  msg: Message;
+  avatar: string;
+  isUser: boolean;
+}) => {
   return (
     <motion.div
-      key={msg.text}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
+      exit={{ opacity: 0, y: 15 }}
       transition={{ duration: 0.3 }}
-      className={`mb-4 p-2 rounded shadow min-w-[75%] flex gap-2 ${bubbleClass}`}
+      className={`w-full flex ${isUser ? "justify-end" : "justify-start"} mb-4`}
     >
-      <Image
-        src={avatar}
-        alt={`${msg.sender} avatar`}
-        width={40}
-        height={40}
-        className="rounded-full border-2 border-gray-300"
-      />
-      <span>
-        <TranslatableText text={msg.text} />
-      </span>
+      <div className={`flex items-start gap-2 max-w-[75%] ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+        <Image src={avatar} alt="Avatar" width={36} height={36} className="rounded-full border" />
+        <div
+          className={`px-4 py-2 rounded-lg shadow text-sm whitespace-pre-wrap ${
+            isUser ? "bg-blue-600 text-white" : "bg-gray-700 text-white"
+          }`}
+        >
+          <TranslatableText text={msg.text} />
+        </div>
+      </div>
     </motion.div>
   );
-}
+};
 
 export default function NewChatGemini() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const auth = useAuth();
   const router = useRouter();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState("");
 
   const userAvatar = auth?.user?.profile_image || "/icons/pp.png";
   const botAvatar = "/general/aii.webp";
+
+  const sendMessage = useCallback(async () => {
+    const text = inputValue.trim();
+    if (!text) return;
+
+    const userMsg: Message = { text, sender: "user" };
+    setMessages((prev) => [...prev, userMsg]);
+    setInputValue("");
+
+    try {
+      const reply = await chatWithGemini(text);
+      const botMsg: Message = { text: reply, sender: "bot" };
+      setMessages((prev) => [...prev, botMsg]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { text: "Bot cevap veremedi.", sender: "bot" },
+      ]);
+    }
+  }, [inputValue]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = useCallback(async () => {
-    if (!inputValue.trim()) return;
-    const userMsg: Message = { text: inputValue.trim(), sender: "user" };
-    setMessages((prev) => [...prev, userMsg]);
-  
-    try {
-      const botReply = await chatWithGemini(inputValue.trim());
-      const botMsg: Message = { text: botReply, sender: "bot" };
-      setMessages((prev) => [...prev, botMsg]);
-    } catch (error) {
-      setMessages((prev) => [
-        ...prev,
-        { text: "An error occurred.", sender: "bot" },
-      ]);
-    }
-    setInputValue("");
-  }, [inputValue]); // Burada parantez doğru şekilde kapanmalı
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        handleSend();
-      }
-    },
-    [handleSend]
-  );
-
   return (
-    <div className="relative h-full">
-      {/* Geri butonu: Sabit konumlu - İkon şeklinde */}
-      <div className="fixed top-0 left-0 z-50">
-        <button onClick={() => router.back()} className="px-5 py-1 rounded">
-          <Image src="/icons/left.png" alt="Geri" width={24} height={24} />
+    <div className="relative flex flex-col h-screen bg-black from-gray-900 to-gray-800 text-white">
+      {/* 🔙 Geri Dön Butonu */}
+      <div className="fixed top-4 left-4 z-50">
+        <button onClick={() => router.back()}>
+          <Image src="/icons/left.png" alt="Geri" width={30} height={30} />
         </button>
       </div>
-      <div className="absolute top-8 left-0 right-0 bottom-16 bg-gradient-to-br from-gray-800 to-gray-700 p-0 overflow-y-auto">
-        <div className="flex flex-col mt-auto">
-          <AnimatePresence>
-            {messages.map((msg, idx) => (
-              <MessageItem
-                key={idx}
-                msg={msg}
-                userAvatar={userAvatar}
-                botAvatar={botAvatar}
-              />
-            ))}
-          </AnimatePresence>
-          <div ref={messagesEndRef} />
+
+      {/* Mesajlar */}
+      <div className="flex-1 overflow-y-auto px-4 pb-24 pt-14">
+        <AnimatePresence>
+          {messages.map((msg, i) => (
+            <MessageBubble
+              key={i}
+              msg={msg}
+              avatar={msg.sender === "user" ? userAvatar : botAvatar}
+              isUser={msg.sender === "user"}
+            />
+          ))}
+        </AnimatePresence>
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Alt Giriş Alanı */}
+      <div className="fixed bottom-0 left-0 right-0 px-0">
+        <div className="border border-gray-700 p-3 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center gap-2 shadow-lg">
+          <input
+            type="text"
+            className="flex-1 rounded px-4 py-2 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
+            placeholder="Mesaj yaz..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <button
+            onClick={sendMessage}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
+          >
+            Gönder
+          </button>
         </div>
-      </div>
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-br from-gray-800 to-gray-800 border-t border-gray-300 p-2 flex items-center gap-2">
-        <input
-          type="text"
-          className="flex-1 p-2 rounded-lg bg-gradient-to-br from-gray-800 to-gray-800 text-white outline-none border border-gray-300 focus:border-gray-600"
-          placeholder="Type your message..."
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-        <button
-          onClick={handleSend}
-          className="ml-2 px-4 py-2 bg-gradient-to-br from-gray-800 to-gray-800 text-white rounded-lg border border-gray-300 hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-700 transition"
-        >
-          Send
-        </button>
       </div>
     </div>
   );

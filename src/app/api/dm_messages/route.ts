@@ -6,12 +6,11 @@
 //blok yoksa, bu iki kullanıcı arasında gönderilmiş tüm mesajlar dm_messages tablosundan 
 //çekilir ve kronolojik sırayla döndürülür; blok varsa mesajlara erişim engellenir. 
 //Hatalı parametre, yetkisiz erişim veya sistem hatalarında uygun hata mesajı ile yanıt verir.
-// src/app/api/dm_messages/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
-import jwt from "jsonwebtoken";
 import { areUsersBlocked } from "@/utils/blockHelpers";
+import { getAuthUserFromRequest } from "@/utils/getAuthUser";
 
 export async function GET(req: Request) {
   try {
@@ -21,26 +20,17 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: "buddyId param is required" }, { status: 400 });
     }
 
-    // Convert buddyId to number and validate it
     const buddyId = Number(buddyIdParam.trim());
     if (!buddyId) {
       return NextResponse.json({ message: "Invalid buddyId" }, { status: 400 });
     }
 
-    // Token kontrolü: Authorization header'dan token'ı al ve trim et
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const user = await getAuthUserFromRequest();
+    if (!user) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const token = authHeader.split(" ")[1].trim();
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      throw new Error("JWT_SECRET is not defined");
-    }
-    const decoded = jwt.verify(token, secret) as { id: number };
-    const userId = decoded.id;
+    const userId = user.id;
 
-    // Blok kontrolü: Eğer iki kullanıcı arasında blok varsa, mesajları döndürme.
     const blocked = await areUsersBlocked(userId, buddyId);
     if (blocked) {
       return NextResponse.json(
@@ -49,7 +39,6 @@ export async function GET(req: Request) {
       );
     }
 
-    // DM mesajları sorgusu: sender/receiver ikilisi üzerinden sorgu yapılıyor.
     const query = `
       SELECT * 
       FROM dm_messages

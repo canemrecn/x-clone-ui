@@ -1,3 +1,4 @@
+//src/app/api/admin/archived-posts/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { cookies } from "next/headers";

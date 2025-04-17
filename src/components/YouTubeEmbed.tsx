@@ -6,39 +6,39 @@ bağlantısı değilse hata mesajı gösterir, aksi takdirde responsive (duyarl�
 
 import React from "react";
 
-// URL içinden video ID'sini ayıklamak için basit bir yardımcı fonksiyon
-function extractYouTubeVideoId(url: string): string | null {
-  const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]+)/;
-  const match = url.match(regex);
-  return match ? match[1] : null;
-}
-
 interface YouTubeEmbedProps {
   url: string;
 }
 
 export default function YouTubeEmbed({ url }: YouTubeEmbedProps) {
-  if (!url || typeof url !== "string") {
-    return <p className="text-red-500">Geçersiz YouTube URL'si.</p>; // URL geçerli değilse, hata mesajı göster
-  }
+  // YouTube video ID'sini linkten ayıkla
+  const getYouTubeId = (youtubeUrl: string) => {
+    try {
+      const urlObj = new URL(youtubeUrl);
+      if (urlObj.hostname === "youtu.be") {
+        return urlObj.pathname.slice(1);
+      } else if (urlObj.hostname.includes("youtube.com")) {
+        return urlObj.searchParams.get("v");
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  };
 
-  const videoId = extractYouTubeVideoId(url);
+  const videoId = getYouTubeId(url);
 
-  if (!videoId) {
-    return <p className="text-red-500">Geçerli bir YouTube linki bulunamadı.</p>;
-  }
-
-  const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+  if (!videoId) return <div className="text-red-400">Geçersiz YouTube bağlantısı</div>;
 
   return (
-    <div className="relative w-full h-56 md:h-72 lg:h-80 overflow-hidden rounded-md">
+    <div className="w-full aspect-video">
       <iframe
-        src={embedUrl}
+        src={`https://www.youtube.com/embed/${videoId}`}
         title="YouTube video player"
-        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
-        className="w-full h-full"
-      />
+        className="w-full h-full rounded-lg"
+      ></iframe>
     </div>
   );
 }

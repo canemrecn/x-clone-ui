@@ -8,29 +8,28 @@
 //Bu dosya, kullanıcıya ait bildirimleri yönetmek için kullanılan bir API endpoint’idir (/api/notifications). 
 //GET: JWT doğrulamasıyla kullanıcının tüm bildirimlerini getirir. 
 //DELETE: Bildirim ID ile belirtilen bildirimi siler.
-
-// src/app/api/notifications/route.ts
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 import { RowDataPacket } from "mysql2/promise";
 
-// GET: Kullanıcının bildirimlerini getirir.
-export async function GET(req: Request) {
+// ✅ GET: Kullanıcının bildirimlerini getirir
+export async function GET() {
   try {
-    // Authorization header kontrolü
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    const cookieStore =await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json({ message: "Token bulunamadı" }, { status: 401 });
     }
-    // Token değeri trim edilerek temizleniyor
-    const token = authHeader.split(" ")[1].trim();
+
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
+
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
-    // Kullanıcının bildirimlerini, bildirimi oluşturan kullanıcı bilgileri ile birlikte getiriyoruz.
     const [rows] = await db.query<RowDataPacket[]>(`
       SELECT 
         n.*,
@@ -45,24 +44,23 @@ export async function GET(req: Request) {
     return NextResponse.json({ notifications: rows }, { status: 200 });
   } catch (error: any) {
     console.error("Notifications error:", error);
-    return NextResponse.json({ message: "Server error", error: error.message || "" }, { status: 500 });
+    return NextResponse.json({ message: "Sunucu hatası", error: error.message }, { status: 500 });
   }
 }
 
-// DELETE: Belirtilen bildirim ID'sine sahip bildirimi siler.
+// ✅ DELETE: Bildirim silme
 export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();
     if (!id) {
-      return NextResponse.json({ message: "Notification ID required" }, { status: 400 });
+      return NextResponse.json({ message: "Notification ID gerekli" }, { status: 400 });
     }
 
-    // Parametrik sorgu kullanarak SQL enjeksiyon riskini azaltıyoruz.
     await db.query("DELETE FROM notifications WHERE id = ?", [id]);
 
-    return NextResponse.json({ message: "Notification deleted" }, { status: 200 });
+    return NextResponse.json({ message: "Bildirim silindi" }, { status: 200 });
   } catch (error: any) {
     console.error("Delete notification error:", error);
-    return NextResponse.json({ message: "Server error", error: error.message || "" }, { status: 500 });
+    return NextResponse.json({ message: "Sunucu hatası", error: error.message }, { status: 500 });
   }
 }

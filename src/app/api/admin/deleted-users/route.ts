@@ -1,4 +1,5 @@
 // src/app/api/admin/deleted-users/route.ts
+// src/app/api/admin/deleted-users/route.ts
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";
@@ -8,7 +9,7 @@ import { RowDataPacket } from "mysql2";
 export async function GET() {
   try {
     // 1️⃣ Token'ı cookie'den al
-    const cookieStore =await cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
     if (!token) {
@@ -28,7 +29,7 @@ export async function GET() {
     // 3️⃣ deleted_users tablosundan verileri al
     const [rows] = await db.query<RowDataPacket[]>(`
       SELECT 
-        id,
+        id AS user_id,
         full_name,
         username,
         email,
@@ -38,7 +39,7 @@ export async function GET() {
       ORDER BY deleted_at DESC
     `);
 
-    return NextResponse.json(rows, { status: 200 });
+    return NextResponse.json({ users: rows }, { status: 200 });
 
   } catch (error: any) {
     console.error("Silinen kullanıcılar alınırken hata:", error);

@@ -5,6 +5,8 @@ genişletmelerini tanımlar; böylece responsive tasarım ve özel stil kullanı
 import type { Config } from "tailwindcss";
 
 export default {
+
+  
   // Specify the paths to all of the template files in your project.
   // Tailwind will scan these files for class names.
   content: [

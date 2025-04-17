@@ -8,7 +8,6 @@ kullanıcı /direct-messages?buddyId=... sayfasına yönlendirilir. Ayrıca, yen
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import Cookies from "js-cookie"; // Use js-cookie to manage cookies
 
 interface Buddy {
   id: number;
@@ -32,13 +31,8 @@ export default function UsersList({ onSelectBuddy }: UsersListProps) {
 
     async function fetchBuddies() {
       try {
-        const token = Cookies.get("token"); // Retrieve token from cookies
-        if (!token) return;
-
         const res = await fetch("/api/users", {
-          headers: {
-            Authorization: `Bearer ${token}`, // Send token in the Authorization header
-          },
+          credentials: "include",
         });
 
         if (res.ok) {
@@ -52,37 +46,28 @@ export default function UsersList({ onSelectBuddy }: UsersListProps) {
         setError("Unable to load buddy list");
       }
     }
+
     fetchBuddies();
   }, [auth?.user]);
 
   async function handleSelectBuddy(buddyId: number) {
-    if (onSelectBuddy) {
-      await markMessagesAsRead(buddyId);
-      onSelectBuddy(buddyId);
-    } else {
-      await markMessagesAsRead(buddyId);
-      router.push(`/direct-messages?buddyId=${buddyId}`);
-    }
-  }
-
-  async function markMessagesAsRead(buddyId: number) {
-    const token = Cookies.get("token"); // Retrieve token from cookies
-    if (!token) return;
-
     try {
       await fetch("/api/dm_messages/markRead", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ fromUserId: buddyId }),
       });
-      setBuddyList((prev) =>
-        prev.map((b) => (b.id === buddyId ? { ...b, hasNewMessage: false } : b))
-      );
     } catch (err) {
       console.error("Mesaj okundu işaretlenirken hata:", err);
+    }
+
+    if (onSelectBuddy) {
+      onSelectBuddy(buddyId);
+    } else {
+      router.push(`/direct-messages?buddyId=${buddyId}`);
     }
   }
 
@@ -96,25 +81,13 @@ export default function UsersList({ onSelectBuddy }: UsersListProps) {
 
   return (
     <div className="flex flex-col w-full h-full bg-gradient-to-br from-gray-800 to-gray-700 rounded shadow-2xl p-4 text-white">
-      <button
-        onClick={() => router.back()}
-        className="flex items-center gap-2 mb-4 hover:opacity-80 transition self-start"
-      >
-        <img
-          src="/icons/left.png"
-          alt="Geri"
-          className="w-5 h-5"
-        />
-      </button>
-
-      <h2 className="text-lg font-semibold mb-4">Mesajlar</h2>
-
+      <h2 className="text-lg font-semibold mb-4 text-center">Mesajlar</h2>
       <div className="flex flex-col gap-2 overflow-y-auto">
         {buddyList.map((buddy) => (
           <button
             key={buddy.id}
             onClick={() => handleSelectBuddy(buddy.id)}
-            className="flex items-center gap-3 p-2 rounded transition-all hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 text-left"
+            className="flex items-center gap-3 p-2 rounded transition-all hover:bg-gray-700 text-left"
           >
             <div className="relative">
               <img
@@ -126,7 +99,6 @@ export default function UsersList({ onSelectBuddy }: UsersListProps) {
                 <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full" />
               )}
             </div>
-
             <span className="font-medium">{buddy.username}</span>
           </button>
         ))}

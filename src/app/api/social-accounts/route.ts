@@ -3,33 +3,28 @@
 doğrulaması yaparak; GET metoduyla kullanıcının eklemiş olduğu sosyal hesapları listeleyen, POST metoduyla yeni 
 bir sosyal medya hesabı (platform adı ve bağlantı) ekleyen, DELETE metoduyla ise yalnızca kendisine ait olan 
 sosyal hesap kaydını silen işlemleri güvenli bir şekilde gerçekleştirir.*/
-// src/app/api/social-accounts/route.ts
-// src/app/api/social-accounts/route.ts
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2";
+import { cookies } from "next/headers";
 
 /**
  * GET: Kullanıcının sosyal hesaplarını döndürür.
  */
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    // Authorization header kontrolü
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-    // Token temizleniyor
-    const token = authHeader.split(" ")[1].trim();
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
-    
-    // JWT doğrulaması ve kullanıcı ID'si alınır
+
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
-    // Sosyal hesaplar, oluşturulma tarihine göre azalan sırayla çekilir.
     const [rows] = await db.query<RowDataPacket[]>(`
       SELECT id, platform, accountLink, created_at
       FROM social_accounts
@@ -49,29 +44,24 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
-    // Authorization header kontrolü
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-    const token = authHeader.split(" ")[1].trim();
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
-    
-    // JWT doğrulaması yapılarak kullanıcı ID'si elde edilir.
+
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
-    // İstek gövdesinden platform ve accountLink alanları alınır.
     const { platform, accountLink } = await request.json();
     if (!platform || !accountLink) {
       return NextResponse.json({ message: "Platform ve Account Link gereklidir." }, { status: 400 });
     }
 
-    // Yeni sosyal hesap, kullanıcıya ait olarak veritabanına eklenir.
     await db.query(
-      `INSERT INTO social_accounts (userId, platform, accountLink)
-       VALUES (?, ?, ?)`,
+      `INSERT INTO social_accounts (userId, platform, accountLink) VALUES (?, ?, ?)`,
       [userId, platform, accountLink]
     );
 
@@ -87,30 +77,23 @@ export async function POST(request: Request) {
  */
 export async function DELETE(request: Request) {
   try {
-    // Authorization header kontrolü
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-    const token = authHeader.split(" ")[1].trim();
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
-    
-    // JWT doğrulaması yapılarak kullanıcı ID'si alınır.
+
     const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
 
-    // İstek gövdesinden silinecek sosyal hesap ID'si alınır.
     const { id } = await request.json();
     if (!id) {
       return NextResponse.json({ message: "Sosyal hesap ID gereklidir." }, { status: 400 });
     }
 
-    // Sadece ilgili kullanıcıya ait sosyal hesap silinir.
-    await db.query(
-      `DELETE FROM social_accounts WHERE id = ? AND userId = ?`,
-      [id, userId]
-    );
+    await db.query(`DELETE FROM social_accounts WHERE id = ? AND userId = ?`, [id, userId]);
 
     return NextResponse.json({ message: "Sosyal hesap başarıyla silindi." });
   } catch (error: any) {

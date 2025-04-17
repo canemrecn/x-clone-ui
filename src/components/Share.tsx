@@ -4,12 +4,8 @@ adlı bileşeni içerir. Kullanıcı giriş yapmışsa, gönderiye metin yazabil
 medya dosyası varsa önce /api/image-upload ile ImageKit'e yüklenir, ardından metin ve medya bilgileri 
 /api/posts/create endpoint’ine POST isteğiyle gönderilerek paylaşılır. Başarılı işlem sonrası giriş kutusu 
 ve medya temizlenir. Ayrıca gönderi dili lang prop'u ile belirlenebilir ve video içerikler isReel olarak işaretlenir.*/
-//src/components/Share.tsx
-/*Bu dosya, kullanıcıların metin, fotoğraf veya video içeren gönderiler (post) oluşturmasını sağlayan Share 
-adlı bileşeni içerir. Kullanıcı giriş yapmışsa, gönderiye metin yazabilir, fotoğraf/video ekleyebilir; 
-medya dosyası varsa önce /api/image-upload ile ImageKit'e yüklenir, ardından metin ve medya bilgileri 
-/api/posts/create endpoint’ine POST isteğiyle gönderilerek paylaşılır. Başarılı işlem sonrası giriş kutusu 
-ve medya temizlenir. Ayrıca gönderi dili lang prop'u ile belirlenebilir ve video içerikler isReel olarak işaretlenir.*/
+// ✅ GÜNCELLENMİŞ Share.tsx (video için tamamen çalışan hali)
+
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
@@ -17,7 +13,6 @@ import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import * as nsfwjs from "nsfwjs";
 
-// Fotoğraf veya videoyu sunucuya yüklemek için
 async function uploadFile(file: File): Promise<{ url: string; fileType: string }> {
   const formData = new FormData();
   formData.append("file", file);
@@ -29,14 +24,16 @@ async function uploadFile(file: File): Promise<{ url: string; fileType: string }
   });
 
   if (!res.ok) {
-    throw new Error("Dosya yükleme işlemi başarısız.");
+    const err = await res.text();
+    throw new Error("Dosya yuklenemedi: " + err);
   }
 
   return await res.json();
 }
 
-// Görsel uygunsuzsa true döner
 const checkNsfw = async (file: File): Promise<boolean> => {
+  if (!file.type.startsWith("image")) return false;
+
   return new Promise(async (resolve) => {
     const image = document.createElement("img");
     image.src = URL.createObjectURL(file);
@@ -45,16 +42,9 @@ const checkNsfw = async (file: File): Promise<boolean> => {
     image.onload = async () => {
       const model = await nsfwjs.load();
       const predictions = await model.classify(image);
-
       const sensitive = predictions.find(
-        (p: { className: string; probability: number }) =>
-          (p.className === "Porn" ||
-            p.className === "Hentai" ||
-            p.className === "Sexy") &&
-          p.probability > 0.7
+        (p) => ["Porn", "Hentai", "Sexy"].includes(p.className) && p.probability > 0.7
       );
-      
-
       resolve(!!sensitive);
     };
   });
@@ -68,6 +58,7 @@ export default function Share({ lang }: ShareProps) {
   const auth = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -76,78 +67,56 @@ export default function Share({ lang }: ShareProps) {
     }
   }, []);
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!auth?.user) {
-        alert("Lütfen giriş yapın.");
-        return;
-      }
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!auth?.user) return alert("Giriş yapmalısın");
+    const textValue = inputRef.current?.value.trim() || "";
 
-      const textValue = inputRef.current?.value.trim() || "";
+    let mediaUrl = null;
+    let mediaType = null;
+    let isReel = false;
 
-      let mediaUrl: string | null = null;
-      let mediaType: string | null = null;
-      let isReel = false;
+    try {
+      setLoading(true);
 
       if (file) {
         const isNsfw = await checkNsfw(file);
-        if (isNsfw) {
-          alert("Bu görsel uygunsuz içerik içeriyor. Lütfen başka bir görsel seçin.");
-          return;
-        }
+        if (isNsfw) return alert("Uygunsuz görsel");
 
-        try {
-          const uploadResult = await uploadFile(file);
-          mediaUrl = uploadResult.url;
-          if (file.type.includes("image")) {
-            mediaType = "image";
-          } else if (file.type.includes("video")) {
-            mediaType = "video";
-            isReel = true;
-          }
-        } catch (err) {
-          console.error("Dosya yükleme hatası:", err);
-          alert("Dosya yükleme sırasında hata oluştu.");
-          return;
-        }
+        const result = await uploadFile(file);
+        mediaUrl = result.url;
+        mediaType = file.type.startsWith("image") ? "image" : "video";
+        isReel = mediaType === "video";
       }
 
-      if (!textValue && !mediaUrl) {
-        alert("Lütfen bir metin veya medya dosyası ekleyin.");
-        return;
-      }
+      if (!textValue && !mediaUrl) return alert("Metin veya medya ekle");
 
-      try {
-        const res = await fetch("/api/posts/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            content: textValue,
-            media_url: mediaUrl,
-            media_type: mediaType,
-            isReel,
-            lang,
-            category_id: 1,
-          }),
-        });
+      const res = await fetch("/api/posts/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          content: textValue,
+          media_url: mediaUrl,
+          media_type: mediaType,
+          isReel,
+          lang,
+          category_id: 1,
+        }),
+      });
 
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.message || "Sunucu hatası.");
-        }
+      if (!res.ok) throw new Error("Paylaşım başarısız");
 
-        alert("Gönderi başarıyla paylaşıldı!");
-        if (inputRef.current) inputRef.current.value = "";
-        setFile(null);
-      } catch (error) {
-        console.error("Gönderi paylaşma hatası:", error);
-        alert("Gönderi paylaşırken hata oluştu.");
-      }
-    },
-    [auth, file, lang]
-  );
+      alert("Paylaşım yapıldı");
+      if (inputRef.current) inputRef.current.value = "";
+      setFile(null);
+    } catch (err) {
+      console.error("Hata:", err);
+      alert("Paylaşım hatası");
+    } finally {
+      setLoading(false);
+    }
+  }, [auth, file, lang]);
 
   return (
     <form
@@ -175,7 +144,7 @@ export default function Share({ lang }: ShareProps) {
           <div className="relative p-2 border border-gray-300 bg-gradient-to-br from-gray-800 to-gray-800 rounded shadow-md">
             <p className="text-sm text-white font-semibold">{file.name}</p>
             <span
-              className="absolute top-1 right-1 bg-gradient-to-br from-gray-800 to-gray-800 text-white px-2 rounded cursor-pointer hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-700 transition"
+              className="absolute top-1 right-1 bg-red-500 text-white px-2 rounded cursor-pointer hover:bg-red-600 transition"
               onClick={() => setFile(null)}
             >
               X
@@ -197,9 +166,10 @@ export default function Share({ lang }: ShareProps) {
 
           <button
             type="submit"
-            className="bg-gradient-to-br from-gray-800 to-gray-700 text-white font-bold rounded-full py-2 px-4 hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition-all"
+            disabled={loading}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full py-2 px-4 disabled:opacity-50"
           >
-            Post
+            {loading ? "Yükleniyor..." : "Post"}
           </button>
         </div>
       </div>

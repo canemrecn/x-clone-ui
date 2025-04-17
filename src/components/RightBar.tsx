@@ -8,7 +8,7 @@ Görsel olarak üstten alta düzenlenmiş, sabit konumlu ve duyarlı bir şekild
 import React from "react";
 import Arrangement from "@/components/Arrangement";
 import Notes from "@/components/Notes";
-import AdPlaceholder from "./AdPlaceholder"; // Reklam bileşeni
+import Search from "./Search";
 
 export default function RightBar() {
   return (
@@ -17,17 +17,14 @@ export default function RightBar() {
     lg:flex 
     flex-col 
     fixed 
-    top-14 
+    top-0 
     right-0 
     w-94 
     justify-between 
-    pt-1
-    pb-1
     z-50">
+      <Search/>
       <Arrangement />
       <Notes />
-      {/* En altta reklam bileşeni */}
-      <AdPlaceholder />
       <div className="text-gray-300 text-sm flex gap-x-4 flex-wrap border-t border-gray-300 pt-2 mt-2 px-2">
         <span className="hover:text-orange-400 cursor-pointer">Terms of Service</span>
         <span className="hover:text-orange-400 cursor-pointer">Privacy Policy</span>

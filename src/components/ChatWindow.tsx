@@ -362,9 +362,13 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
 
       {/* Bottom Bar: Input + Media + Send */}
       <div className={`${isMobile ? "fixed left-0 right-0 bottom-0 z-50" : ""} flex gap-3 p-3 bg-gradient-to-br from-gray-800 to-gray-800 border-t border-gray-300`}>
-        <button onClick={handleMediaClick} className="bg-gradient-to-br from-gray-800 to-gray-800 text-white px-2 py-1 rounded hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-700 transition">
-          Foto/Video
+        <button
+          onClick={handleMediaClick}
+          className="bg-gradient-to-br from-gray-800 to-gray-800 text-white px-2 py-1 rounded hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-700 transition flex items-center justify-center"
+        >
+          <img src="/icons/camera.png" alt="Foto/Video" className="w-5 h-5" />
         </button>
+
         <input type="file" ref={fileInputRef} accept="image/*,video/*" onChange={handleMediaPick} style={{ display: "none" }} />
         {selectedMediaBase64 && selectedMediaType === "image" && (
           <img src={selectedMediaBase64} alt="preview" className="w-10 h-10 object-cover rounded" />

@@ -4,23 +4,17 @@
 //kullanıcının kimliğini doğrular, alıcı ID’si (toUserId) ve gönderi ID’sini alarak tam bağlantı linkini 
 //oluşturur (/post/{postId}) ve bu mesajı dm_messages tablosuna kaydeder. Başarılı işlemde onay mesajı, 
 //hatalı veya eksik bilgilerde ya da yetkisiz erişimlerde uygun hata mesajı ile yanıt verir.
-// src/app/api/dm_messages/send/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import jwt from "jsonwebtoken";
+import { getAuthUserFromRequest } from "@/utils/getAuthUser";
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const user = await getAuthUserFromRequest();
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const token = authHeader.split(" ")[1].trim();
-    const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error("JWT_SECRET is not defined in environment variables");
-    const decoded = jwt.verify(token, secret) as { id: number };
-    const senderId = decoded.id;
+    const senderId = user.id;
 
     const { toUserId, postId } = await request.json();
     if (!toUserId || !postId) {
@@ -40,7 +34,7 @@ export async function POST(request: NextRequest) {
       [senderId, receiverId, message]
     );
 
-    // ✅ Aktivite logla
+    // Aktivite logla
     const ip = request.headers.get("x-forwarded-for") || "localhost";
     const userAgent = request.headers.get("user-agent") || "unknown";
 

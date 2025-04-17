@@ -3,6 +3,7 @@
 sahip bir yapıda yapay zekâ sohbet bileşeni olan <NewChatGemini />'yi render eder. Arka planı koyu bir degrade 
 (gray-800'den gray-700'e) olarak ayarlanmış ve metin rengi beyazdır. Bu sayfa, kullanıcıların yapay zekâ 
 destekli bir sohbet deneyimi yaşamasını sağlar.*/
+"use client"
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -21,7 +22,7 @@ export default function ChatAiPage() {
   if (!auth?.user) return null;
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-gray-800 to-gray-700 text-white overflow-hidden">
+    <div className="max-h-screen flex flex-col bg-gradient-to-br from-gray-800 to-gray-700 text-white overflow-hidden">
       <NewChatGemini />
     </div>
   );

@@ -4,8 +4,6 @@
 //ait gönderi verisini /api/posts?post_id= üzerinden çeker, yüklenme ve hata durumlarını yönetir, eğer gönderi bulunursa Post 
 //bileşeniyle gösterir; aksi takdirde uygun mesajları sunar. Ayrıca, üst kısımda geri dönüş (back) butonu ve gönderi başlığı yer 
 //alır, sayfa şık bir arka plan ve kutu stiliyle düzenlenmiştir.
-// src/app/[username]/status/[postId]/page.tsx
-// src/app/[username]/status/[postId]/page.tsx
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
@@ -14,23 +12,27 @@ import Link from "next/link";
 import useSWR from "swr";
 import { PostData } from "@/components/Post";
 import Image from "next/image";
+import Skeleton from "react-loading-skeleton"; // Eğer yüklü değilse: npm install react-loading-skeleton
+import "react-loading-skeleton/dist/skeleton.css";
 
-// Geliştirilmiş fetcher: AbortController ve hata denetimi eklendi.
-const fetcher = (url: string) => {
+// Geliştirilmiş fetcher: AbortController + zaman aşımı + net hata mesajı
+const fetcher = async (url: string) => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 saniyelik zaman aşımı
+  const timeout = setTimeout(() => controller.abort(), 8000);
 
-  return fetch(url, { signal: controller.signal })
-    .then((res) => {
-      clearTimeout(timeoutId);
-      if (!res.ok) {
-        throw new Error(`Network response was not ok (status: ${res.status})`);
-      }
-      return res.json();
-    })
-    .catch((error) => {
-      throw new Error(`Failed to fetch: ${error.message}`);
-    });
+  try {
+    const res = await fetch(url, { signal: controller.signal, credentials: "include" });
+
+    clearTimeout(timeout);
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+    }
+
+    return res.json();
+  } catch (err: any) {
+    throw new Error(err.message || "Unknown fetch error");
+  }
 };
 
 export default function StatusPage({
@@ -40,10 +42,16 @@ export default function StatusPage({
 }) {
   const auth = useAuth();
 
-  // useSWR yapılandırmasına revalidateOnFocus eklenerek gereksiz istekler engellendi.
-  const { data, error } = useSWR(`/api/posts?post_id=${params.postId}`, fetcher, {
-    revalidateOnFocus: false,
-  });
+  const { data, error, isValidating } = useSWR(
+    `/api/posts?post_id=${params.postId}`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 10000, // Aynı isteği 10sn içinde tekrar etmez
+      errorRetryCount: 2,
+      errorRetryInterval: 5000,
+    }
+  );
 
   const loading = !data && !error;
   const postData: PostData | null =
@@ -54,9 +62,9 @@ export default function StatusPage({
       {/* Üst Kısım */}
       <div className="flex flex-wrap items-center gap-4 md:gap-8 sticky top-0 backdrop-blur-lg p-4 z-10 bg-gradient-to-br from-gray-800 to-gray-700 shadow-md">
         <Link href="/" className="hover:bg-gray-600 p-2 rounded transition">
-          <Image src="/icons/left.png" alt="back" width={24} height={24} />
+          <Image src="/icons/left.png" alt="back" width={24} height={24} priority />
         </Link>
-        <h1 className="font-bold text-base md:text-lg">
+        <h1 className="font-bold text-base md:text-lg truncate">
           {params.username}'s Post (ID: {params.postId})
         </h1>
       </div>
@@ -64,14 +72,20 @@ export default function StatusPage({
       {/* İçerik Alanı */}
       <div className="w-full max-w-3xl mx-auto mt-6 p-4 sm:p-6 bg-gradient-to-br from-gray-800 to-gray-700 shadow-2xl rounded-xl border border-gray-300">
         {loading ? (
-          <p className="p-4 text-center">Loading post...</p>
-        ) : !postData ? (
-          <p className="p-4 text-center">Post not found.</p>
-        ) : (
-          <div>
-            <Post postData={postData} />
-            {/* <Comments postId={Number(params.postId)} /> */}
+          <div className="p-4">
+            <Skeleton height={200} borderRadius={12} />
+            <div className="mt-4 space-y-2">
+              <Skeleton width={`80%`} />
+              <Skeleton width={`60%`} />
+              <Skeleton width={`90%`} />
+            </div>
           </div>
+        ) : error ? (
+          <p className="p-4 text-center text-red-400">Gönderi yüklenirken hata oluştu.</p>
+        ) : !postData ? (
+          <p className="p-4 text-center">Gönderi bulunamadı.</p>
+        ) : (
+          <Post postData={postData} />
         )}
       </div>
     </div>

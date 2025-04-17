@@ -161,7 +161,7 @@ export async function POST(request: Request) {
          VALUES (?, ?, ?, ?, ?, ?, 'pending')`,
         [
           user_id,
-          content || "[Medya gönderisi]",
+          content || "Undergo",
           media_url,
           media_type,
           isReel,
@@ -190,7 +190,7 @@ export async function POST(request: Request) {
         user_id,
         categoryId,
         title,
-        content || "[Medya gönderisi]",
+        content || "Undergo",
         media_url,
         media_type,
         isReel,

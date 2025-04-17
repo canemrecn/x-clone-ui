@@ -8,12 +8,12 @@
 //mesaj kaydı olarak ekler. İşlem sonunda yeni mesaj verisini 
 //döner, eksik veya geçersiz veri ya da yetkisiz erişim 
 //durumlarında uygun hata mesajları ve durum kodları ile yanıt verir.
-// src/app/api/dm_messages/createMedia/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import ImageKit from "imagekit";
 import jwt from "jsonwebtoken";
-import { db } from "@/lib/db"; // Örnek DB bağlantısı (mysql2/promise)
+import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
+import { cookies } from "next/headers"; // <-- Cookie erişimi
 
 // ImageKit yapılandırması
 const imagekit = new ImageKit({
@@ -22,6 +22,7 @@ const imagekit = new ImageKit({
   urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || "",
 });
 
+// Mesajı veritabanına ekleme
 async function insertMessage({
   senderId,
   receiverId,
@@ -72,24 +73,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid receiverId" }, { status: 400 });
     }
 
-    // ✅ Authorization header ile token al
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    // ✅ JWT doğrulamasını cookie'den al
+    const cookieStore =await cookies();
+    const token = cookieStore.get("token")?.value;
+    const secret = process.env.JWT_SECRET;
+
+    if (!token || !secret) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const token = authHeader.split(" ")[1].trim();
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      return NextResponse.json({ error: "JWT_SECRET not defined" }, { status: 500 });
-    }
 
-    let decoded;
-    try {
-      decoded = jwt.verify(token, secret) as { id: number };
-    } catch (err) {
-      return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
-    }
-
+    const decoded = jwt.verify(token, secret) as { id: number };
     const senderId = decoded.id;
 
     // Base64 verisini ayrıştır
@@ -112,7 +105,7 @@ export async function POST(request: NextRequest) {
       folder: "/dm_messages",
     });
 
-    // Veritabanına ekle
+    // Veritabanına mesaj olarak kaydet
     const newMessage = await insertMessage({
       senderId,
       receiverId: Number(receiverId),
