@@ -1,8 +1,9 @@
-//src/policies/privacy-policy.tsx
+// src/policies/privacy-policy.tsx
 /*Bu dosya, Undergo platformunun Gizlilik Politikası sayfasını oluşturan React bileşenidir ve kullanıcıların 
 kişisel verilerinin nasıl toplandığını, işlendiğini, ne amaçla kullanıldığını, ne kadar süreyle saklandığını, 
 hangi güvenlik önlemleriyle korunduğunu ve kullanıcıların KVKK/GDPR kapsamındaki haklarını açıklar; ayrıca 
 kullanıcıların bu haklarını nasıl kullanabileceklerine dair iletişim bilgisi de sunar.*/
+// src/policies/privacy-policy.tsx
 import React from "react";
 
 const PrivacyPolicy = () => {
@@ -13,8 +14,7 @@ const PrivacyPolicy = () => {
       <p className="mb-4">
         Undergo platformu olarak, kullanıcılarımızın gizliliğine ve kişisel verilerinin korunmasına büyük önem veriyoruz.
         Bu gizlilik politikası, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Avrupa Birliği Genel Veri Koruma
-        Tüzüğü (GDPR) kapsamında, hangi kişisel verileri işlediğimizi, ne amaçla topladığımızı ve nasıl koruduğumuzu
-        açıklamaktadır.
+        Tüzüğü (GDPR) kapsamında, hangi kişisel verileri işlediğimizi, ne amaçla topladığımızı ve nasıl koruduğumuzu açıklamaktadır.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">Toplanan Veriler</h2>
@@ -29,15 +29,26 @@ const PrivacyPolicy = () => {
 
       <h2 className="text-xl font-semibold mt-6 mb-2">Verilerin İşlenme Amaçları</h2>
       <p className="mb-4">
-        Toplanan kişisel veriler aşağıdaki amaçlarla işlenmektedir:
+        Toplanan kişisel veriler, aşağıdaki meşru ve açık amaçlarla sınırlı olarak işlenmektedir:
       </p>
       <ul className="list-disc list-inside mb-4">
         <li>Hizmetin sunulması ve kullanıcı hesaplarının yönetilmesi</li>
         <li>Gönderi paylaşımı ve sosyal etkileşimlerin sağlanması</li>
-        <li>Güvenlik ve kötüye kullanım tespiti</li>
-        <li>Platformun iyileştirilmesi ve istatistiksel analiz</li>
+        <li>Güvenliğin sağlanması ve kötüye kullanımın tespiti</li>
+        <li>Platformun iyileştirilmesi, performans ölçümü ve istatistiksel analiz</li>
         <li>Yasal yükümlülüklerin yerine getirilmesi</li>
       </ul>
+      <p className="mb-4">
+        Kişisel veriler, yalnızca yukarıdaki amaçlar doğrultusunda işlenmekte olup, bu amaçlar dışında herhangi bir 
+        faaliyet için (örneğin ticari çıkar, pazarlama, otomatik profil çıkarımı gibi) kullanılmamaktadır.
+      </p>
+
+      <h2 className="text-xl font-semibold mt-6 mb-2">Verilerin Saklandığı Yer ve Yurtdışına Aktarım</h2>
+      <p className="mb-4">
+        Undergo, barındırma, medya yönetimi (örneğin ImageKit) ve bazı hizmet sağlayıcılar (örneğin OpenAI, socket.io) gibi nedenlerle yurt dışında bulunan sunucular kullanabilir.
+        Kullanıcıların kişisel verileri, Avrupa Birliği, Amerika Birleşik Devletleri veya diğer ülkelerdeki sunucular üzerinden işlenebilir veya saklanabilir.
+        Bu nedenle, platformu kullanarak verilerinizin yurtdışına aktarılmasına açık rıza verdiğinizi kabul etmiş olursunuz.
+      </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">Verilerin Saklanma Süresi</h2>
       <p className="mb-4">
@@ -49,6 +60,12 @@ const PrivacyPolicy = () => {
       <p className="mb-4">
         Kişisel verilerinizin güvenliği için gerekli tüm teknik ve idari tedbirleri alıyoruz. Şifreleme, erişim kontrolleri,
         güvenlik duvarı gibi yöntemlerle veriler korunmaktadır.
+      </p>
+
+      <h2 className="text-xl font-semibold mt-6 mb-2">Veri İhlali Durumunda Bilgilendirme</h2>
+      <p className="mb-4">
+        Kişisel verilerinizin yetkisiz erişim, kayıp, çalınma veya ifşa gibi ihlallere maruz kalması halinde, etkilenen kullanıcılar en kısa sürede e-posta yoluyla bilgilendirilecektir.
+        İhlal bildirimi kapsamında, etkilenen verilerin türü, ihlalin olası etkileri ve alınan önlemler açıkça iletilecektir.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">Veri Sahibi Hakları</h2>

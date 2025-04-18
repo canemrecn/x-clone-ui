@@ -7,16 +7,31 @@ olacak şekilde yapılandırılmıştır.*/
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
-    const token = req.cookies.get("token")?.value; // Kullanıcının giriş yapıp yapmadığını kontrol et
+  const token = req.cookies.get("token")?.value;
 
-    if (!token && req.nextUrl.pathname !== "/register" && req.nextUrl.pathname !== "/login") {
-        return NextResponse.redirect(new URL("/register", req.url)); // Eğer giriş yapılmadıysa, /register sayfasına yönlendir
-    }
+  const res = NextResponse.next();
 
-    return NextResponse.next();
+  // ✅ Gelişmiş Güvenlik Başlıkları
+  res.headers.set("X-Frame-Options", "DENY");
+  res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.headers.set("X-DNS-Prefetch-Control", "off");
+  res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  res.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+
+  // ✅ Content Security Policy
+  res.headers.set(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https://ik.imagekit.io; font-src 'self'; connect-src 'self';"
+  );
+
+  if (!token && req.nextUrl.pathname !== "/register" && req.nextUrl.pathname !== "/login") {
+    return NextResponse.redirect(new URL("/register", req.url));
+  }
+
+  return res;
 }
 
-// Middleware'in hangi yollar için çalışacağını belirle
 export const config = {
-    matcher: ["/((?!_next|favicon.ico|public|api).*)"], // API isteklerini ve statik dosyaları hariç tut
+  matcher: ["/((?!_next|favicon.ico|public|api).*)"],
 };

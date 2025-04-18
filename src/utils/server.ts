@@ -1,7 +1,8 @@
-//src/utils/server.ts
+// src/utils/server.ts
 /*Bu dosya, sunucu tarafında kullanılmak üzere ImageKit kütüphanesinden bir serverImageKit örneği oluşturur; 
 bu örnek, ortam değişkenleri (publicKey, privateKey, urlEndpoint) ile yapılandırılır ve eksik değişkenler 
 varsa hata fırlatılarak yapılandırma güvence altına alınır.*/
+
 import ImageKit from "imagekit";
 
 // Gerekli ortam değişkenlerinin varlığını kontrol ediyoruz.
@@ -19,3 +20,6 @@ export const serverImageKit = new ImageKit({
   privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
   urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
 });
+
+// ✅ Cron görevlerini başlat (2 yıllık silinmiş verileri günlük temizler)
+import "@/lib/cron-cleaner";

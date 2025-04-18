@@ -15,8 +15,7 @@ import { cookies } from "next/headers";
 
 export async function DELETE(req: Request) {
   try {
-    // 🍪 Cookie üzerinden token alıyoruz (HttpOnly için)
-    const cookieStore =await cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
     if (!token) {
@@ -26,25 +25,16 @@ export async function DELETE(req: Request) {
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
 
-    let decoded;
-    try {
-      decoded = jwt.verify(token, secret) as { id: number };
-    } catch (err) {
-      return NextResponse.json({ message: "Invalid or expired token." }, { status: 401 });
-    }
-
+    const decoded = jwt.verify(token, secret) as { id: number };
     const userId = decoded.id;
-    const { email, password, reason } = await req.json();
 
+    const { email, password, reason } = await req.json();
     if (!email || !password) {
-      return NextResponse.json(
-        { message: "Email and password are required." },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Email and password are required." }, { status: 400 });
     }
 
     const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT email, password FROM users WHERE id = ?",
+      "SELECT email, password FROM users WHERE id = ? AND is_deleted = 0",
       [userId]
     );
 
@@ -63,20 +53,16 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ message: "Password is incorrect." }, { status: 401 });
     }
 
-    // 🧾 Silme günlüğüne kayıt at
+    // Silme günlüğü
     await db.query(
       "INSERT INTO deletion_logs (user_id, email, reason) VALUES (?, ?, ?)",
       [userId, user.email, reason || null]
     );
 
-    // ❌ Kullanıcıyı sil
-    await db.query("DELETE FROM users WHERE id = ?", [userId]);
+    // Kalıcı silme yerine soft delete + timestamp
+    await db.query("UPDATE users SET is_deleted = 1, deleted_at = NOW() WHERE id = ?", [userId]);
 
-    // 🍪 Token'ı cookie'den kaldır
-    const response = NextResponse.json(
-      { message: "Account deleted successfully." },
-      { status: 200 }
-    );
+    const response = NextResponse.json({ message: "Account marked as deleted." }, { status: 200 });
     response.cookies.set("token", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -87,9 +73,6 @@ export async function DELETE(req: Request) {
     return response;
   } catch (error) {
     console.error("Delete account error:", error);
-    return NextResponse.json(
-      { message: "Error deleting account." },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Error deleting account." }, { status: 500 });
   }
 }
