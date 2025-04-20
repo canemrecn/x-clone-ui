@@ -15,13 +15,16 @@ export const getAuthUser = async () => {
     const userId = decoded.id;
 
     const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT id FROM users WHERE id = ? AND is_deleted = 0",
+      "SELECT id, role FROM users WHERE id = ? AND is_deleted = 0",
       [userId]
     );
 
     if (!rows || rows.length === 0) return null;
 
-    return { id: userId };
+    return {
+      id: rows[0].id,
+      role: rows[0].role, // ✅ Artık role özelliği de var
+    };
   } catch (err) {
     return null;
   }

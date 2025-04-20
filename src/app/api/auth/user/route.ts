@@ -31,7 +31,15 @@ export async function GET() {
     }
 
     const [rows] = await db.query<RowDataPacket[]>(`
-      SELECT u.id, u.full_name, u.username, ul.level, u.points, u.profile_image, u.joined_date,
+      SELECT 
+        u.id, 
+        u.full_name, 
+        u.username, 
+        u.email,                         -- ✅ EKLENDİ
+        ul.level, 
+        u.points, 
+        u.profile_image, 
+        u.joined_date,
         (SELECT COUNT(*) FROM follows WHERE following_id = u.id) AS follower_count,
         (SELECT COUNT(*) FROM follows WHERE follower_id = u.id) AS following_count
       FROM users u
@@ -39,6 +47,7 @@ export async function GET() {
       WHERE u.id = ?
       LIMIT 1
     `, [decoded.id]);
+    
 
     if (!rows || rows.length === 0) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });

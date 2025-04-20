@@ -8,6 +8,7 @@
 //kullanıcıya e-posta ile gönderir. E-posta gönderimi için Gmail ve 
 //Nodemailer kullanılır. Hatalarda anlamlı geri bildirimler verir, 
 //başarılı durumda kullanıcıdan e-postasını kontrol etmesi istenir.
+// src/app/api/auth/register/route.ts
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
@@ -39,7 +40,20 @@ export async function POST(req: Request) {
     securityQuestion = securityQuestion?.trim();
     securityAnswer = securityAnswer?.trim();
 
-    if (!full_name || !username || !email || !password || !securityQuestion || !securityAnswer) {
+    if (
+      !full_name ||
+      !username ||
+      !email ||
+      !password ||
+      !securityQuestion ||
+      !securityAnswer ||
+      full_name === "" ||
+      username === "" ||
+      email === "" ||
+      password === "" ||
+      securityQuestion === "" ||
+      securityAnswer === ""
+    ) {
       return NextResponse.json({ message: "All fields are required" }, { status: 400 });
     }
 
@@ -106,9 +120,11 @@ export async function POST(req: Request) {
     };
 
     try {
-      await transporter.sendMail(mailOptions);
+      const result = await transporter.sendMail(mailOptions);
+      console.log("📨 Kayıt sonrası e-posta gönderildi:", result.response);
     } catch (emailError) {
-      console.error("Email send error:", emailError);
+      console.error("❌ Kayıt maili gönderilemedi:", emailError);
+      return NextResponse.json({ message: "Mail gönderilemedi", error: String(emailError) }, { status: 500 });
     }
 
     return NextResponse.json({ message: "User registered successfully. Lütfen e-postanızı kontrol edin." }, { status: 201 });

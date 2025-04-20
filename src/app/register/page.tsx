@@ -84,21 +84,62 @@ export default function Register() {
                 <h1 className="text-lg font-semibold">UNDERGO</h1>
               </div>
 
-              <input type="text" placeholder="Full Name" required className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
-                onChange={(e) => setUser((prev) => ({ ...prev, full_name: e.target.value }))} />
+              <input
+                type="text"
+                placeholder="Full Name"
+                required
+                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
+                onChange={(e) => setUser((prev) => ({ ...prev, full_name: e.target.value }))}
+              />
 
-              <input type="text" placeholder="Username" required className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
-                onChange={(e) => setUser((prev) => ({ ...prev, username: e.target.value }))} />
+              <input
+                type="text"
+                placeholder="Username"
+                required
+                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
+                onChange={(e) => setUser((prev) => ({ ...prev, username: e.target.value }))}
+              />
 
-              <input type="email" placeholder="Email" required className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
-                onChange={(e) => setUser((prev) => ({ ...prev, email: e.target.value }))} />
+              <input
+                type="email"
+                placeholder="Email"
+                required
+                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
+                onChange={(e) => setUser((prev) => ({ ...prev, email: e.target.value }))}
+              />
 
-              <input type="password" placeholder="Password" required className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
-                onChange={(e) => setUser((prev) => ({ ...prev, password: e.target.value }))} />
+              <input
+                type="password"
+                placeholder="Password"
+                required
+                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
+                onChange={(e) => setUser((prev) => ({ ...prev, password: e.target.value }))}
+              />
+
+              <input
+                type="text"
+                placeholder="Güvenlik Sorusu (örnek: İlk evcil hayvanınız?)"
+                required
+                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
+                onChange={(e) => setUser((prev) => ({ ...prev, securityQuestion: e.target.value }))}
+              />
+
+              <input
+                type="text"
+                placeholder="Güvenlik Sorusu Cevabı"
+                required
+                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
+                onChange={(e) => setUser((prev) => ({ ...prev, securityAnswer: e.target.value }))}
+              />
 
               {/* Gizlilik Politikası */}
               <label className="flex items-start gap-2 text-sm text-gray-300">
-                <input type="checkbox" required onChange={(e) => setUser((prev) => ({ ...prev, privacyAccepted: e.target.checked }))} className="mt-1" />
+                <input
+                  type="checkbox"
+                  required
+                  onChange={(e) => setUser((prev) => ({ ...prev, privacyAccepted: e.target.checked }))}
+                  className="mt-1"
+                />
                 <span>
                   <Link href="/privacy-policy" target="_blank" className="underline text-blue-400 hover:text-blue-300">
                     Gizlilik Politikası
@@ -110,29 +151,49 @@ export default function Register() {
               {/* Açık Rıza Kutuları */}
               <div className="flex flex-col gap-2 text-sm text-gray-300">
                 <label className="flex items-start gap-2">
-                  <input type="checkbox" onChange={(e) => setUser((prev) => ({ ...prev, promoConsent: e.target.checked }))} className="mt-1" />
+                  <input
+                    type="checkbox"
+                    onChange={(e) => setUser((prev) => ({ ...prev, promoConsent: e.target.checked }))}
+                    className="mt-1"
+                  />
                   <span>Bana tanıtım ve bilgilendirme mesajları gönderilmesini kabul ediyorum.</span>
                 </label>
                 <label className="flex items-start gap-2">
-                  <input type="checkbox" onChange={(e) => setUser((prev) => ({ ...prev, analyticsConsent: e.target.checked }))} className="mt-1" />
+                  <input
+                    type="checkbox"
+                    onChange={(e) => setUser((prev) => ({ ...prev, analyticsConsent: e.target.checked }))}
+                    className="mt-1"
+                  />
                   <span>Çerez ve analiz verilerimin işlenmesini kabul ediyorum.</span>
                 </label>
                 <label className="flex items-start gap-2">
-                  <input type="checkbox" onChange={(e) => setUser((prev) => ({ ...prev, transferConsent: e.target.checked }))} className="mt-1" />
+                  <input
+                    type="checkbox"
+                    onChange={(e) => setUser((prev) => ({ ...prev, transferConsent: e.target.checked }))}
+                    className="mt-1"
+                  />
                   <span>Verilerimin yurt dışındaki hizmetlere aktarılmasını kabul ediyorum.</span>
                 </label>
               </div>
 
               {error && <p className="text-red-400 text-sm">{error}</p>}
 
-              <button type="submit" className="py-3 px-4 font-semibold rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 text-white hover:from-gray-700 hover:to-gray-600 focus:ring-2 shadow-md transition-all">
+              <button
+                type="submit"
+                className="py-3 px-4 font-semibold rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 text-white hover:from-gray-700 hover:to-gray-600 focus:ring-2 shadow-md transition-all"
+              >
                 Register
               </button>
 
-              <button type="button" onClick={() => router.push("/login")} className="py-3 px-4 font-semibold rounded-lg bg-gradient-to-br from-gray-800 to-gray-800 text-white hover:from-gray-700 hover:to-gray-700 focus:ring-2 shadow-md transition-all">
+              <button
+                type="button"
+                onClick={() => router.push("/login")}
+                className="py-3 px-4 font-semibold rounded-lg bg-gradient-to-br from-gray-800 to-gray-800 text-white hover:from-gray-700 hover:to-gray-700 focus:ring-2 shadow-md transition-all"
+              >
                 Already have an account?
               </button>
             </form>
+
           </div>
         </div>
       </div>

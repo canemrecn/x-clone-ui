@@ -8,6 +8,8 @@ import React from "react";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import LayoutWrapper from "@/components/LayoutWrapper";
+import CookieBanner from "@/components/CookieBanner";
+import Analytics from "@/components/Analytics";
 
 export const metadata = {
   title: "UnderGo",
@@ -31,7 +33,11 @@ export default function RootLayout({
       </head>
       <body className="text-[#FFFFFF]">
         <AuthProvider>
-          <LayoutWrapper>{children}</LayoutWrapper>
+          <LayoutWrapper>
+            {children}
+            <CookieBanner />
+            <Analytics />
+            </LayoutWrapper>
         </AuthProvider>
       </body>
     </html>

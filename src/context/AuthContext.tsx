@@ -30,6 +30,7 @@ type User = {
   points?: number;
   profile_image?: string;
   joined_date?: string;
+  email: string;
 };
 
 type AuthContextType = {

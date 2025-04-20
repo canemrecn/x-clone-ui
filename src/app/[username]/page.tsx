@@ -309,6 +309,7 @@ export default function UserPage() {
         <span className="text-sm">@{profileUser.username}</span>
         <p>Level: {profileUser.level}</p>
         <p>Points: {profileUser.points}</p>
+        <p className="text-xs text-gray-400">Kullanıcı ID: {profileUser.id}</p>
 
         <div className="flex flex-wrap gap-4 mt-2">
           <Link href={`/profile/${profileUser.username}/followers`} className="hover:underline hover:text-cyan-400 text-white">

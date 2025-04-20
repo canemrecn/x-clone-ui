@@ -5,13 +5,14 @@
 //veritabanıyla karşılaştırır ve doğruysa kullanıcı kaydını siler. Hatalı veya eksik 
 //bilgilerde detaylı uyarılar verir, başarılı işlemde onay mesajı döner, sistem hatalarında 
 //ise 500 hata kodu ile geri döner.
-// src/app/api/auth/delete-account/route.ts
+// ✅ src/app/api/auth/delete-account/route.ts
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
 import { RowDataPacket } from "mysql2";
 import { cookies } from "next/headers";
+import { deleteUserMediaFromImageKit } from "@/lib/imagekit";
 
 export async function DELETE(req: Request) {
   try {
@@ -59,10 +60,27 @@ export async function DELETE(req: Request) {
       [userId, user.email, reason || null]
     );
 
-    // Kalıcı silme yerine soft delete + timestamp
-    await db.query("UPDATE users SET is_deleted = 1, deleted_at = NOW() WHERE id = ?", [userId]);
+    // Medya dosyalarını ImageKit'ten sil
+    await deleteUserMediaFromImageKit(userId);
 
-    const response = NextResponse.json({ message: "Account marked as deleted." }, { status: 200 });
+    // Kullanıcıya ait tüm içerikleri zincirleme sil
+    await db.query("DELETE FROM posts WHERE user_id = ?", [userId]);
+    await db.query("DELETE FROM comments WHERE user_id = ?", [userId]);
+    await db.query("DELETE FROM likes WHERE user_id = ?", [userId]);
+    await db.query("DELETE FROM follows WHERE follower_id = ? OR following_id = ?", [userId, userId]);
+    await db.query("DELETE FROM messages WHERE sender_id = ? OR receiver_id = ?", [userId, userId]);
+    await db.query("DELETE FROM dm_messages WHERE senderId = ? OR receiverId = ?", [userId, userId]);
+    await db.query("DELETE FROM read_words WHERE user_id = ?", [userId]);
+    await db.query("DELETE FROM notes WHERE user_id = ?", [userId]);
+    await db.query("DELETE FROM social_accounts WHERE userId = ?", [userId]);
+    await db.query("DELETE FROM user_devices WHERE userId = ?", [userId]);
+    await db.query("DELETE FROM notifications WHERE user_id = ? OR from_user_id = ?", [userId, userId]);
+    await db.query("DELETE FROM user_warnings WHERE user_id = ?", [userId]);
+
+    // En son kullanıcıyı da tamamen sil
+    await db.query("DELETE FROM users WHERE id = ?", [userId]);
+
+    const response = NextResponse.json({ message: "Account and all data permanently deleted." }, { status: 200 });
     response.cookies.set("token", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

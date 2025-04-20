@@ -3,84 +3,134 @@
 kişisel verilerinin nasıl toplandığını, işlendiğini, ne amaçla kullanıldığını, ne kadar süreyle saklandığını, 
 hangi güvenlik önlemleriyle korunduğunu ve kullanıcıların KVKK/GDPR kapsamındaki haklarını açıklar; ayrıca 
 kullanıcıların bu haklarını nasıl kullanabileceklerine dair iletişim bilgisi de sunar.*/
-// src/policies/privacy-policy.tsx
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
+
+const translations = {
+  tr: {
+    title: "Gizlilik Politikası",
+    intro:
+      "Undergo platformu olarak, kullanıcılarımızın gizliliğine ve kişisel verilerinin korunmasına büyük önem veriyoruz. Bu gizlilik politikası, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR) kapsamında, hangi kişisel verileri işlediğimizi, ne amaçla topladığımızı ve nasıl koruduğumuzu açıklamaktadır.",
+    collectedData: "Toplanan Veriler",
+    purposes: "Verilerin İşlenme Amaçları",
+    storageTransfer: "Verilerin Saklandığı Yer ve Yurtdışına Aktarım",
+    retention: "Verilerin Saklanma Süresi",
+    security: "Veri Güvenliği",
+    breach: "Veri İhlali Durumunda Bilgilendirme",
+    rights: "Veri Sahibi Hakları",
+    cookies: "Çerezler ve Takip Teknolojileri",
+    rep: "AB Temsilcisi",
+    dpia: "Veri Koruma Etki Değerlendirmesi (DPIA)"
+  },
+  en: {
+    title: "Privacy Policy",
+    intro:
+      "At Undergo, we take our users' privacy and personal data protection very seriously. This privacy policy explains which personal data we process, for what purpose, and how we protect it in accordance with the Turkish Personal Data Protection Law (KVKK) and the European Union General Data Protection Regulation (GDPR).",
+    collectedData: "Collected Data",
+    purposes: "Purposes of Data Processing",
+    storageTransfer: "Data Storage and Transfer Abroad",
+    retention: "Data Retention Period",
+    security: "Data Security",
+    breach: "Notification in Case of Data Breach",
+    rights: "Data Subject Rights",
+    cookies: "Cookies and Tracking Technologies",
+    rep: "EU Representative",
+    dpia: "Data Protection Impact Assessment (DPIA)"
+  }
+};
 
 const PrivacyPolicy = () => {
+  const [lang, setLang] = useState<"tr" | "en">("tr");
+  const t = translations[lang];
+
   return (
     <div className="p-6 max-w-4xl mx-auto text-sm leading-6">
-      <h1 className="text-2xl font-bold mb-4">Gizlilik Politikası</h1>
+      <div className="mb-6">
+        <label htmlFor="lang" className="mr-2 font-medium">
+          Dil / Language:
+        </label>
+        <select
+          id="lang"
+          className="p-1 border rounded text-black"
+          value={lang}
+          onChange={(e) => setLang(e.target.value as "tr" | "en")}
+        >
+          <option value="tr">Türkçe</option>
+          <option value="en">English</option>
+        </select>
+      </div>
 
-      <p className="mb-4">
-        Undergo platformu olarak, kullanıcılarımızın gizliliğine ve kişisel verilerinin korunmasına büyük önem veriyoruz.
-        Bu gizlilik politikası, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Avrupa Birliği Genel Veri Koruma
-        Tüzüğü (GDPR) kapsamında, hangi kişisel verileri işlediğimizi, ne amaçla topladığımızı ve nasıl koruduğumuzu açıklamaktadır.
-      </p>
+      <h1 className="text-2xl font-bold mb-4">{t.title}</h1>
+      <p className="mb-4">{t.intro}</p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">Toplanan Veriler</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">{t.collectedData}</h2>
       <ul className="list-disc list-inside mb-4">
-        <li>Ad, soyad, kullanıcı adı</li>
-        <li>E-posta adresi</li>
-        <li>Profil bilgileri (fotoğraf, biyografi vb.)</li>
-        <li>Paylaşılan gönderiler, yorumlar ve mesaj içerikleri</li>
-        <li>IP adresi ve cihaz bilgileri</li>
-        <li>Çerez verileri ve kullanıcı tercihleri</li>
+        <li>Name, surname, username</li>
+        <li>Email address</li>
+        <li>Profile info (photo, bio, etc.)</li>
+        <li>Posts, comments, direct messages</li>
+        <li>IP address and device info</li>
+        <li>Cookie data and preferences</li>
       </ul>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">Verilerin İşlenme Amaçları</h2>
-      <p className="mb-4">
-        Toplanan kişisel veriler, aşağıdaki meşru ve açık amaçlarla sınırlı olarak işlenmektedir:
-      </p>
+      <h2 className="text-xl font-semibold mt-6 mb-2">{t.purposes}</h2>
       <ul className="list-disc list-inside mb-4">
-        <li>Hizmetin sunulması ve kullanıcı hesaplarının yönetilmesi</li>
-        <li>Gönderi paylaşımı ve sosyal etkileşimlerin sağlanması</li>
-        <li>Güvenliğin sağlanması ve kötüye kullanımın tespiti</li>
-        <li>Platformun iyileştirilmesi, performans ölçümü ve istatistiksel analiz</li>
-        <li>Yasal yükümlülüklerin yerine getirilmesi</li>
+        <li>Service delivery and account management</li>
+        <li>Post sharing and social interaction</li>
+        <li>Security and abuse detection</li>
+        <li>Performance improvement and analytics</li>
+        <li>Fulfilling legal obligations</li>
       </ul>
+
+      <h2 className="text-xl font-semibold mt-6 mb-2">{t.storageTransfer}</h2>
       <p className="mb-4">
-        Kişisel veriler, yalnızca yukarıdaki amaçlar doğrultusunda işlenmekte olup, bu amaçlar dışında herhangi bir 
-        faaliyet için (örneğin ticari çıkar, pazarlama, otomatik profil çıkarımı gibi) kullanılmamaktadır.
+        We may use servers located abroad (e.g. ImageKit, OpenAI, socket.io). By using the platform, you consent to international data transfer.
       </p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">Verilerin Saklandığı Yer ve Yurtdışına Aktarım</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">{t.retention}</h2>
       <p className="mb-4">
-        Undergo, barındırma, medya yönetimi (örneğin ImageKit) ve bazı hizmet sağlayıcılar (örneğin OpenAI, socket.io) gibi nedenlerle yurt dışında bulunan sunucular kullanabilir.
-        Kullanıcıların kişisel verileri, Avrupa Birliği, Amerika Birleşik Devletleri veya diğer ülkelerdeki sunucular üzerinden işlenebilir veya saklanabilir.
-        Bu nedenle, platformu kullanarak verilerinizin yurtdışına aktarılmasına açık rıza verdiğinizi kabul etmiş olursunuz.
+        Data is deleted, destroyed or anonymized when the processing purpose ends. When an account is deleted, the data is also removed within a reasonable time.
       </p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">Verilerin Saklanma Süresi</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">{t.security}</h2>
       <p className="mb-4">
-        Kişisel veriler, işleme amaçları sona erdiğinde silinir, yok edilir veya anonim hale getirilir. Kullanıcı hesabı
-        silindiğinde veriler de makul süre içerisinde imha edilir.
+        We implement necessary security measures including encryption, access controls, firewall, and logging.
       </p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">Veri Güvenliği</h2>
+      <h2 className="text-xl font-semibold mt-6 mb-2">{t.breach}</h2>
       <p className="mb-4">
-        Kişisel verilerinizin güvenliği için gerekli tüm teknik ve idari tedbirleri alıyoruz. Şifreleme, erişim kontrolleri,
-        güvenlik duvarı gibi yöntemlerle veriler korunmaktadır.
+        In case of unauthorized access or data breach, affected users will be notified via email as soon as possible.
       </p>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">Veri İhlali Durumunda Bilgilendirme</h2>
-      <p className="mb-4">
-        Kişisel verilerinizin yetkisiz erişim, kayıp, çalınma veya ifşa gibi ihlallere maruz kalması halinde, etkilenen kullanıcılar en kısa sürede e-posta yoluyla bilgilendirilecektir.
-        İhlal bildirimi kapsamında, etkilenen verilerin türü, ihlalin olası etkileri ve alınan önlemler açıkça iletilecektir.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-6 mb-2">Veri Sahibi Hakları</h2>
-      <p className="mb-4">
-        KVKK ve GDPR kapsamında, kullanıcıların kişisel verileriyle ilgili:
-      </p>
+      <h2 className="text-xl font-semibold mt-6 mb-2">{t.rights}</h2>
       <ul className="list-disc list-inside mb-4">
-        <li>İşlenip işlenmediğini öğrenme</li>
-        <li>Düzeltme, silme veya yok edilmesini talep etme</li>
-        <li>Aktarıldığı 3. kişileri bilme</li>
-        <li>İtiraz etme ve zarar halinde tazminat isteme</li>
+        <li>Access to your personal data</li>
+        <li>Correction, deletion, or erasure</li>
+        <li>Knowledge of third-party transfers</li>
+        <li>Objection and request for compensation</li>
       </ul>
 
       <p className="mb-4">
-        Bu haklarınızı kullanmak için bizimle <strong>destek@undergo.com</strong> adresi üzerinden iletişime geçebilirsiniz.
+        To exercise your rights, contact us at <strong>destek@undergo.com</strong>.
+      </p>
+
+      <h2 className="text-xl font-semibold mt-6 mb-2">{t.cookies}</h2>
+      <p className="mb-4">
+        Our site uses essential, analytical and marketing cookies. Visit our <a href="/cookies-policy" className="underline text-cyan-400">Cookies Policy</a> page for details and preferences.
+      </p>
+
+      <h2 className="text-xl font-semibold mt-6 mb-2">{t.rep}</h2>
+      <ul className="list-disc list-inside mb-4">
+        <li><strong>Name:</strong> Jane Doe</li>
+        <li><strong>Company:</strong> Example EU Rep Ltd.</li>
+        <li><strong>Address:</strong> Rue de GDPR, 1000 Brussels, Belgium</li>
+        <li><strong>Email:</strong> eu-rep@undergo.com</li>
+      </ul>
+
+      <h2 className="text-xl font-semibold mt-6 mb-2">{t.dpia}</h2>
+      <p className="mb-4">
+        We conduct regular DPIA assessments especially for features like messaging, analytics and AI-powered functionalities.
       </p>
     </div>
   );
