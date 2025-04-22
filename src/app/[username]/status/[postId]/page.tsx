@@ -12,16 +12,19 @@ import Link from "next/link";
 import useSWR from "swr";
 import { PostData } from "@/components/Post";
 import Image from "next/image";
-import Skeleton from "react-loading-skeleton"; // Eğer yüklü değilse: npm install react-loading-skeleton
+import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
-// Geliştirilmiş fetcher: AbortController + zaman aşımı + net hata mesajı
+// ✅ Geliştirilmiş fetcher
 const fetcher = async (url: string) => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
 
   try {
-    const res = await fetch(url, { signal: controller.signal, credentials: "include" });
+    const res = await fetch(url, {
+      signal: controller.signal,
+      credentials: "include",
+    });
 
     clearTimeout(timeout);
 
@@ -35,11 +38,15 @@ const fetcher = async (url: string) => {
   }
 };
 
-export default function StatusPage({
-  params,
-}: {
-  params: { username: string; postId: string };
-}) {
+// ✅ Hatalı yapı: `params` tipi eksik => düzeltildi
+type StatusPageProps = {
+  params: {
+    username: string;
+    postId: string;
+  };
+};
+
+export default function StatusPage({ params }: StatusPageProps) {
   const auth = useAuth();
 
   const { data, error, isValidating } = useSWR(
@@ -47,7 +54,7 @@ export default function StatusPage({
     fetcher,
     {
       revalidateOnFocus: false,
-      dedupingInterval: 10000, // Aynı isteği 10sn içinde tekrar etmez
+      dedupingInterval: 10000,
       errorRetryCount: 2,
       errorRetryInterval: 5000,
     }
