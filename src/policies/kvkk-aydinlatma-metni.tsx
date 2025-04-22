@@ -14,7 +14,7 @@ const KvkkAydinlatmaMetni = () => {
       <h1 className="text-2xl font-bold mb-4">KVKK Aydınlatma Metni</h1>
 
       <p className="mb-4">
-        6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, veri sorumlusu sıfatıyla Undergo platformu
+        6698 sayılı Kişiselasdasd Verilerin Korunması Kanunu ("KVKK") uyarınca, veri sorumlusu sıfatıyla Undergo platformu
         olarak kişisel verilerinizi, aşağıda açıklanan kapsamda işlemekteyiz.
       </p>
 

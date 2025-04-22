@@ -32,6 +32,7 @@
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "mammoth": "^1.9.0",
+    "mysql2": "^3.14.0",
     "next": "^15.2.4",
     "next-auth": "^4.24.11",
     "node-cron": "^3.0.3",

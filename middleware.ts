@@ -53,7 +53,7 @@ if (country !== "TR") {
     }
   }
 
-  // 🧾 Giriş yapılmamışsa sadece register/login erişimi
+  // 🧾 Giriş yapılmamısşsa sadece register/login erişimi
   if (
     !token &&
     req.nextUrl.pathname !== "/register" &&
