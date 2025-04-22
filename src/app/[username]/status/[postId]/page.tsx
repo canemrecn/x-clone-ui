@@ -6,6 +6,7 @@
 //alır, sayfa şık bir arka plan ve kutu stiliyle düzenlenmiştir.
 "use client";
 
+import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Post from "@/components/Post";
 import Link from "next/link";
@@ -15,42 +16,29 @@ import Image from "next/image";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
-// ✅ Geliştirilmiş fetcher
+// Geliştirilmiş fetcher
 const fetcher = async (url: string) => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
-
   try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      credentials: "include",
-    });
-
+    const res = await fetch(url, { signal: controller.signal, credentials: "include" });
     clearTimeout(timeout);
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status} - ${res.statusText}`);
-    }
-
+    if (!res.ok) throw new Error(`HTTP ${res.status} - ${res.statusText}`);
     return res.json();
   } catch (err: any) {
     throw new Error(err.message || "Unknown fetch error");
   }
 };
 
-// ✅ Hatalı yapı: `params` tipi eksik => düzeltildi
-type StatusPageProps = {
-  params: {
-    username: string;
-    postId: string;
-  };
-};
-
-export default function StatusPage({ params }: StatusPageProps) {
+export default function StatusPage() {
   const auth = useAuth();
+  const params = useParams(); // ✅ useParams kullan
 
-  const { data, error, isValidating } = useSWR(
-    `/api/posts?post_id=${params.postId}`,
+  const username = params?.username as string;
+  const postId = params?.postId as string;
+
+  const { data, error } = useSWR(
+    postId ? `/api/posts?post_id=${postId}` : null,
     fetcher,
     {
       revalidateOnFocus: false,
@@ -61,8 +49,7 @@ export default function StatusPage({ params }: StatusPageProps) {
   );
 
   const loading = !data && !error;
-  const postData: PostData | null =
-    data && data.posts && data.posts.length > 0 ? data.posts[0] : null;
+  const postData: PostData | null = data?.posts?.[0] ?? null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white">
@@ -72,7 +59,7 @@ export default function StatusPage({ params }: StatusPageProps) {
           <Image src="/icons/left.png" alt="back" width={24} height={24} priority />
         </Link>
         <h1 className="font-bold text-base md:text-lg truncate">
-          {params.username}'s Post (ID: {params.postId})
+          {username}'s Post (ID: {postId})
         </h1>
       </div>
 
