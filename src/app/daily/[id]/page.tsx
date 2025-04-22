@@ -5,17 +5,22 @@ import type { RowDataPacket } from "mysql2";
 import Link from "next/link";
 import { analyzeTextErrors } from "@/lib/analyzeTextErrors";
 
+// ✅ static params generate ediyoruz (build-time)
 export async function generateStaticParams() {
   const [rows] = await db.query<RowDataPacket[]>("SELECT id FROM daily_notes");
   return (rows as { id: number }[]).map((row) => ({ id: row.id.toString() }));
 }
 
+// ✅ Doğru PageProps tanımı
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: {
+    id: string;
+  };
 };
 
 export default async function Page({ params }: PageProps) {
-  const { id } = await params;
+  const { id } = params;
+
   if (!id) return notFound();
 
   const [rows] = await db.query<RowDataPacket[]>(
@@ -34,6 +39,7 @@ export default async function Page({ params }: PageProps) {
 
   const result = await analyzeTextErrors(note.content, note.lang);
 
+  // ✅ Server Action: günlük silme
   async function handleDelete() {
     "use server";
     await db.query("DELETE FROM daily_notes WHERE id = ?", [id]);
@@ -42,7 +48,8 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div className="bg-gray-800 max-w-2xl mx-auto py-10 px-4 text-white">
-            <form action={handleDelete}>
+      {/* Silme ve geri dönüş */}
+      <form action={handleDelete}>
         <button
           type="submit"
           className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mr-4"
@@ -56,7 +63,9 @@ export default async function Page({ params }: PageProps) {
           Geri Dön
         </Link>
       </form>
-      <h1 className="text-2xl font-bold mb-4">Günlük</h1>
+
+      <h1 className="text-2xl font-bold mt-6 mb-4">Günlük</h1>
+
       <p className="text-sm text-gray-400 mb-2">
         {new Date(note.created_at).toLocaleString("tr-TR", {
           weekday: "long",
@@ -72,6 +81,7 @@ export default async function Page({ params }: PageProps) {
         Dil: <strong>{note.lang.toUpperCase()}</strong> | Hata Oranı:{" "}
         <strong>%{(note.error_rate * 100).toFixed(1)}</strong>
       </p>
+
       <div className="bg-gray-700 p-4 rounded whitespace-pre-line mb-6 break-words overflow-x-hidden">
         {result.details.map((sentence, i) => (
           <div
