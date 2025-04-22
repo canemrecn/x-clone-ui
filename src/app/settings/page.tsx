@@ -9,6 +9,7 @@ yer alır ve kullanıcı bu seçeneklere tıklayarak ilgili ayar sayfalarına y�
 import Link from "next/link";
 import React from "react";
 import Cookies from "js-cookie";
+import LegalComplianceBadges from "@/components/LegalComplianceBadges";
 
 const SettingsPage = React.memo(function SettingsPage() {
   const token = Cookies.get("token");
@@ -69,6 +70,13 @@ const SettingsPage = React.memo(function SettingsPage() {
           </Link>
         </li>
         <li>
+          <Link href="/settings/kvkk-history">
+            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-800 rounded-xl shadow hover:from-gray-700 hover:to-gray-600 transition cursor-pointer">
+              <span className="text-lg font-semibold">KVKK Başvuru Geçmişim</span>
+            </div>
+          </Link>
+        </li>
+        <li>
           <Link href="/settings/delete-account">
             <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-800 rounded-xl shadow hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition cursor-pointer">
               <span className="text-lg font-semibold">Hesabımı Sil</span>
@@ -76,6 +84,7 @@ const SettingsPage = React.memo(function SettingsPage() {
           </Link>
         </li>
       </ul>
+      <LegalComplianceBadges />
     </div>
   );
 });

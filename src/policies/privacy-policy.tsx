@@ -3,6 +3,7 @@
 kişisel verilerinin nasıl toplandığını, işlendiğini, ne amaçla kullanıldığını, ne kadar süreyle saklandığını, 
 hangi güvenlik önlemleriyle korunduğunu ve kullanıcıların KVKK/GDPR kapsamındaki haklarını açıklar; ayrıca 
 kullanıcıların bu haklarını nasıl kullanabileceklerine dair iletişim bilgisi de sunar.*/
+// src/policies/privacy-policy.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -11,7 +12,7 @@ const translations = {
   tr: {
     title: "Gizlilik Politikası",
     intro:
-      "Undergo platformu olarak, kullanıcılarımızın gizliliğine ve kişisel verilerinin korunmasına büyük önem veriyoruz. Bu gizlilik politikası, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR) kapsamında, hangi kişisel verileri işlediğimizi, ne amaçla topladığımızı ve nasıl koruduğumuzu açıklamaktadır.",
+      "Undergo platformu olarak, kullanıcılarımızın gizliliğine ve kişisel verilerinin korunmasına büyük önem veriyoruz. Bu gizlilik politikası, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında, hangi kişisel verileri işlediğimizi, ne amaçla topladığımızı ve nasıl koruduğumuzu açıklamaktadır. Platform yalnızca Türkiye Cumhuriyeti sınırları içinde hizmet vermektedir.",
     collectedData: "Toplanan Veriler",
     purposes: "Verilerin İşlenme Amaçları",
     storageTransfer: "Verilerin Saklandığı Yer ve Yurtdışına Aktarım",
@@ -20,13 +21,12 @@ const translations = {
     breach: "Veri İhlali Durumunda Bilgilendirme",
     rights: "Veri Sahibi Hakları",
     cookies: "Çerezler ve Takip Teknolojileri",
-    rep: "AB Temsilcisi",
     dpia: "Veri Koruma Etki Değerlendirmesi (DPIA)"
   },
   en: {
     title: "Privacy Policy",
     intro:
-      "At Undergo, we take our users' privacy and personal data protection very seriously. This privacy policy explains which personal data we process, for what purpose, and how we protect it in accordance with the Turkish Personal Data Protection Law (KVKK) and the European Union General Data Protection Regulation (GDPR).",
+      "At Undergo, we take our users' privacy and personal data protection very seriously. This privacy policy explains which personal data we process, for what purpose, and how we protect it in accordance with the Turkish Personal Data Protection Law (KVKK). The platform is currently only available in the Republic of Turkey.",
     collectedData: "Collected Data",
     purposes: "Purposes of Data Processing",
     storageTransfer: "Data Storage and Transfer Abroad",
@@ -35,7 +35,6 @@ const translations = {
     breach: "Notification in Case of Data Breach",
     rights: "Data Subject Rights",
     cookies: "Cookies and Tracking Technologies",
-    rep: "EU Representative",
     dpia: "Data Protection Impact Assessment (DPIA)"
   }
 };
@@ -119,14 +118,6 @@ const PrivacyPolicy = () => {
       <p className="mb-4">
         Our site uses essential, analytical and marketing cookies. Visit our <a href="/cookies-policy" className="underline text-cyan-400">Cookies Policy</a> page for details and preferences.
       </p>
-
-      <h2 className="text-xl font-semibold mt-6 mb-2">{t.rep}</h2>
-      <ul className="list-disc list-inside mb-4">
-        <li><strong>Name:</strong> Jane Doe</li>
-        <li><strong>Company:</strong> Example EU Rep Ltd.</li>
-        <li><strong>Address:</strong> Rue de GDPR, 1000 Brussels, Belgium</li>
-        <li><strong>Email:</strong> eu-rep@undergo.com</li>
-      </ul>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">{t.dpia}</h2>
       <p className="mb-4">

@@ -1,3 +1,4 @@
+//src/app/api/privacy-request/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import nodemailer from "nodemailer";
@@ -14,6 +15,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Eksik bilgi" }, { status: 400 });
     }
 
+    // ✅ Kullanıcıyı getir
     const [rows]: any = await db.query(
       "SELECT id, full_name, username, email, profile_image, joined_date, is_verified FROM users WHERE email = ?",
       [email]
@@ -21,9 +23,13 @@ export async function POST(req: Request) {
     const user = rows?.[0];
     if (!user) return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
 
-    const fileName = `undergo_export_${user.id}_${Date.now()}.json`;
-    const filePath = path.join(os.tmpdir(), fileName);
+    // ✅ Her başvuruda veritabanına log kaydı ekle
+    await db.query(
+      "INSERT INTO kvkk_requests (name, email, request_type, description, created_at) VALUES (?, ?, ?, ?, NOW())",
+      [name, email, requestType, description]
+    );
 
+    // 📂 JSON dosya hazırlanacaksa
     if (requestType === "veri-goruntuleme" || requestType === "veri-aktarimi") {
       const [posts] = await db.query("SELECT id, title, content, created_at FROM posts WHERE user_id = ?", [user.id]);
       const [comments] = await db.query("SELECT id, post_id, text, created_at FROM comments WHERE user_id = ?", [user.id]);
@@ -61,6 +67,8 @@ export async function POST(req: Request) {
         },
       };
 
+      const fileName = `undergo_export_${user.id}_${Date.now()}.json`;
+      const filePath = path.join(os.tmpdir(), fileName);
       fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
 
       const transporter = nodemailer.createTransport({
@@ -80,6 +88,7 @@ export async function POST(req: Request) {
       });
     }
 
+    // 🔴 Kullanıcı silme işlemi (soft delete)
     if (requestType === "veri-silme") {
       await db.query("UPDATE users SET is_deleted = 1, deleted_at = NOW() WHERE id = ?", [user.id]);
       await db.query(
