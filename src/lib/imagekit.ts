@@ -1,22 +1,33 @@
 // src/lib/imagekit.ts
+// src/lib/imagekit.ts
 import ImageKit from "imagekit";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2";
 
+// Ortam değişkenlerini kontrol et
+const publicKey = process.env.IMAGEKIT_PUBLIC_KEY;
+const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
+const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT;
+
+if (!publicKey || !privateKey || !urlEndpoint) {
+  throw new Error("❌ ImageKit ortam değişkenleri eksik! .env dosyanı kontrol et.");
+}
+
 const imagekit = new ImageKit({
-  publicKey: process.env.IMAGEKIT_PUBLIC_KEY!,
-  privateKey: process.env.IMAGEKIT_PRIVATE_KEY!,
-  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT!,
+  publicKey,
+  privateKey,
+  urlEndpoint,
 });
 
+// Belirli bir kullanıcıya ait medya dosyalarını ImageKit'ten siler
 export async function deleteUserMediaFromImageKit(userId: number) {
   try {
-    const [results] = await db.query(
+    const [results] = await db.query<RowDataPacket[]>(
       `SELECT media_url FROM posts WHERE user_id = ? AND media_url IS NOT NULL`,
       [userId]
     );
 
-    const urls: string[] = (results as RowDataPacket[]).map(row => row.media_url);
+    const urls: string[] = results.map((row) => row.media_url);
 
     for (const url of urls) {
       const fileId = extractFileId(url);
@@ -25,11 +36,11 @@ export async function deleteUserMediaFromImageKit(userId: number) {
       }
     }
   } catch (error) {
-    console.error("ImageKit medya silme hatası:", error);
+    console.error("❌ ImageKit medya silme hatası:", error);
   }
 }
 
-// ✅ DÜZGÜN REGEX: son segmenti dosya ID'si olarak alır
+// URL içinden dosya ID'sini çeker
 function extractFileId(url: string): string | null {
   const match = url.match(/\/([^\/]+)$/);
   return match ? match[1] : null;
