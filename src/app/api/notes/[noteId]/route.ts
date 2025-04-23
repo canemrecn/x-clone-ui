@@ -4,40 +4,28 @@
  // veritabanındaki sahibiyle eşleşip eşleşmediği kontrol edilir. Eğer not mevcutsa ve kullanıcı 
  // notun sahibiyse, notes tablosundan ilgili kayıt güvenli bir şekilde silinir. Aksi takdirde yetkisiz 
  // erişim, bulunamayan not veya sunucu hatalarında uygun hata mesajı ve durum kodları döndürülür.
- import { NextResponse } from "next/server";
+// src/app/api/notes/[noteId]/route.ts
+
+import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";  // cookies import edilmesi doğru
 import { db } from "@/lib/db";
-import { RowDataPacket, OkPacket } from "mysql2/promise";
+import type { RowDataPacket, OkPacket } from "mysql2/promise";
 
-interface Context {
-  params: { noteId: string };
-}
-
-// Cookie'den token çekme
-async function getTokenFromCookie(): Promise<string | null> {
-  const cookieStore = await cookies();  // cookies() asenkron işlem
-  const token = cookieStore.get("token")?.value;
-  return token || null;
-}
-
-export async function DELETE(request: Request, { params }: Context) {
+export async function DELETE(
+  req: NextRequest,
+  context: any // ✅ hatayı çözen anahtar nokta
+) {
   try {
-    const { noteId } = params;
+    const noteId = context.params.noteId;
 
-    const token = await getTokenFromCookie(); // await ile token alınır
-    if (!token) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
+    const token = req.cookies.get("token")?.value;
+    if (!token || !process.env.JWT_SECRET) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     let decoded;
     try {
-      decoded = jwt.verify(token, secret) as { id: number };
+      decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: number };
     } catch (err) {
       return NextResponse.json({ message: "Invalid or expired token" }, { status: 401 });
     }
@@ -59,7 +47,7 @@ export async function DELETE(request: Request, { params }: Context) {
 
     await db.query<OkPacket>("DELETE FROM notes WHERE id = ?", [noteId]);
 
-    return NextResponse.json({ message: "Note deleted" }, { status: 200 });
+    return NextResponse.json({ message: "Note deleted successfully" }, { status: 200 });
   } catch (error: any) {
     console.error("Note DELETE error:", error);
     return NextResponse.json(

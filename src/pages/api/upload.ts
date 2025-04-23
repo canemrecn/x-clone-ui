@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Get the authenticated user from the HTTP-only cookie
-    const authUser = await getAuthUser(req);
+    const authUser = await getAuthUser();
     if (!authUser) {
       return res.status(401).json({ error: "Unauthorized. Please log in." });
     }

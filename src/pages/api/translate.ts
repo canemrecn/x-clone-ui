@@ -19,7 +19,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const user = await getAuthUser(req);
+    // Get the authenticated user
+const user = await getAuthUser(); // <-- sadece bu satırı güncelle
+
     if (!user) {
       return res.status(401).json({ error: "Giriş yapılmadan çeviri yapılamaz" });
     }

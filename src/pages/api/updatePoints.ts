@@ -2,6 +2,11 @@
 /*Bu dosya, gelen POST isteği ile belirtilen bir kullanıcının (userId) puanını (points) güncelleyen bir API endpoint'idir. 
 updateUserPoints fonksiyonunu kullanarak veritabanında puan güncellemesi yapar. userId veya points eksikse 400, 
 başarılıysa 200, bir hata oluşursa 500 koduyla uygun JSON yanıtı döner.*/
+// src/pages/api/updatePoints.ts
+/* Bu dosya, gelen POST isteği ile belirtilen bir kullanıcının (userId) puanını (points) güncelleyen bir API endpoint'idir. 
+updateUserPoints fonksiyonunu kullanarak veritabanında puan güncellemesi yapar. userId veya points eksikse 400, 
+başarılıysa 200, bir hata oluşursa 500 koduyla uygun JSON yanıtı döner. */
+
 import type { NextApiRequest, NextApiResponse } from "next";
 import { updateUserPoints } from "@/utils/points";
 import { getAuthUser } from "@/utils/getAuthUser";
@@ -15,8 +20,8 @@ export default async function handler(
   }
 
   try {
-    // Get the authenticated user from the HTTP-only cookie
-    const authUser = await getAuthUser(req);
+    // ✅ Güncel kullanım: Parametre yok
+    const authUser = await getAuthUser();
     if (!authUser) {
       return res.status(401).json({ error: "Unauthorized. Lütfen giriş yapınız." });
     }
@@ -27,7 +32,6 @@ export default async function handler(
       return res.status(400).json({ error: "Puan bilgisi gereklidir." });
     }
 
-    // Update points for the authenticated user (authUser.id)
     await updateUserPoints(authUser.id, points);
 
     return res.status(200).json({ message: "Puan başarıyla güncellendi." });

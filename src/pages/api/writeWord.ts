@@ -1,9 +1,10 @@
-//src/pages/api/writeWord.ts
-/*Bu dosya, bir kullanıcının yazılı gönderisini (content) veritabanına kaydeden ve içerikteki kelime sayısına göre 
+// src/pages/api/writeWord.ts
+/* Bu dosya, bir kullanıcının yazılı gönderisini (content) veritabanına kaydeden ve içerikteki kelime sayısına göre 
 puan kazandıran bir API endpoint’tir. Sadece POST isteği kabul eder; gelen içerik ve kullanıcı ID’si geçerliyse 
 gönderiyi posts tablosuna ekler, ardından her kelime için 2 puan ve her gönderi için 3 ek puan olmak üzere toplam 
 puanı hesaplayarak updateUserPoints fonksiyonu ile kullanıcının puanını günceller. Başarılı işlem sonrası puan 
-bilgisiyle birlikte yanıt döner, hata durumlarında uygun hata mesajı verir.*/
+bilgisiyle birlikte yanıt döner, hata durumlarında uygun hata mesajı verir. */
+
 import type { NextApiRequest, NextApiResponse } from "next";
 import { db } from "@/lib/db";
 import { updateUserPoints } from "@/utils/points";
@@ -18,8 +19,8 @@ export default async function handler(
   }
 
   try {
-    // Get the authenticated user using the HttpOnly cookie
-    const user = await getAuthUser(req);
+    // ✅ Parametre olmadan çağrılır
+    const user = await getAuthUser();
     if (!user) {
       return res.status(401).json({ error: "Unauthorized. Please log in." });
     }
@@ -30,10 +31,10 @@ export default async function handler(
       return res.status(400).json({ error: "A valid content is required." });
     }
 
-    // Calculate word count
+    // Kelime sayısı hesapla
     const wordCount = content.split(" ").filter(Boolean).length;
 
-    // Insert post into the database
+    // Gönderiyi veritabanına kaydet
     const [result] = await db.query(
       "INSERT INTO posts (user_id, content) VALUES (?, ?)",
       [user.id, content]
@@ -41,7 +42,7 @@ export default async function handler(
 
     console.log("📌 Post saved:", result);
 
-    // Calculate total points: 2 points per word + 3 points for the post
+    // Toplam puanı hesapla: kelime başına 2 + 3 sabit
     const totalPoints = wordCount * 2 + 3;
     await updateUserPoints(user.id, totalPoints);
 

@@ -4,11 +4,11 @@ import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, context: any) { // ✅ context tipi any yapıldı
   try {
-    const cookieStore = await cookies();
+    const cookieStore =await cookies();
     const token = cookieStore.get("token")?.value;
-    const postId = Number(params.id);
+    const postId = Number(context?.params?.id);
 
     if (!token || isNaN(postId)) {
       return NextResponse.json({ message: "Geçersiz istek" }, { status: 400 });
@@ -23,9 +23,16 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
       return NextResponse.json({ message: "Yalnızca admin silebilir" }, { status: 403 });
     }
 
-    await db.query("UPDATE posts SET is_deleted = 1, deleted_at = NOW() WHERE id = ?", [postId]);
+    await db.query(
+      "UPDATE posts SET is_deleted = 1, deleted_at = NOW() WHERE id = ?",
+      [postId]
+    );
+
     return NextResponse.json({ message: "Gönderi silindi" }, { status: 200 });
   } catch (err: any) {
-    return NextResponse.json({ message: "Sunucu hatası", error: err.message }, { status: 500 });
+    return NextResponse.json(
+      { message: "Sunucu hatası", error: err.message },
+      { status: 500 }
+    );
   }
 }

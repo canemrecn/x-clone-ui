@@ -1,25 +1,20 @@
 // 📁 src/app/daily/[id]/page.tsx
+
 import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import type { RowDataPacket } from "mysql2";
 import Link from "next/link";
 import { analyzeTextErrors } from "@/lib/analyzeTextErrors";
 
-// ✅ static params generate ediyoruz (build-time)
-export async function generateStaticParams() {
-  const [rows] = await db.query<RowDataPacket[]>("SELECT id FROM daily_notes");
-  return (rows as { id: number }[]).map((row) => ({ id: row.id.toString() }));
-}
+// ✅ build-time'da statik olarak sayfa üretimi için
+//export async function generateStaticParams() {
+//  const [rows] = await db.query<RowDataPacket[]>("SELECT id FROM daily_notes");
+//  return rows.map((row: any) => ({ id: String(row.id) }));
+//}
 
-// ✅ Doğru PageProps tanımı
-type PageProps = {
-  params: {
-    id: string;
-  };
-};
-
-export default async function Page({ params }: PageProps) {
-  const { id } = params;
+// ✅ Next.js 15 uyumlu parametre kullanımı
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   if (!id) return notFound();
 
@@ -39,7 +34,6 @@ export default async function Page({ params }: PageProps) {
 
   const result = await analyzeTextErrors(note.content, note.lang);
 
-  // ✅ Server Action: günlük silme
   async function handleDelete() {
     "use server";
     await db.query("DELETE FROM daily_notes WHERE id = ?", [id]);
@@ -48,7 +42,6 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div className="bg-gray-800 max-w-2xl mx-auto py-10 px-4 text-white">
-      {/* Silme ve geri dönüş */}
       <form action={handleDelete}>
         <button
           type="submit"

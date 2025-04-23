@@ -3,7 +3,6 @@
 kullanılarak çalışır; URL parametresinden gelen id değeri önce doğrulanır ve sayıya dönüştürülür. Ardından bu ID ile users tablosunda 
 sorgu yapılır. Eğer kullanıcı bulunursa id ve username bilgileri döndürülür, bulunamazsa 404 hatası verilir. Hatalar durumunda 500 döner 
 ve hata mesajı loglanır.*/
-// src/app/api/users/[id]/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
@@ -12,27 +11,25 @@ import jwt from "jsonwebtoken";
 /**
  * GET: Kullanıcı bilgilerini döndürür.
  */
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, context: any) { // ✅ context tipini any yaptık
   try {
-    // URL parametresinde kullanıcı ID'sinin varlığı kontrol ediliyor.
-    if (!params || !params.id) {
+    const userIdRaw = context?.params?.id;
+
+    if (!userIdRaw || typeof userIdRaw !== "string") {
       return NextResponse.json({ message: "User ID is required" }, { status: 400 });
     }
 
-    // Kullanıcı ID'si trim edilip sayısal değere dönüştürülüyor.
-    const trimmedId = params.id.trim();
-    const userId = parseInt(trimmedId, 10);
+    const userId = parseInt(userIdRaw.trim(), 10);
     if (isNaN(userId)) {
       return NextResponse.json({ message: "Invalid user ID" }, { status: 400 });
     }
 
-    // Authorization header kontrolü
     const authHeader = req.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
-    const token = authHeader.split(" ")[1].trim();
 
+    const token = authHeader.split(" ")[1].trim();
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
 
@@ -46,18 +43,15 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     const currentUserId = decoded.id;
 
-    // Kullanıcı sadece kendi bilgilerini görebilmeli.
     if (userId !== currentUserId) {
       return NextResponse.json({ message: "You are not authorized to view this user." }, { status: 403 });
     }
 
-    // Veritabanından kullanıcı bilgileri çekiliyor
     const [rows] = await db.query<RowDataPacket[]>(`
       SELECT id, username FROM users WHERE id = ?`,
       [userId]
     );
 
-    // Kullanıcı bulunamazsa 404 dönülüyor
     if (!Array.isArray(rows) || rows.length === 0) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }

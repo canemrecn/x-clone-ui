@@ -18,7 +18,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { word } = req.body as { word: string };
 
     // Kullanıcıyı HttpOnly cookie üzerinden doğrula
-    const user = await getAuthUser(req);
+    // Get the authenticated user
+const user = await getAuthUser(); // <-- sadece bu satırı güncelle
+
     if (!user) {
       return res.status(401).json({ error: "Unauthorized" });
     }
