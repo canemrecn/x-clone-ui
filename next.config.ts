@@ -10,7 +10,7 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: isDev
       ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src 'self' https://ik.imagekit.io; img-src 'self' data: https://ik.imagekit.io; connect-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none';"
-      : "default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' https://ik.imagekit.io; img-src 'self' data: https://ik.imagekit.io; connect-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none';",
+      : "default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; media-src 'self' https://ik.imagekit.io; img-src 'self' data: https://ik.imagekit.io; connect-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none';",
   },
   {
     key: "X-Content-Type-Options",

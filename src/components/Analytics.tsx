@@ -20,14 +20,14 @@ export default function Analytics() {
   return (
     <>
       <Script
-        strategy="afterInteractive"
-        src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"
-      />
-      <Script
-        strategy="afterInteractive"
-        src="/gtag-init.js"
-        id="gtag-init"
-      />
+  strategy="afterInteractive"
+  src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"
+/>
+<Script
+  strategy="afterInteractive"
+  src="/gtag-init.js"
+/>
+
     </>
   );
 }
