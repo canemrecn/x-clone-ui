@@ -4,19 +4,23 @@ import ImageKit from "imagekit";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2";
 
-// Ortam değişkenlerini kontrol et
+// Ortam değişkenlerini al
 const publicKey = process.env.IMAGEKIT_PUBLIC_KEY;
 const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
 const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT;
 
-if (!publicKey || !privateKey || !urlEndpoint) {
+// Sadece production'da eksikse hata ver
+if (
+  process.env.NODE_ENV === "production" &&
+  (!publicKey || !privateKey || !urlEndpoint)
+) {
   throw new Error("❌ ImageKit ortam değişkenleri eksik! .env dosyanı kontrol et.");
 }
 
 const imagekit = new ImageKit({
-  publicKey,
-  privateKey,
-  urlEndpoint,
+  publicKey: publicKey || "",
+  privateKey: privateKey || "",
+  urlEndpoint: urlEndpoint || "",
 });
 
 // Belirli bir kullanıcıya ait medya dosyalarını ImageKit'ten siler
