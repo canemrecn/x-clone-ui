@@ -21,7 +21,7 @@ export default function Analytics() {
     <>
       <Script
   strategy="afterInteractive"
-  src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"
+  src="https://www.googletagmanager.com/gtag/js?id=G-9NKB2HZQSP"
 />
 <Script
   strategy="afterInteractive"
