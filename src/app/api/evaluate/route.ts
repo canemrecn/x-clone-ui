@@ -1,25 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { NextRequest, NextResponse } from "next/server";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const openaiApiKey = process.env.OPENAI_API_KEY;
+
+if (!openaiApiKey) {
+  throw new Error("❌ The OPENAI_API_KEY environment variable is missing or empty.");
+}
+
+const openai = new OpenAI({ apiKey: openaiApiKey });
 
 export async function POST(req: NextRequest) {
-  const { sentence } = await req.json();
+  try {
+    const { prompt } = await req.json();
 
-  const chatCompletion = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
-    messages: [
-      {
-        role: "system",
-        content: "Sen bir İngilizce öğretmenisin. Öğrencinin verdiği cümleyi gramer açısından değerlendir. Eğer hata varsa düzelt, nedenini açıkla. Türkçe cevapla.",
-      },
-      { role: "user", content: sentence },
-    ],
-  });
+    if (!prompt) {
+      return NextResponse.json({ error: "Prompt is required." }, { status: 400 });
+    }
 
-  return NextResponse.json({
-    result: chatCompletion.choices[0].message.content,
-  });
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    return NextResponse.json({ result: response.choices[0].message }, { status: 200 });
+  } catch (err: any) {
+    console.error("OpenAI API error:", err);
+    return NextResponse.json({ error: err.message || "OpenAI error" }, { status: 500 });
+  }
 }

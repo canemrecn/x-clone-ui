@@ -60,6 +60,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY: process.env.IMAGEKIT_PUBLIC_KEY,
     NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT: process.env.IMAGEKIT_URL_ENDPOINT,
     IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   },
   async headers() {
     return [
