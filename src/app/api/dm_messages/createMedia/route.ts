@@ -9,20 +9,12 @@
 //döner, eksik veya geçersiz veri ya da yetkisiz erişim 
 //durumlarında uygun hata mesajları ve durum kodları ile yanıt verir.
 import { NextRequest, NextResponse } from "next/server";
-import ImageKit from "imagekit";
 import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
-import { cookies } from "next/headers"; // <-- Cookie erişimi
+import { cookies } from "next/headers";
+import { getImageKitInstance } from "@/lib/imagekit";
 
-// ImageKit yapılandırması
-const imagekit = new ImageKit({
-  publicKey: process.env.IMAGEKIT_PUBLIC_KEY || "",
-  privateKey: process.env.IMAGEKIT_PRIVATE_KEY || "",
-  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || "",
-});
-
-// Mesajı veritabanına ekleme
 async function insertMessage({
   senderId,
   receiverId,
@@ -58,23 +50,15 @@ export async function POST(request: NextRequest) {
   try {
     const { attachmentBase64, attachmentType, receiverId } = await request.json();
 
-    if (!attachmentBase64 || !attachmentType) {
-      return NextResponse.json(
-        { error: "Missing attachment data or type" },
-        { status: 400 }
-      );
+    if (!attachmentBase64 || !attachmentType || !receiverId || isNaN(Number(receiverId))) {
+      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
     if (!["image", "video"].includes(attachmentType)) {
       return NextResponse.json({ error: "Invalid attachmentType" }, { status: 400 });
     }
 
-    if (!receiverId || isNaN(Number(receiverId))) {
-      return NextResponse.json({ error: "Invalid receiverId" }, { status: 400 });
-    }
-
-    // ✅ JWT doğrulamasını cookie'den al
-    const cookieStore =await cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
     const secret = process.env.JWT_SECRET;
 
@@ -85,27 +69,22 @@ export async function POST(request: NextRequest) {
     const decoded = jwt.verify(token, secret) as { id: number };
     const senderId = decoded.id;
 
-    // Base64 verisini ayrıştır
     let base64Str = attachmentBase64;
     const match = base64Str.match(/^data:(.*?);base64,(.*)$/);
-    if (match) {
-      base64Str = match[2];
-    }
-
+    if (match) base64Str = match[2];
     if (!base64Str) {
-      return NextResponse.json({ error: "Invalid attachment data" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid base64 data" }, { status: 400 });
     }
 
+    const imagekit = getImageKitInstance();
     const fileName = `dm_${Date.now()}_${attachmentType}`;
 
-    // ImageKit'e yükle
     const uploadRes = await imagekit.upload({
       file: base64Str,
       fileName,
       folder: "/dm_messages",
     });
 
-    // Veritabanına mesaj olarak kaydet
     const newMessage = await insertMessage({
       senderId,
       receiverId: Number(receiverId),
