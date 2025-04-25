@@ -1,5 +1,4 @@
 // src/components/Analytics.tsx
-// src/components/Analytics.tsx
 "use client";
 
 import Script from "next/script";
@@ -9,8 +8,8 @@ export default function Analytics() {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    const analyticsConsent = localStorage.getItem("analyticsConsent");
-    if (analyticsConsent === "true") {
+    const consent = localStorage.getItem("analyticsConsent");
+    if (consent === "true") {
       setEnabled(true);
     }
   }, []);
@@ -20,14 +19,13 @@ export default function Analytics() {
   return (
     <>
       <Script
-  strategy="afterInteractive"
-  src="https://www.googletagmanager.com/gtag/js?id=G-9NKB2HZQSP"
-/>
-<Script
-  strategy="afterInteractive"
-  src="/gtag-init.js"
-/>
-
+        strategy="afterInteractive"
+        src="https://www.googletagmanager.com/gtag/js?id=G-9NKB2HZQSP"
+      />
+      <Script
+        strategy="afterInteractive"
+        src="/gtag-init.js"
+      />
     </>
   );
 }

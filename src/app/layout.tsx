@@ -14,9 +14,7 @@ import Analytics from "@/components/Analytics";
 export const metadata = {
   title: "UnderGo",
   description: "UnderGo KVKK ve GDPR uyumlu sosyal medya platformudur.",
-  icons: {
-    icon: "/icons/logom2.png",
-  },
+  icons: { icon: "/icons/logom2.png" },
   other: {
     "privacy-policy": "https://undergo.com/policies/privacy-policy",
     "cookie-policy": "https://undergo.com/cookies-policy",
@@ -24,12 +22,7 @@ export const metadata = {
   },
 };
 
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -43,7 +36,7 @@ export default function RootLayout({
             {children}
             <CookieBanner />
             <Analytics />
-            </LayoutWrapper>
+          </LayoutWrapper>
         </AuthProvider>
       </body>
     </html>
