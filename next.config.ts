@@ -1,3 +1,4 @@
+//next.config.ts
 import "./src/app/start-cron";
 import TerserPlugin from "terser-webpack-plugin";
 import type { NextConfig } from "next";
