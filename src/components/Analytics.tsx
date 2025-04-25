@@ -1,6 +1,5 @@
 // src/components/Analytics.tsx
 "use client";
-
 import Script from "next/script";
 import { useEffect, useState } from "react";
 
@@ -9,9 +8,7 @@ export default function Analytics() {
 
   useEffect(() => {
     const consent = localStorage.getItem("analyticsConsent");
-    if (consent === "true") {
-      setEnabled(true);
-    }
+    if (consent === "true") setEnabled(true);
   }, []);
 
   if (!enabled) return null;

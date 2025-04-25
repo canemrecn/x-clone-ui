@@ -9,19 +9,17 @@ const isDev = process.env.NODE_ENV === "development";
 const securityHeaders = [
   {
     key: "Content-Security-Policy",
-    value: isDev
-      ? "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src 'self' https://ik.imagekit.io; img-src 'self' data: https://ik.imagekit.io; connect-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none';"
-      : `
-        default-src 'self';
-        script-src 'self' https://www.googletagmanager.com;
-        style-src 'self' 'unsafe-inline';
-        connect-src 'self' https://www.google-analytics.com;
-        img-src 'self' data: https://www.googletagmanager.com;
-        media-src 'self' https://ik.imagekit.io;
-        font-src 'self';
-        form-action 'self';
-        frame-ancestors 'none';
-      `.replace(/\s{2,}/g, " ").trim(),
+    value: `
+      default-src 'self';
+      script-src 'self' https://www.googletagmanager.com;
+      connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com;
+      media-src 'self' https://ik.imagekit.io;
+      font-src 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+    `.replace(/\s{2,}/g, " ").trim(),
   },
   {
     key: "X-Content-Type-Options",
@@ -61,15 +59,18 @@ const nextConfig: NextConfig = {
     removeConsole: true,
   },
   productionBrowserSourceMaps: false,
+
   eslint: {
     ignoreDuringBuilds: true,
   },
+
   env: {
     NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY: process.env.IMAGEKIT_PUBLIC_KEY,
     NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT: process.env.IMAGEKIT_URL_ENDPOINT,
     IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   },
+
   async headers() {
     return [
       {
@@ -78,6 +79,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
   webpack(config: Configuration, { isServer }: { isServer: boolean }) {
     if (!isServer) {
       config.optimization = {
