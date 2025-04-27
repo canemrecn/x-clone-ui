@@ -4,6 +4,9 @@
 // src/lib/analyzeTextErrors.ts
 // Bu dosya, kelime düzeyinde doğru-yanlış analiz yapar ve
 // özel karakter, sayı, URL, contraction (kısaltma) ve büyük harf sorunlarını temizler.
+// src/lib/analyzeTextErrors.ts
+// Bu dosya, kelime düzeyinde doğru-yanlış analiz yapar ve
+// URL, sayı, özel karakter, büyük harf gibi durumları optimize eder.
 
 type AnalyzedWord = {
   original: string;
@@ -40,8 +43,8 @@ export async function analyzeTextErrors(content: string, lang: string) {
 
     for (const word of words) {
       const cleaned = word
-        .replace(/[.,!?;:()"`“”‘’—–…%$]/g, "")  // 🔁 artık `'` ve `-` karakteri korunuyor
-        .replace(/\u00A0|\u200B/g, "")
+        .replace(/[.,!?;:()"`“”‘’—–…%$]/g, "") // ❗ yalnızca gerçekten gereksiz karakterler temizleniyor
+        .replace(/\u00A0|\u200B/g, "")           // ❗ görünmeyen boşluk karakterlerini temizliyor
         .trim();
 
       const wordToCheck = cleaned.toLowerCase();
@@ -80,7 +83,9 @@ export async function analyzeTextErrors(content: string, lang: string) {
 
   const uniqueWords = [...new Set(wordsToCheck)];
 
-  const res = await fetch("http://localhost:3000/api/daily-words", {
+  const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+
+  const res = await fetch(`${baseUrl}/api/daily-words`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ words: uniqueWords }),

@@ -11,10 +11,10 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: `
       default-src 'self';
-      script-src 'self' https://www.googletagmanager.com;
+      script-src 'self' https://www.googletagmanager.com 'unsafe-inline';
       connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com;
+      img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://ik.imagekit.io;
       style-src 'self' 'unsafe-inline';
-      img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com;
       media-src 'self' https://ik.imagekit.io;
       font-src 'self';
       form-action 'self';
@@ -38,6 +38,7 @@ const securityHeaders = [
     value: "geolocation=(), microphone=(), camera=()",
   },
 ];
+
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
