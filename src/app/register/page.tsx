@@ -1,4 +1,4 @@
-//src/pages/register.tsx
+//src/app/register/page.tsx
 /*Bu dosya, kullanıcıların yeni bir hesap oluşturmasını sağlayan kayıt (register) sayfasını tanımlar. Kullanıcıdan 
 ad-soyad, kullanıcı adı, e-posta, şifre, güvenlik sorusu ve cevabı gibi bilgileri alır ve /api/auth/register 
 endpoint’ine POST isteğiyle gönderir. Kayıt başarılı olursa, e-posta doğrulama sayfasına yönlendirir 
@@ -50,7 +50,8 @@ export default function Register() {
 
         if (res.ok) {
           alert(data.message);
-          router.push(`/auth/verify?email=${encodeURIComponent(user.email)}`);
+          // ✅ Kayıt başarılıysa verify sayfasına yönlendiriyoruz
+          router.push(`/verify`);
         } else {
           alert(data.message);
         }
@@ -84,6 +85,7 @@ export default function Register() {
                 <h1 className="text-lg font-semibold">UNDERGO</h1>
               </div>
 
+              {/* Form inputları */}
               <input
                 type="text"
                 placeholder="Full Name"
@@ -118,7 +120,7 @@ export default function Register() {
 
               <input
                 type="text"
-                placeholder="Güvenlik Sorusu (örnek: İlk evcil hayvanınız?)"
+                placeholder="Güvenlik Sorusu"
                 required
                 className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
                 onChange={(e) => setUser((prev) => ({ ...prev, securityQuestion: e.target.value }))}
@@ -148,7 +150,7 @@ export default function Register() {
                 </span>
               </label>
 
-              {/* Açık Rıza Kutuları */}
+              {/* Açık rıza kutuları */}
               <div className="flex flex-col gap-2 text-sm text-gray-300">
                 <label className="flex items-start gap-2">
                   <input
@@ -172,7 +174,7 @@ export default function Register() {
                     onChange={(e) => setUser((prev) => ({ ...prev, transferConsent: e.target.checked }))}
                     className="mt-1"
                   />
-                  <span>Verilerimin yurt dışındaki hizmetlere aktarılmasını kabul ediyorum.</span>
+                  <span>Verilerimin yurt dışına aktarılmasını kabul ediyorum.</span>
                 </label>
               </div>
 
@@ -193,7 +195,6 @@ export default function Register() {
                 Already have an account?
               </button>
             </form>
-
           </div>
         </div>
       </div>

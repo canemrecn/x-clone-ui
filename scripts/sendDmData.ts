@@ -3,10 +3,9 @@ import { db } from "@/lib/db";
 import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
-import dotenv from "dotenv";
 import { RowDataPacket } from "mysql2/promise";
 
-dotenv.config();
+
 
 async function main() {
   const userId = 1; // Başvuran kullanıcı ID'si

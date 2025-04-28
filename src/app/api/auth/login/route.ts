@@ -1,10 +1,8 @@
 // src/app/api/auth/login/route.ts
-// src/app/api/auth/login/route.ts
 /*
 Bu dosya, kullanıcıların e-posta ve şifre ile giriş yapmasını sağlar (POST /api/auth/login).
 Başarılı girişte kullanıcıya JWT tokenı HTTP-only cookie olarak gönderilir ve giriş aktivitesi kaydedilir.
 */
-
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -41,6 +39,15 @@ export async function POST(req: NextRequest) {
     }
 
     const user = rows[0];
+
+    // ✅ Önce doğrulama kontrolü ekliyoruz
+    if (!user.is_verified) {
+      return NextResponse.json(
+        { message: "Lütfen önce e-posta adresinizi doğrulayın." },
+        { status: 403 }
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return NextResponse.json(

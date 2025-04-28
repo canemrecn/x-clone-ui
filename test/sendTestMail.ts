@@ -1,7 +1,6 @@
 // ✅ test/sendTestMail.ts
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-dotenv.config();
+
 
 async function sendTestMail() {
   const gmailUser = process.env.GMAIL_USER;
@@ -15,11 +14,9 @@ async function sendTestMail() {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: gmailUser,
-      pass: gmailAppPassword,
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
     },
-    logger: true,
-    debug: true,
   });
 
   const mailOptions = {

@@ -1,4 +1,5 @@
 // src/app/api/auth/register/route.ts
+
 /*
 Bu dosya, yeni kullanıcı kaydını sağlar (POST /api/auth/register).
 Gelen bilgiler doğrulanır, şifreler hash'lenir, kullanıcı veritabanına eklenir.
@@ -84,13 +85,20 @@ export async function POST(req: NextRequest) {
 
     const gmailUser = process.env.GMAIL_USER;
     const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
+
+    console.log("GMAIL_USER:", gmailUser);
+    console.log("GMAIL_APP_PASSWORD:", gmailAppPassword);
+
     if (!gmailUser || !gmailAppPassword) {
       return NextResponse.json({ message: "E-posta ayarları eksik." }, { status: 500 });
     }
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
-      auth: { user: gmailUser, pass: gmailAppPassword },
+      auth: {
+        user: gmailUser,
+        pass: gmailAppPassword,
+      },
     });
 
     const mailOptions = {
@@ -114,6 +122,9 @@ export async function POST(req: NextRequest) {
     );
   } catch (error: any) {
     console.error("🚨 Register Error:", error);
+    console.error("🚨 Full Error Object:", JSON.stringify(error, null, 2));
+    console.error("🚨 Error Stack:", error?.stack);
     return NextResponse.json({ message: "Sunucu hatası", error: String(error) }, { status: 500 });
   }
+  
 }

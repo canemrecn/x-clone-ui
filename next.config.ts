@@ -1,4 +1,5 @@
 //next.config.ts
+// next.config.ts
 import "./src/app/start-cron";
 import TerserPlugin from "terser-webpack-plugin";
 import type { NextConfig } from "next";
@@ -39,7 +40,6 @@ const securityHeaders = [
   },
 ];
 
-
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
@@ -60,11 +60,9 @@ const nextConfig: NextConfig = {
     removeConsole: true,
   },
   productionBrowserSourceMaps: false,
-
   eslint: {
     ignoreDuringBuilds: true,
   },
-
   env: {
     NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY: process.env.IMAGEKIT_PUBLIC_KEY,
     NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT: process.env.IMAGEKIT_URL_ENDPOINT,
@@ -73,6 +71,12 @@ const nextConfig: NextConfig = {
   },
 
   async headers() {
+    if (process.env.NODE_ENV === "development") {
+      // ➔ Development ortamında CSP uygulama
+      return [];
+    }
+
+    // ➔ Sadece Production'da CSP uygula
     return [
       {
         source: "/(.*)",

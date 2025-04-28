@@ -17,7 +17,6 @@ const transporter = nodemailer.createTransport({
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
   },
-  pool: true, // çoklu bağlantı havuzu performansı için
 });
 
 export async function POST(req: NextRequest) {

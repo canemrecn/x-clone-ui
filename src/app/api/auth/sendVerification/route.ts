@@ -52,13 +52,10 @@ export async function POST(req: NextRequest) {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: gmailUser,
-        pass: gmailAppPassword,
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
       },
-      // İsteğe bağlı: Bağlantı havuzlama performansı artırabilir.
-      // pool: true,
     });
-
     // E-posta içeriği: Doğrulama kodunu kullanıcıya gönderiyoruz.
     const mailOptions = {
       from: gmailUser,
