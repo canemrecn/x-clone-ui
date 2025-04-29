@@ -51,7 +51,7 @@ export default function Register() {
         if (res.ok) {
           alert(data.message);
           // ✅ Kayıt başarılıysa verify sayfasına yönlendiriyoruz
-          router.push(`/verify`);
+          router.push(`/auth/verify`);
         } else {
           alert(data.message);
         }
