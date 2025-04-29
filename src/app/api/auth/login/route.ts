@@ -3,6 +3,8 @@
 Bu dosya, kullanıcıların e-posta ve şifre ile giriş yapmasını sağlar (POST /api/auth/login).
 Başarılı girişte kullanıcıya JWT tokenı HTTP-only cookie olarak gönderilir ve giriş aktivitesi kaydedilir.
 */
+// src/app/api/auth/login/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -46,7 +48,6 @@ export async function POST(req: NextRequest) {
       { expiresIn: "7d" }
     );
 
-    // ✅ Burada token'ı cookie olarak NextResponse içine set ediyoruz:
     const response = NextResponse.json({
       message: "Giriş başarılı.",
       user: {
@@ -65,13 +66,12 @@ export async function POST(req: NextRequest) {
       name: "token",
       value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: false, // ✅ Burası en önemli düzeltme
       sameSite: "strict",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 gün
     });
 
-    // Aktivite kaydı
     const ip = req.headers.get("x-forwarded-for") || "localhost";
     const userAgent = req.headers.get("user-agent") || "unknown";
 
