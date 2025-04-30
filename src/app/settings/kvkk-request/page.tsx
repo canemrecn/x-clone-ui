@@ -54,6 +54,7 @@ export default function KvkkRequestPage() {
   return (
     <div className="min-h-screen p-6 bg-gradient-to-br from-gray-800 to-gray-700 text-white">
       <h1 className="text-2xl font-bold mb-4 text-center">KVKK Başvuru Formu</h1>
+      <p>Verilerinizi silmek için ayarlar sayfasına dönüp hesabımı sil seçeneğinden işlem yapmanız gerekmektedir</p>
       <form onSubmit={handleSubmit} className="max-w-xl mx-auto flex flex-col gap-4 bg-gray-800 p-6 rounded-xl shadow-lg">
         <input
           type="text"
@@ -76,7 +77,6 @@ export default function KvkkRequestPage() {
           required
         >
           <option value="veri-goruntuleme">Verilerimi Görüntüleme</option>
-          <option value="veri-silme">Verilerimi Silme</option>
           <option value="veri-aktarimi">Verilerimi Taşıma</option>
         </select>
 

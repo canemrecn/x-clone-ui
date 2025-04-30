@@ -27,6 +27,7 @@ export default function Homepage() {
     return <div className="text-center text-lg font-bold">Yükleniyor...</div>;
   }
 
+  <p>Gönderi paylaşmak için önce dil seçmelisiniz</p>
   const languages = [
     { code: "tr", image: "/icons/turkey.png" },
     { code: "en", image: "/icons/united-kingdom.png" },
