@@ -18,7 +18,6 @@ export default function Homepage() {
 
   useEffect(() => {
     if (!auth?.user) {
-      // Eğer kullanıcı yoksa login sayfasına yönlendir
       router.push("/login");
     }
   }, [auth?.user, router]);
@@ -27,7 +26,6 @@ export default function Homepage() {
     return <div className="text-center text-lg font-bold">Yükleniyor...</div>;
   }
 
-  <p>Gönderi paylaşmak için önce dil seçmelisiniz</p>
   const languages = [
     { code: "tr", image: "/icons/turkey.png" },
     { code: "en", image: "/icons/united-kingdom.png" },
@@ -35,7 +33,7 @@ export default function Homepage() {
 
   const content = useMemo(
     () => (
-      <div className="flex flex-col gap-2 bg-gradient-to-br from-gray-800 to-gray-700 p-0 rounded-lg shadow-md">
+      <div className="flex flex-col gap-4"> {/* gap-4 aralığı artırdım */}
         <ul className="flex gap-2">
           {languages.map((lang) => (
             <li key={lang.code}>
@@ -53,11 +51,10 @@ export default function Homepage() {
     ),
     []
   );
-  
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 relative">
-      <div className="pt-4">{content}</div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4">
+      {content}
     </div>
   );
 }
