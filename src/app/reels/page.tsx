@@ -102,34 +102,42 @@ export default function ReelsPage() {
               }}
             />
 
-            {/* Ses Aç/Kapa */}
-            {index === currentIndex && (
-              <div className="absolute top-4 right-4 z-40">
-                <button onClick={() => setIsMuted((prev) => !prev)} className="bg-black/50 p-2 rounded-full">
-                  <Image
-                    src={isMuted ? "/icons/volume-off.png" : "/icons/volume-on.png"}
-                    alt="Ses"
-                    width={24}
-                    height={24}
-                  />
-                </button>
-              </div>
-            )}
-
             {/* Sağ Alt Butonlar */}
-            {index === currentIndex && (
-              <div className="absolute bottom-14 right-4 z-40 flex flex-col gap-4 items-center">
-                <button onClick={() => setShowSendModal(true)} className="bg-black/40 p-2 rounded-full">
-                  <Image src="/icons/gonder.png" alt="Gönder" width={30} height={30} />
-                </button>
-                <button className="bg-black/40 p-2 rounded-full">
-                  <Image src="/icons/like.png" alt="Like" width={30} height={30} />
-                </button>
-                <button className="bg-black/40 p-2 rounded-full">
-                  <Image src="/icons/comment.png" alt="Comment" width={30} height={30} />
-                </button>
-              </div>
-            )}
+{index === currentIndex && (
+  <div className="absolute bottom-14 right-4 z-40 flex flex-col gap-4 items-center">
+    {/* Paylaş */}
+    <button onClick={() => setShowSendModal(true)} className="bg-black/40 p-2 rounded-full">
+      <Image src="/icons/gonder.png" alt="Gönder" width={30} height={30} />
+    </button>
+
+    {/* Beğen */}
+    <button
+      onClick={async () => {
+        try {
+          await fetch(`/api/posts/${item.id}/like`, {
+            method: "POST",
+            credentials: "include",
+          });
+          alert("Beğendin!");
+        } catch (error) {
+          console.error("Beğenme hatası:", error);
+          alert("Beğenirken bir hata oluştu.");
+        }
+      }}
+      className="bg-black/40 p-2 rounded-full"
+    >
+      <Image src="/icons/like.png" alt="Like" width={30} height={30} />
+    </button>
+
+    {/* Yorum */}
+    <button
+      onClick={() => router.push(`/post/${item.id}`)}
+      className="bg-black/40 p-2 rounded-full"
+    >
+      <Image src="/icons/comment.png" alt="Comment" width={30} height={30} />
+    </button>
+  </div>
+)}
 
             {/* Kullanıcı Bilgisi */}
             {index === currentIndex && (
