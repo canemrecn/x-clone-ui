@@ -27,7 +27,7 @@ export default function ReelsPage() {
   }, [data?.posts]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isMuted, setIsMuted] = useState(true);
+  const isMuted = false;
   const [showSendModal, setShowSendModal] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
