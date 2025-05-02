@@ -27,7 +27,6 @@ export default function ReelsPage() {
   }, [data?.posts]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const isMuted = false;
   const [showSendModal, setShowSendModal] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -45,7 +44,6 @@ export default function ReelsPage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 🎯 SCROLL tabanlı video geçişi
   const handleScroll = () => {
     if (!containerRef.current) return;
     const scrollTop = containerRef.current.scrollTop;
@@ -56,23 +54,27 @@ export default function ReelsPage() {
   };
 
   useEffect(() => {
-    const video = videoRefs.current[currentIndex];
-    if (video) {
-      video.currentTime = 0;
-      video.play().catch(() => {});
-    }
+    videoRefs.current.forEach((video, index) => {
+      if (video) {
+        if (index === currentIndex) {
+          video.muted = false;
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+          video.muted = true;
+        }
+      }
+    });
   }, [currentIndex]);
 
   return (
     <>
-      {/* Geri Dön Butonu */}
       <div className="fixed top-4 left-4 z-50">
         <button onClick={() => router.back()}>
           <Image src="/icons/left.png" alt="back" width={30} height={30} />
         </button>
       </div>
 
-      {/* Reels Container */}
       <div
         ref={containerRef}
         onScroll={handleScroll}
@@ -91,7 +93,7 @@ export default function ReelsPage() {
               src={item.media_url}
               className="absolute inset-0 w-full h-full object-cover"
               autoPlay={index === currentIndex}
-              muted={isMuted}
+              muted={index !== currentIndex}
               loop
               playsInline
               onTimeUpdate={index === currentIndex ? (e) => setProgress(e.currentTarget.currentTime) : undefined}
@@ -102,44 +104,37 @@ export default function ReelsPage() {
               }}
             />
 
-            {/* Sağ Alt Butonlar */}
-{index === currentIndex && (
-  <div className="absolute bottom-14 right-4 z-40 flex flex-col gap-4 items-center">
-    {/* Paylaş */}
-    <button onClick={() => setShowSendModal(true)} className="bg-black/40 p-2 rounded-full">
-      <Image src="/icons/gonder.png" alt="Gönder" width={30} height={30} />
-    </button>
+            {index === currentIndex && (
+              <div className="absolute bottom-14 right-4 z-40 flex flex-col gap-4 items-center">
+                <button onClick={() => setShowSendModal(true)} className="bg-black/40 p-2 rounded-full">
+                  <Image src="/icons/gonder.png" alt="Gönder" width={30} height={30} />
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      await fetch(`/api/posts/${item.id}/like`, {
+                        method: "POST",
+                        credentials: "include",
+                      });
+                      alert("Beğendin!");
+                    } catch (error) {
+                      console.error("Beğenme hatası:", error);
+                      alert("Beğenirken bir hata oluştu.");
+                    }
+                  }}
+                  className="bg-black/40 p-2 rounded-full"
+                >
+                  <Image src="/icons/like.png" alt="Like" width={30} height={30} />
+                </button>
+                <button
+                  onClick={() => router.push(`/post/${item.id}`)}
+                  className="bg-black/40 p-2 rounded-full"
+                >
+                  <Image src="/icons/comment.png" alt="Comment" width={30} height={30} />
+                </button>
+              </div>
+            )}
 
-    {/* Beğen */}
-    <button
-      onClick={async () => {
-        try {
-          await fetch(`/api/posts/${item.id}/like`, {
-            method: "POST",
-            credentials: "include",
-          });
-          alert("Beğendin!");
-        } catch (error) {
-          console.error("Beğenme hatası:", error);
-          alert("Beğenirken bir hata oluştu.");
-        }
-      }}
-      className="bg-black/40 p-2 rounded-full"
-    >
-      <Image src="/icons/like.png" alt="Like" width={30} height={30} />
-    </button>
-
-    {/* Yorum */}
-    <button
-      onClick={() => router.push(`/post/${item.id}`)}
-      className="bg-black/40 p-2 rounded-full"
-    >
-      <Image src="/icons/comment.png" alt="Comment" width={30} height={30} />
-    </button>
-  </div>
-)}
-
-            {/* Kullanıcı Bilgisi */}
             {index === currentIndex && (
               <div className="absolute bottom-16 left-4 text-white z-40 max-w-sm">
                 <div className="flex items-center gap-2 mb-2">
@@ -158,7 +153,6 @@ export default function ReelsPage() {
               </div>
             )}
 
-            {/* Açıklama + Progress */}
             {index === currentIndex && duration > 0 && (
               <div className="absolute bottom-1 left-0 w-full px-4 z-50">
                 <p className="text-sm break-words text-white mb-1">
@@ -176,59 +170,46 @@ export default function ReelsPage() {
         ))}
       </div>
 
-      {/* Gönder Modalı */}
-{showSendModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
-    <div className="bg-black p-4 rounded shadow-lg w-full max-w-md">
-      <div className="flex items-center gap-2 mb-4">
-        <Image src="/icons/gonder.png" alt="Gönder" width={20} height={20} />
-        <h2 className="text-white text-lg font-bold">Gönder</h2>
-      </div>
-
-      {/* Kullanıcı listesi */}
-      <UsersList
-  onSelectBuddy={async (buddyId) => {
-    const postId = finalPosts[currentIndex]?.id;
-    if (!buddyId || !postId) {
-      alert("Alıcı veya gönderi ID’si eksik!");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/dm_messages/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          toUserId: buddyId,    // ✅ backend’in beklediği isim
-          postId: postId,       // ✅ gönderi ID’si
-        }),
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        alert("Gönderildi!");
-        setShowSendModal(false);
-      } else {
-        alert(`Hata: ${result.error}`);
-      }
-    } catch (error) {
-      console.error("DM gönderme hatası:", error);
-      alert("Sunucu hatası oluştu.");
-    }
-  }}
-/>
-
-
-      <button onClick={() => setShowSendModal(false)} className="mt-4 text-white underline">
-        Kapat
-      </button>
-    </div>
-  </div>
-)}
-
+      {showSendModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+          <div className="bg-black p-4 rounded shadow-lg w-full max-w-md">
+            <div className="flex items-center gap-2 mb-4">
+              <Image src="/icons/gonder.png" alt="Gönder" width={20} height={20} />
+              <h2 className="text-white text-lg font-bold">Gönder</h2>
+            </div>
+            <UsersList
+              onSelectBuddy={async (buddyId) => {
+                const postId = finalPosts[currentIndex]?.id;
+                if (!buddyId || !postId) {
+                  alert("Alıcı veya gönderi ID’si eksik!");
+                  return;
+                }
+                try {
+                  const response = await fetch("/api/dm_messages/send", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ toUserId: buddyId, postId }),
+                  });
+                  const result = await response.json();
+                  if (response.ok) {
+                    alert("Gönderildi!");
+                    setShowSendModal(false);
+                  } else {
+                    alert(`Hata: ${result.error}`);
+                  }
+                } catch (error) {
+                  console.error("DM gönderme hatası:", error);
+                  alert("Sunucu hatası oluştu.");
+                }
+              }}
+            />
+            <button onClick={() => setShowSendModal(false)} className="mt-4 text-white underline">
+              Kapat
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
