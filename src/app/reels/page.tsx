@@ -177,20 +177,50 @@ export default function ReelsPage() {
       </div>
 
       {/* Gönder Modalı */}
-      {showSendModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
-          <div className="bg-black p-4 rounded shadow-lg w-full max-w-md">
-            <div className="flex items-center gap-2 mb-4">
-              <Image src="/icons/gonder.png" alt="Gönder" width={20} height={20} />
-              <h2 className="text-white text-lg font-bold">Gönder</h2>
-            </div>
-            <UsersList onSelectBuddy={() => setShowSendModal(false)} />
-            <button onClick={() => setShowSendModal(false)} className="mt-4 text-white underline">
-              Kapat
-            </button>
-          </div>
-        </div>
-      )}
+{showSendModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+    <div className="bg-black p-4 rounded shadow-lg w-full max-w-md">
+      <div className="flex items-center gap-2 mb-4">
+        <Image src="/icons/gonder.png" alt="Gönder" width={20} height={20} />
+        <h2 className="text-white text-lg font-bold">Gönder</h2>
+      </div>
+
+      {/* Kullanıcı listesi */}
+      <UsersList
+        onSelectBuddy={async (buddyId) => {
+          try {
+            const response = await fetch("/api/dm_messages/send", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                receiverId: buddyId,
+                postId: finalPosts[currentIndex].id,
+              }),
+            });
+
+            if (response.ok) {
+              alert("Gönderildi!");
+              setShowSendModal(false);
+            } else {
+              alert("Gönderilemedi. Bir hata oluştu.");
+            }
+          } catch (error) {
+            console.error("DM gönderme hatası:", error);
+            alert("Gönderilemedi. Sunucu hatası.");
+          }
+        }}
+      />
+
+      <button onClick={() => setShowSendModal(false)} className="mt-4 text-white underline">
+        Kapat
+      </button>
+    </div>
+  </div>
+)}
+
     </>
   );
 }
