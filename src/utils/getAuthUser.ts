@@ -6,7 +6,7 @@ import { RowDataPacket } from "mysql2";
 
 export const getAuthUser = async () => {
   try {
-    const cookieStore = await cookies();
+    const cookieStore =await cookies();
     const token = cookieStore.get("token")?.value;
     const secret = process.env.JWT_SECRET;
     if (!token || !secret) return null;
@@ -23,12 +23,12 @@ export const getAuthUser = async () => {
 
     return {
       id: rows[0].id,
-      role: rows[0].role, // ✅ Artık role özelliği de var
+      role: rows[0].role,
     };
   } catch (err) {
     return null;
   }
 };
 
-// Eski isimle çalışan yerler için alias (isteğe bağlı)
+// Eski isimle çalışan yerler için alias
 export { getAuthUser as getAuthUserFromRequest };

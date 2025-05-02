@@ -19,8 +19,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Get the authenticated user
-const user = await getAuthUser(); // <-- sadece bu satırı güncelle
+    // Kullanıcıyı al (req göndermiyoruz!)
+    const user = await getAuthUser();
 
     if (!user) {
       return res.status(401).json({ error: "Giriş yapılmadan çeviri yapılamaz" });
@@ -36,7 +36,6 @@ const user = await getAuthUser(); // <-- sadece bu satırı güncelle
       return res.status(400).json({ error: "Hedef dil belirtilmelidir" });
     }
 
-    // Google Translate'e istek at
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(word)}`;
 
     const response = await fetch(url);
@@ -47,7 +46,6 @@ const user = await getAuthUser(); // <-- sadece bu satırı güncelle
     const data = await response.json();
     const translatedText = data?.[0]?.[0]?.[0] || "Çeviri bulunamadı";
 
-    // Kullanıcıya 1 puan ekle ve kelimeyi logla (çift kayıt engelleniyor)
     await db.query(
       "INSERT INTO translated_words (user_id, word, translated_to) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE translated_to = VALUES(translated_to)",
       [user.id, word, targetLang]
