@@ -187,32 +187,40 @@ export default function ReelsPage() {
 
       {/* Kullanıcı listesi */}
       <UsersList
-        onSelectBuddy={async (buddyId) => {
-          try {
-            const response = await fetch("/api/dm_messages/send", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              credentials: "include",
-              body: JSON.stringify({
-                receiverId: buddyId,
-                postId: finalPosts[currentIndex].id,
-              }),
-            });
+  onSelectBuddy={async (buddyId) => {
+    const postId = finalPosts[currentIndex]?.id;
+    if (!buddyId || !postId) {
+      alert("Alıcı veya gönderi ID’si eksik!");
+      return;
+    }
 
-            if (response.ok) {
-              alert("Gönderildi!");
-              setShowSendModal(false);
-            } else {
-              alert("Gönderilemedi. Bir hata oluştu.");
-            }
-          } catch (error) {
-            console.error("DM gönderme hatası:", error);
-            alert("Gönderilemedi. Sunucu hatası.");
-          }
-        }}
-      />
+    try {
+      const response = await fetch("/api/dm_messages/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          toUserId: buddyId,    // ✅ backend’in beklediği isim
+          postId: postId,       // ✅ gönderi ID’si
+        }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert("Gönderildi!");
+        setShowSendModal(false);
+      } else {
+        alert(`Hata: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("DM gönderme hatası:", error);
+      alert("Sunucu hatası oluştu.");
+    }
+  }}
+/>
+
 
       <button onClick={() => setShowSendModal(false)} className="mt-4 text-white underline">
         Kapat
