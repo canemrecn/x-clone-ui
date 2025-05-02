@@ -35,24 +35,25 @@ export default function Homepage() {
 
   const content = useMemo(
     () => (
-      <div className="bg-gradient-to-br from-gray-800 to-gray-700 p-0 rounded-lg shadow-md">
-          <ul className="flex gap-6">
-            {languages.map((lang) => (
-              <li key={lang.code}>
-                <Link href={`/${lang.code}`}>
-                  <div className="p-1 rounded transition hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600">
-                    <Image src={lang.image} alt={lang.code} width={24} height={24} />
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
+      <div className="flex flex-col gap-2 bg-gradient-to-br from-gray-800 to-gray-700 p-0 rounded-lg shadow-md">
+        <ul className="flex gap-2">
+          {languages.map((lang) => (
+            <li key={lang.code}>
+              <Link href={`/${lang.code}`}>
+                <div className="p-1 rounded transition hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600">
+                  <Image src={lang.image} alt={lang.code} width={24} height={24} />
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
         <WhatToWatchCard />
         <Feed />
       </div>
     ),
     []
   );
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 relative">
