@@ -33,7 +33,7 @@ export default function Homepage() {
 
   const content = useMemo(
     () => (
-      <div className="flex flex-col gap-4"> {/* gap-4 aralığı artırdım */}
+      <div className="flex flex-col gap-1"> {/* gap-1 aralığı artırdım */}
         <ul className="flex gap-2">
           {languages.map((lang) => (
             <li key={lang.code}>
