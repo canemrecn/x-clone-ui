@@ -1,13 +1,17 @@
 // src/utils/getAuthUser.ts
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { parse } from "cookie";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2";
+import type { NextApiRequest } from "next";
 
-export const getAuthUser = async () => {
+export const getAuthUser = async (req: NextApiRequest) => {
   try {
-    const cookieStore =await cookies();
-    const token = cookieStore.get("token")?.value;
+    const cookieHeader = req.headers.cookie;
+    if (!cookieHeader) return null;
+
+    const cookies = parse(cookieHeader);
+    const token = cookies.token;
     const secret = process.env.JWT_SECRET;
     if (!token || !secret) return null;
 
@@ -26,9 +30,7 @@ export const getAuthUser = async () => {
       role: rows[0].role,
     };
   } catch (err) {
+    console.error("❌ getAuthUser error:", err);
     return null;
   }
 };
-
-// Eski isimle çalışan yerler için alias
-export { getAuthUser as getAuthUserFromRequest };

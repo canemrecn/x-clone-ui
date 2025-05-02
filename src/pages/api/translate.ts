@@ -19,29 +19,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Kullanıcıyı al (req göndermiyoruz!)
-    const user = await getAuthUser();
-
+    const user = await getAuthUser(req);
     if (!user) {
       return res.status(401).json({ error: "Giriş yapılmadan çeviri yapılamaz" });
     }
 
     const { word, targetLang } = req.body as TranslateRequest;
-
     if (!word || typeof word !== "string") {
       return res.status(400).json({ error: "Kelime belirtilmelidir" });
     }
-
     if (!targetLang || typeof targetLang !== "string") {
       return res.status(400).json({ error: "Hedef dil belirtilmelidir" });
     }
 
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(word)}`;
-
     const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error("Translation API request failed");
-    }
+    if (!response.ok) throw new Error("Translation API request failed");
 
     const data = await response.json();
     const translatedText = data?.[0]?.[0]?.[0] || "Çeviri bulunamadı";
