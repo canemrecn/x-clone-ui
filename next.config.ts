@@ -14,7 +14,7 @@ const securityHeaders = [
       default-src 'self';
       script-src 'self' https://www.googletagmanager.com 'unsafe-inline';
       connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com;
-      img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com https://ik.imagekit.io;
+      img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com https://ik.imagekit.io;
       style-src 'self' 'unsafe-inline';
       media-src 'self' https://ik.imagekit.io;
       font-src 'self';
@@ -22,6 +22,7 @@ const securityHeaders = [
       frame-ancestors 'none';
     `.replace(/\s{2,}/g, " ").trim(),
   },
+
   {
     key: "X-Content-Type-Options",
     value: "nosniff",

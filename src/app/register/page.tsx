@@ -150,6 +150,21 @@ export default function Register() {
                 </span>
               </label>
 
+              {/* Kullanım Koşulları */}
+              <label className="flex items-start gap-2 text-sm text-gray-300">
+                <input
+                  type="checkbox"
+                  required
+                  onChange={(e) => setUser((prev) => ({ ...prev, privacyAccepted: e.target.checked }))}
+                  className="mt-1"
+                />
+                <span>
+                  <Link href="/terms-of-use" target="_blank" className="underline text-blue-400 hover:text-blue-300">
+                    Kullanım Koşulları
+                  </Link>
+                </span>
+              </label>
+
               {/* Açık rıza kutuları */}
               <div className="flex flex-col gap-2 text-sm text-gray-300">
                 <label className="flex items-start gap-2">
