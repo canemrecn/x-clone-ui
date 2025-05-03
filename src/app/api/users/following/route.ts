@@ -3,50 +3,59 @@
 username parametresi alınır, geçerli ve boş olmadığından emin olunur. Daha sonra veritabanındaki follows tablosu kullanılarak, 
 bu kullanıcının takip ettiği kişilerin (following_id) bilgileri (id, full_name, username, profile_image) çekilir ve istemciye 
 JSON formatında döndürülür. Hatalı parametre veya sunucu hatasında uygun hata mesajı ile yanıt verilir.*/
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
-import { getAuthUserFromRequest } from "@/utils/getAuthUser";
+import { getAuthUser } from "@/utils/getAuthUser";
 
-export async function GET(request: Request) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ message: "Only GET method allowed" });
+  }
+
   try {
-    const user = getAuthUserFromRequest();
+    const user = await getAuthUser(req);
     if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { searchParams } = new URL(request.url);
-    const rawUsername = searchParams.get("username");
-
-    if (!rawUsername) {
-      return NextResponse.json({ message: "Username is required" }, { status: 400 });
+    const rawUsername = req.query.username;
+    if (!rawUsername || typeof rawUsername !== "string") {
+      return res.status(400).json({ message: "Username is required and must be a string" });
     }
 
     const username = rawUsername.trim();
     if (!username) {
-      return NextResponse.json({ message: "Username cannot be empty" }, { status: 400 });
+      return res.status(400).json({ message: "Username cannot be empty" });
     }
 
-    const [userRows] = await db.query<RowDataPacket[]>(`
-      SELECT id FROM users WHERE username = ?
-    `, [username]);
+    const [userRows] = await db.query<RowDataPacket[]>(
+      `SELECT id FROM users WHERE username = ?`,
+      [username]
+    );
 
     if (userRows.length === 0) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const userIdToCheck = userRows[0].id;
 
-    const [followingRows] = await db.query<RowDataPacket[]>(`
+    const [followingRows] = await db.query<RowDataPacket[]>(
+      `
       SELECT u.id, u.full_name, u.username, u.profile_image
       FROM follows f
       JOIN users u ON f.following_id = u.id
       WHERE f.follower_id = ?
-    `, [userIdToCheck]);
+      `,
+      [userIdToCheck]
+    );
 
-    return NextResponse.json({ following: followingRows }, { status: 200 });
+    return res.status(200).json({ following: followingRows });
   } catch (error: any) {
     console.error("Following fetch error:", error);
-    return NextResponse.json({ message: "Error fetching following", error: error.message || "Unknown error" }, { status: 500 });
+    return res.status(500).json({
+      message: "Error fetching following",
+      error: error.message || "Unknown error",
+    });
   }
 }

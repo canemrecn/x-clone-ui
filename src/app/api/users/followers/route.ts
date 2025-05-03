@@ -8,31 +8,31 @@ bir hata durumunda uygun bir hata mesajı ve 500 sunucu hatası yanıtı verilir
 Bu dosya, belirli bir kullanıcı adının (username) takipçilerini listeleyen bir GET API endpoint’idir.
 JWT token doğrulaması yapar, kullanıcıya ait takipçileri (followers) listeler.
 */
-
-import { NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
-import { getAuthUserFromRequest } from "@/utils/getAuthUser";
+import { getAuthUser } from "@/utils/getAuthUser";
 
-export async function GET(request: Request) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ message: "Only GET method allowed" });
+  }
+
   try {
-    // ✅ Auth kontrolü (HttpOnly cookie üzerinden)
-    const user = await getAuthUserFromRequest();
+    // ✅ Auth kontrolü
+    const user = await getAuthUser(req);
     if (!user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // ✅ username parametresini al
-    const { searchParams } = new URL(request.url);
-    const rawUsername = searchParams.get("username");
-
-    if (!rawUsername) {
-      return NextResponse.json({ message: "Username is required" }, { status: 400 });
+    const rawUsername = req.query.username;
+    if (!rawUsername || typeof rawUsername !== "string") {
+      return res.status(400).json({ message: "Username is required and must be a string" });
     }
 
     const username = rawUsername.trim();
     if (!username) {
-      return NextResponse.json({ message: "Username cannot be empty" }, { status: 400 });
+      return res.status(400).json({ message: "Username cannot be empty" });
     }
 
     // ✅ kullanıcıyı veritabanında bul
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
     );
 
     if (userRows.length === 0) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const userIdToCheck = userRows[0].id;
@@ -58,13 +58,12 @@ export async function GET(request: Request) {
       [userIdToCheck]
     );
 
-    return NextResponse.json({ followers }, { status: 200 });
-
+    return res.status(200).json({ followers });
   } catch (error: any) {
     console.error("Followers fetch error:", error);
-    return NextResponse.json(
-      { message: "Error fetching followers", error: error.message || "Unknown error" },
-      { status: 500 }
-    );
+    return res.status(500).json({
+      message: "Error fetching followers",
+      error: error.message || "Unknown error",
+    });
   }
 }
