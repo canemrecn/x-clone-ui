@@ -6,39 +6,38 @@
 //blok yoksa, bu iki kullanıcı arasında gönderilmiş tüm mesajlar dm_messages tablosundan 
 //çekilir ve kronolojik sırayla döndürülür; blok varsa mesajlara erişim engellenir. 
 //Hatalı parametre, yetkisiz erişim veya sistem hatalarında uygun hata mesajı ile yanıt verir.
-import type { NextApiRequest, NextApiResponse } from "next";
+// src/app/api/dm_messages/route.ts
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
 import { areUsersBlocked } from "@/utils/blockHelpers";
 import { getAuthUser } from "@/utils/getAuthUser";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ message: "Only GET method allowed" });
-  }
-
+export async function GET(request: Request) {
   try {
-    const buddyIdParam = req.query.buddyId;
-    if (!buddyIdParam || Array.isArray(buddyIdParam)) {
-      return res.status(400).json({ message: "buddyId param is required" });
+    const { searchParams } = new URL(request.url);
+    const buddyIdParam = searchParams.get("buddyId");
+    if (!buddyIdParam) {
+      return NextResponse.json({ message: "buddyId param is required" }, { status: 400 });
     }
 
     const buddyId = Number(buddyIdParam.trim());
-    if (!buddyId) {
-      return res.status(400).json({ message: "Invalid buddyId" });
+    if (isNaN(buddyId)) {
+      return NextResponse.json({ message: "Invalid buddyId" }, { status: 400 });
     }
 
-    const user = await getAuthUser(req);
+    const user = await getAuthUser(); // ✅ artık parametre yok!
     if (!user) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
     const userId = user.id;
 
     const blocked = await areUsersBlocked(userId, buddyId);
     if (blocked) {
-      return res.status(403).json({
-        message: "Mesajlaşma işlemi gerçekleştirilemez. Kullanıcı ile aranızda blok var.",
-      });
+      return NextResponse.json(
+        { message: "Mesajlaşma işlemi gerçekleştirilemez. Kullanıcı ile aranızda blok var." },
+        { status: 403 }
+      );
     }
 
     const query = `
@@ -51,9 +50,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     `;
     const [rows] = await db.query<RowDataPacket[]>(query, [userId, buddyId, buddyId, userId]);
 
-    return res.status(200).json({ messages: rows });
+    return NextResponse.json({ messages: rows }, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching DM messages:", error);
-    return res.status(500).json({ message: error.message || "Error fetching messages" });
+    return NextResponse.json(
+      { message: error.message || "Error fetching messages" },
+      { status: 500 }
+    );
   }
 }
