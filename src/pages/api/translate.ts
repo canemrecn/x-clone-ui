@@ -4,7 +4,7 @@ Translate'in resmi olmayan API'sini kullanan bir çeviri endpoint'idir. İstek g
 https://translate.googleapis.com üzerinden çeviri sorgusu yapar, gelen yanıtın ilk çeviri 
 sonucunu alır ve bunu translation alanı ile birlikte 200 OK olarak döndürür. Geçersiz metod, 
 eksik parametre veya API hatalarında uygun hata mesajlarıyla yanıt verir.*/
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/utils/getAuthUser";
 import { db } from "@/lib/db";
 
@@ -13,23 +13,21 @@ interface TranslateRequest {
   targetLang: string;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST method allowed" });
-  }
-
+export async function POST(request: NextRequest) {
   try {
-    const user = await getAuthUser(req);
+    const user = await getAuthUser();
     if (!user) {
-      return res.status(401).json({ error: "Giriş yapılmadan çeviri yapılamaz" });
+      return NextResponse.json({ error: "Giriş yapılmadan çeviri yapılamaz" }, { status: 401 });
     }
 
-    const { word, targetLang } = req.body as TranslateRequest;
+    const body = await request.json() as TranslateRequest;
+    const { word, targetLang } = body;
+
     if (!word || typeof word !== "string") {
-      return res.status(400).json({ error: "Kelime belirtilmelidir" });
+      return NextResponse.json({ error: "Kelime belirtilmelidir" }, { status: 400 });
     }
     if (!targetLang || typeof targetLang !== "string") {
-      return res.status(400).json({ error: "Hedef dil belirtilmelidir" });
+      return NextResponse.json({ error: "Hedef dil belirtilmelidir" }, { status: 400 });
     }
 
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(word)}`;
@@ -44,9 +42,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       [user.id, word, targetLang]
     );
 
-    return res.status(200).json({ translation: translatedText, pointsAdded: 1 });
+    return NextResponse.json({ translation: translatedText, pointsAdded: 1 }, { status: 200 });
   } catch (error: any) {
     console.error("❌ Translate API Error:", error);
-    return res.status(500).json({ error: "Çeviri sırasında sunucu hatası oluştu" });
+    return NextResponse.json({ error: "Çeviri sırasında sunucu hatası oluştu" }, { status: 500 });
   }
 }
