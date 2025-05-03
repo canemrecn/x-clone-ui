@@ -1,5 +1,6 @@
 //next.config.ts
 // next.config.ts
+// next.config.ts
 import "./src/app/start-cron";
 import TerserPlugin from "terser-webpack-plugin";
 import type { NextConfig } from "next";
@@ -22,7 +23,6 @@ const securityHeaders = [
       frame-ancestors 'none';
     `.replace(/\s{2,}/g, " ").trim(),
   },
-
   {
     key: "X-Content-Type-Options",
     value: "nosniff",
@@ -54,7 +54,12 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: "1000mb",
+      bodySizeLimit: "500mb",
+    },
+  },
+  api: {
+    bodyParser: {
+      sizeLimit: "500mb",
     },
   },
   compiler: {
@@ -73,11 +78,9 @@ const nextConfig: NextConfig = {
 
   async headers() {
     if (process.env.NODE_ENV === "development") {
-      // ➔ Development ortamında CSP uygulama
       return [];
     }
 
-    // ➔ Sadece Production'da CSP uygula
     return [
       {
         source: "/(.*)",

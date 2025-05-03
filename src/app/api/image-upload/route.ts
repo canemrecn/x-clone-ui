@@ -3,9 +3,18 @@
 //(/api/image-upload, POST methodu); gelen multipart/form-data içindeki file verisini alır, Buffer formatına 
 //çevirerek ImageKit’e yükler ve başarılı işlem sonucunda yüklenen dosyanın URL’sini ve dosya türünü JSON 
 //olarak döner. Eksik dosya ya da sistem hatası durumunda uygun hata mesajı ve durum kodu ile yanıt verir.
+// src/app/api/image-upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { getImageKitInstance } from "@/lib/imagekit";
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "500mb",
+    },
+  },
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,16 +47,22 @@ export async function POST(req: NextRequest) {
       useUniqueFileName: true,
     });
 
-    return NextResponse.json({
-      url: uploadResult.url,
-      fileType: file.type,
-      uploadedBy: decoded.id,
-    }, { status: 200 });
+    return NextResponse.json(
+      {
+        url: uploadResult.url,
+        fileType: file.type,
+        uploadedBy: decoded.id,
+      },
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error("Image upload error:", error);
-    return NextResponse.json({
-      message: "Image upload failed",
-      error: error.message || "Unknown error",
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        message: "Image upload failed",
+        error: error.message || "Unknown error",
+      },
+      { status: 500 }
+    );
   }
 }
