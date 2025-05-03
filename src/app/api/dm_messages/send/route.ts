@@ -6,31 +6,28 @@ JWT ile kullanıcı kimliği doğrulanır, alıcı ID’si ve gönderi ID’si a
 bağlantı oluşturulur ve dm_messages tablosuna kaydedilir.
 Başarıda 200, hatalarda uygun hata kodları döner.
 */
-import type { NextApiRequest, NextApiResponse } from "next";
+// src/app/api/dm_messages/send/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getAuthUser } from "@/utils/getAuthUser";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST method allowed" });
-  }
-
+export async function POST(request: NextRequest) {
   try {
-    const user = await getAuthUser(req);
+    const user = await getAuthUser(); // ✅ parametre almıyor!
     if (!user) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const senderId = user.id;
 
-    const { toUserId, postId } = req.body;
+    const { toUserId, postId } = await request.json();
 
     if (!toUserId || !postId) {
-      return res.status(400).json({ error: "toUserId ve postId alanları zorunludur." });
+      return NextResponse.json({ error: "toUserId ve postId alanları zorunludur." }, { status: 400 });
     }
 
     const receiverId = Number(toUserId);
     if (isNaN(receiverId)) {
-      return res.status(400).json({ error: "Geçersiz alıcı kullanıcı ID'si." });
+      return NextResponse.json({ error: "Geçersiz alıcı kullanıcı ID'si." }, { status: 400 });
     }
 
     const baseUrl = process.env.BASE_URL || "http://localhost:3000";
@@ -41,8 +38,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       [senderId, receiverId, messageLink]
     );
 
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "localhost";
-    const userAgent = req.headers["user-agent"] || "unknown";
+    const ip = request.headers.get("x-forwarded-for") || "localhost";
+    const userAgent = request.headers.get("user-agent") || "unknown";
 
     await db.query(
       `INSERT INTO activity_logs (user_id, action, details, ip_address, user_agent)
@@ -56,9 +53,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ]
     );
 
-    return res.status(200).json({ message: "Mesaj başarıyla gönderildi." });
+    return NextResponse.json({ message: "Mesaj başarıyla gönderildi." }, { status: 200 });
   } catch (error: any) {
     console.error("🚨 Send DM Error:", error);
-    return res.status(500).json({ error: error.message || "Internal Server Error" });
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }
