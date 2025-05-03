@@ -1,33 +1,41 @@
 // src/app/api/admin/cookie-consent/logs/route.ts
-// src/utils/getAuthUser.ts
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+// src/app/api/admin/cookie-consent/logs/route.ts
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { RowDataPacket } from "mysql2";
+import { getAuthUser } from "@/utils/getAuthUser";
 
-export const getAuthUser = async () => {
+export async function GET() {
   try {
-    const cookieStore =await cookies();
-    const token = cookieStore.get("token")?.value;
-    const secret = process.env.JWT_SECRET;
-    if (!token || !secret) return null;
+    const user = await getAuthUser();
+    if (!user || user.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    const decoded = jwt.verify(token, secret) as { id: number };
-    const userId = decoded.id;
-
-    const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT id, role FROM users WHERE id = ? AND is_deleted = 0",
-      [userId]
+    const [rows] = await db.query(
+      `
+      SELECT 
+        c.id, 
+        c.user_id,
+        u.full_name, 
+        u.username,
+        c.consent_type, 
+        c.analytics, 
+        c.marketing, 
+        c.ip_address, 
+        c.user_agent, 
+        c.created_at
+      FROM cookie_consents c
+      LEFT JOIN users u ON c.user_id = u.id
+      ORDER BY c.created_at DESC
+      `
     );
 
-    if (!rows || rows.length === 0) return null;
-
-    return {
-      id: rows[0].id,
-      role: rows[0].role,
-    };
-  } catch (err) {
-    console.error("❌ getAuthUser error:", err);
-    return null;
+    return NextResponse.json({ logs: rows });
+  } catch (error: any) {
+    console.error("Cookie consent logs fetch error:", error);
+    return NextResponse.json(
+      { message: "Error fetching cookie consent logs", error: error.message || "Unknown error" },
+      { status: 500 }
+    );
   }
-};
+}

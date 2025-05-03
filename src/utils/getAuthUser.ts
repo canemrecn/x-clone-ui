@@ -1,17 +1,13 @@
 // src/utils/getAuthUser.ts
 import jwt from "jsonwebtoken";
-import { parse } from "cookie";
+import { cookies } from "next/headers";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2";
-import type { NextApiRequest } from "next";
 
-export const getAuthUser = async (req: NextApiRequest) => {
+export const getAuthUser = async () => {
   try {
-    const cookieHeader = req.headers.cookie;
-    if (!cookieHeader) return null;
-
-    const cookies = parse(cookieHeader);
-    const token = cookies.token;
+    const cookieStore =await cookies();
+    const token = cookieStore.get("token")?.value;
     const secret = process.env.JWT_SECRET;
     if (!token || !secret) return null;
 
