@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Kullanıcıyı HttpOnly cookie üzerinden doğrula
     // Get the authenticated user
-    const user = await getAuthUser(req);
+    const user = await getAuthUser();
 
 
     if (!user) {

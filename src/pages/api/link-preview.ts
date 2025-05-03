@@ -24,7 +24,7 @@ export default async function handler(
   try {
     // HttpOnly cookie içindeki JWT'den kullanıcıyı al
     // Get the authenticated user
-    const user = await getAuthUser(req);
+    const user = await getAuthUser();
 
 
     if (!user) {

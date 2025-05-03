@@ -27,7 +27,7 @@ export default async function handler(
     }
 
     // Get the authenticated user
-    const user = await getAuthUser(req);
+    const user = await getAuthUser();
 
 
     if (!user) {
