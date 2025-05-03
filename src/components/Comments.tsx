@@ -87,11 +87,11 @@ export default function Comments({ postId }: CommentsProps) {
 
     try {
       const targetLang = "tr"; // Assuming 'tr' as default target language (can be dynamically set later)
-      const res = await fetch("/api/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // Send cookies with request
-        body: JSON.stringify({ word, targetLang }),
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        credentials: 'include', // ⚠️ bu önemli!
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ word, targetLang })
       });
       const data = await res.json();
       setTranslatedWord(data.translation || "Çeviri mevcut değil");

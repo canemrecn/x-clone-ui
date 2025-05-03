@@ -16,11 +16,11 @@ import { useAuth } from "@/context/AuthContext";
 const translateWord = async (word: string): Promise<string> => {
   const targetLang = localStorage.getItem("targetLanguage") || "tr";
   try {
-    const res = await fetch("/api/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ word, targetLang }),
+    const res = await fetch('/api/translate', {
+      method: 'POST',
+      credentials: 'include', // ⚠️ bu önemli!
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ word, targetLang })
     });
     const data = await res.json();
     return data.translation || `(${targetLang}) çeviri mevcut değil`;

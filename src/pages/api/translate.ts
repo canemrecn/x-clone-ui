@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const user = await getAuthUser();
+    const user = await getAuthUser(req);
     if (!user) {
       return res.status(401).json({ error: 'Giriş yapılmadan çeviri yapılamaz' });
     }
