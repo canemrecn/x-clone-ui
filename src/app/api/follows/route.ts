@@ -6,27 +6,23 @@
 //Ayrıca, kullanıcılar arasında engelleme (blok) varsa işlem engellenir. Eksik veya hatalı veri, 
 //geçersiz işlem veya yetkisiz erişim durumlarında uygun mesaj ve durum kodlarıyla yanıt verir.
 // src/app/api/follows/route.ts
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
 import { getAuthUser } from "@/utils/getAuthUser";
 import { areUsersBlocked } from "@/utils/blockHelpers";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Only POST method allowed" });
-  }
-
+export async function POST(request: NextRequest) {
   try {
-    const { following_id, action } = req.body;
+    const { following_id, action } = await request.json();
 
     if (!following_id || !action) {
-      return res.status(400).json({ message: "Eksik veri" });
+      return NextResponse.json({ message: "Eksik veri" }, { status: 400 });
     }
 
-    const user = await getAuthUser(req);
+    const user = await getAuthUser(); // ✅ parametre almıyor
     if (!user) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const follower_id = user.id;
@@ -34,7 +30,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Blok kontrolü
     const blocked = await areUsersBlocked(follower_id, following_id);
     if (blocked) {
-      return res.status(403).json({ message: "Takip işlemi yapılamaz, kullanıcı engellenmiş." });
+      return NextResponse.json(
+        { message: "Takip işlemi yapılamaz, kullanıcı engellenmiş." },
+        { status: 403 }
+      );
     }
 
     if (action === "follow") {
@@ -43,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         [follower_id, following_id]
       );
       if (rows.length > 0) {
-        return res.status(200).json({ message: "Zaten takip ediliyor" });
+        return NextResponse.json({ message: "Zaten takip ediliyor" }, { status: 200 });
       }
 
       await db.query(
@@ -56,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         [following_id, follower_id]
       );
 
-      return res.status(200).json({ message: "Takip edildi" });
+      return NextResponse.json({ message: "Takip edildi" }, { status: 200 });
     }
 
     if (action === "unfollow") {
@@ -65,12 +64,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         [follower_id, following_id]
       );
 
-      return res.status(200).json({ message: "Takipten çıkıldı" });
+      return NextResponse.json({ message: "Takipten çıkıldı" }, { status: 200 });
     }
 
-    return res.status(400).json({ message: "Geçersiz işlem" });
+    return NextResponse.json({ message: "Geçersiz işlem" }, { status: 400 });
   } catch (error: any) {
     console.error("Takip sistemi hatası:", error);
-    return res.status(500).json({ message: "Sunucu hatası", error: error.message || "" });
+    return NextResponse.json(
+      { message: "Sunucu hatası", error: error.message || "" },
+      { status: 500 }
+    );
   }
 }
