@@ -1,4 +1,5 @@
 // src/utils/getAuthUser.ts
+// src/utils/getAuthUser.ts
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";

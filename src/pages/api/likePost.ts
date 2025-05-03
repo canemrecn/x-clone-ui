@@ -27,7 +27,8 @@ export default async function handler(
     }
 
     // Get the authenticated user
-    const user = await getAuthUser(); // ✅ Hiçbir parametre gönderme
+    const user = await getAuthUser(req);
+
 
     if (!user) {
       return res.status(401).json({ error: "Yetkisiz erişim." });

@@ -20,7 +20,8 @@ export default async function handler(
 
   try {
     // ✅ Parametre olmadan çağrılır
-    const user = await getAuthUser();
+    const user = await getAuthUser(req);
+
     if (!user) {
       return res.status(401).json({ error: "Unauthorized. Please log in." });
     }
