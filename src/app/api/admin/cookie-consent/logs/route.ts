@@ -1,44 +1,33 @@
 // src/app/api/admin/cookie-consent/logs/route.ts
-import type { NextApiRequest, NextApiResponse } from "next";
+// src/utils/getAuthUser.ts
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 import { db } from "@/lib/db";
-import { getAuthUser } from "@/utils/getAuthUser";
+import { RowDataPacket } from "mysql2";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ message: "Only GET method allowed" });
-  }
-
+export const getAuthUser = async () => {
   try {
-    const auth = await getAuthUser(req);
-    if (!auth || auth.role !== "admin") {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const cookieStore =await cookies();
+    const token = cookieStore.get("token")?.value;
+    const secret = process.env.JWT_SECRET;
+    if (!token || !secret) return null;
 
-    const [rows] = await db.query(
-      `
-      SELECT 
-        c.id, 
-        c.user_id,
-        u.full_name, 
-        u.username,
-        c.consent_type, 
-        c.analytics, 
-        c.marketing, 
-        c.ip_address, 
-        c.user_agent, 
-        c.created_at
-      FROM cookie_consents c
-      LEFT JOIN users u ON c.user_id = u.id
-      ORDER BY c.created_at DESC
-      `
+    const decoded = jwt.verify(token, secret) as { id: number };
+    const userId = decoded.id;
+
+    const [rows] = await db.query<RowDataPacket[]>(
+      "SELECT id, role FROM users WHERE id = ? AND is_deleted = 0",
+      [userId]
     );
 
-    return res.status(200).json({ logs: rows });
-  } catch (error: any) {
-    console.error("Cookie consent logs fetch error:", error);
-    return res.status(500).json({
-      message: "Error fetching cookie consent logs",
-      error: error.message || "Unknown error",
-    });
+    if (!rows || rows.length === 0) return null;
+
+    return {
+      id: rows[0].id,
+      role: rows[0].role,
+    };
+  } catch (err) {
+    console.error("❌ getAuthUser error:", err);
+    return null;
   }
-}
+};
