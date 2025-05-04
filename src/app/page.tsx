@@ -26,25 +26,9 @@ export default function Homepage() {
     return <div className="text-center text-lg font-bold">Yükleniyor...</div>;
   }
 
-  const languages = [
-    { code: "tr", image: "/icons/turkey.png" },
-    { code: "en", image: "/icons/united-kingdom.png" },
-  ];
-
   const content = useMemo(
     () => (
       <div className="flex flex-col gap-1"> {/* gap-1 aralığı artırdım */}
-        <ul className="flex gap-2">
-          {languages.map((lang) => (
-            <li key={lang.code}>
-              <Link href={`/${lang.code}`}>
-                <div className="p-1 rounded transition hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600">
-                  <Image src={lang.image} alt={lang.code} width={24} height={24} />
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
         <Feed />
       </div>
     ),
