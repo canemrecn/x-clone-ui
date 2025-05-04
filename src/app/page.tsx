@@ -24,11 +24,9 @@ export default function Homepage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-800 to-gray-700 text-white">
-      {/* İçerik alanı üst ve alt navbar arasında esner */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <Feed />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white pt-[56px] pb-[64px]">
+      {/* pt-[56px]: üst bar yüksekliği, pb-[64px]: alt bar yüksekliği */}
+      <Feed />
     </div>
   );
 }
