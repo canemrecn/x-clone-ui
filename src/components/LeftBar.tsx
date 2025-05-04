@@ -133,9 +133,9 @@ export default function LeftBar() {
   <div className="relative mx-2">
     <button
       onClick={() => setShowLanguages((prev) => !prev)}
-      className="p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition"
+      className="p-1 rounded-full transition"
     >
-      <Image src="/icons/globe.png" alt="Language" width={24} height={24} />
+      <Image src="/icons/languages.png" alt="Language" width={24} height={24} />
     </button>
     {showLanguages && (
       <div className="absolute top-10 left-0 bg-white text-black rounded shadow-lg flex flex-col z-[1010]">
@@ -150,7 +150,7 @@ export default function LeftBar() {
   </div>
 
   {/* Search (daraltılmış) */}
-  <div className="flex-1 mx-1 max-w-[150px]">
+  <div className="flex-1 mx-1 max-w-[250px]">
     <Search />
   </div>
 

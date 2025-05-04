@@ -49,15 +49,7 @@ export default function Login() {
 
       {/* Sağ Taraf: mobilde tam genişlik, md ve üzeri ekranlarda yarı genişlik */}
       <div className="w-full md:w-1/2 flex flex-col items-center justify-center relative z-10">
-        <div className="block md:hidden mb-4">
-          <Image
-            src="/icons/logom2.png"
-            alt="Mobile top image"
-            width={150}
-            height={150}
-            className="object-contain drop-shadow-xl"
-          />
-        </div>
+
 
         {/* Form Konteyneri */}
         <div className="relative p-10 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-800 border border-gray-300 shadow-lg before:absolute before:inset-0 before:bg-gradient-to-br before:from-gray-800 before:to-gray-800/30 before:blur-3xl before:rounded-2xl">
