@@ -75,7 +75,7 @@ export default function LeftBar() {
             </div>
           )}
         </div>
-        <div className="flex-1 mx-1 max-w-[200px]">
+        <div className="flex-1 mx-1 max-w-[250px]">
           <Search />
         </div>
         {auth?.user && (
