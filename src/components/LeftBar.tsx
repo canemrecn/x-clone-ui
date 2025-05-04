@@ -125,7 +125,7 @@ export default function LeftBar() {
       {/* MOBİL: Üst Navbar */}
       <div className="lg:hidden fixed top-0 left-0 w-full bg-[#1F2937] shadow-[0_4px_12px_rgba(0,0,0,0.3)] border-b border-gray-400 flex items-center px-3 py-2 z-[1000] backdrop-blur-md">
         <Link href="/direct-messages" className="p-2 hover:scale-105 transition-transform duration-200">
-          <Image src="/icons/send2.png" alt="DM" width={18} height={18} />
+          <Image src="/icons/send2.png" alt="DM" width={24} height={24} />
         </Link>
 
         {/* Dropdown (Dil Seçici) */}
@@ -140,17 +140,15 @@ export default function LeftBar() {
             <div className="absolute top-10 left-0 bg-white text-black rounded shadow-lg flex flex-col z-[1010]">
               <Link href="/tr" className="p-2 hover:bg-gray-200 flex items-center gap-2">
                 <Image src="/icons/turkey.png" alt="tr" width={18} height={18} />
-                Türkçe
               </Link>
               <Link href="/en" className="p-2 hover:bg-gray-200 flex items-center gap-2">
                 <Image src="/icons/united-kingdom.png" alt="en" width={18} height={18} />
-                English
               </Link>
             </div>
           )}
         </div>
 
-        <div className="flex-1 mx-2">
+        <div className="flex-1 mx-1">
           <Search />
         </div>
 
