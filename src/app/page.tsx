@@ -45,7 +45,6 @@ export default function Homepage() {
             </li>
           ))}
         </ul>
-        <WhatToWatchCard />
         <Feed />
       </div>
     ),
