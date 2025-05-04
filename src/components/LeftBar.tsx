@@ -125,16 +125,26 @@ export default function LeftBar() {
       </div>
 
 
-{/* MOBİL: Üst sabit navbar – DM, Arama, Profil */}
+{/* MOBİL: Üst sabit navbar – DM, Dil Seçici, Arama, Profil */}
 <div className="lg:hidden fixed top-0 left-0 w-full bg-[#1F2937] shadow-[0_4px_12px_rgba(0,0,0,0.3)] border-b border-gray-400 flex justify-between items-center px-3 py-2 z-[1000] backdrop-blur-md">
   {/* Sol: Direct Messages */}
   <Link href="/direct-messages" className="p-2 hover:scale-105 transition-transform duration-200">
     <Image src="/icons/send2.png" alt="DM" width={28} height={28} />
   </Link>
 
-  {/* Orta: Arama bileşeni */}
-  <div className="flex-1 mx-3">
-    <Search />
+  {/* Ortada: Dil Seçici ve Arama */}
+  <div className="flex items-center flex-1 justify-center gap-3 mx-3">
+    <div className="flex gap-2">
+      <Link href="/tr">
+        <Image src="/icons/turkey.png" alt="tr" width={24} height={24} />
+      </Link>
+      <Link href="/en">
+        <Image src="/icons/united-kingdom.png" alt="en" width={24} height={24} />
+      </Link>
+    </div>
+    <div className="flex-1">
+      <Search />
+    </div>
   </div>
 
   {/* Sağ: Profil */}
