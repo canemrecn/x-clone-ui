@@ -23,9 +23,7 @@ const menuList = [
   { id: 11, name: "Sentence Structure", link: "/sentence-structure", icon: "write.png" },
   { id: 9, name: "", link: "/reels", icon: "film-reel.png" },
   { id: 10, name: "Daily", link: "/daily", icon: "daily.png" },
-  //{ id: 7, name: "Notes", link: "/notes", icon: "sticky-notes.png" },
   { id: 6, name: "Arrangement", link: "/arrangement", icon: "king.png" },
-  //{ id: 8, name: "", link: "/direct-messages", icon: "messages.png" },
 ];
 
 export default function LeftBar() {
@@ -33,6 +31,7 @@ export default function LeftBar() {
   const router = useRouter();
   const [showUserOptions, setShowUserOptions] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showLanguages, setShowLanguages] = useState(false);
   const isMobile = useIsMobile();
 
   const [unreadDMCount] = useState(0); // Placeholder
@@ -40,9 +39,9 @@ export default function LeftBar() {
   const handleLogout = async () => {
     try {
       if (auth?.logout) {
-        await auth.logout(); // AuthContext içinde logout fonksiyonu fetch ile /api/logout yapmalı ve credentials: "include" içermeli
+        await auth.logout();
       }
-      setShowUserOptions(false);  // Kullanıcı çıkış yaptıktan sonra menü kapatılır
+      setShowUserOptions(false);
     } catch (err) {
       console.error("Logout hatası:", err);
     }
@@ -56,7 +55,6 @@ export default function LeftBar() {
     }
   };
 
-  // Masaüstü görünümünde DM (id:8) ve Reels (id:9) seçenekleri gizlenecek
   const filteredMenu = menuList.filter((item) => {
     if (!isMobile && (item.id === 8 || item.id === 9)) {
       return false;
@@ -66,7 +64,7 @@ export default function LeftBar() {
 
   return (
     <>
-      {/* MASAÜSTÜ: Sol sabit sidebar - Gelişmiş ışıklandırma ve gölgeler */}
+      {/* MASAÜSTÜ: Sidebar */}
       <div className="hidden lg:flex flex-col fixed top-0 left-0 w-30 bg-gradient-to-br from-gray-700 to-gray-900 shadow-2xl items-center pt-1 pb-1 z-50">
         <div className="flex justify-center mb-6">
           <Image src="/icons/logom2.png" alt="Logo" width={50} height={50} />
@@ -124,83 +122,86 @@ export default function LeftBar() {
         )}
       </div>
 
-
-{/* MOBİL: Üst sabit navbar – DM, Dil Seçici, Arama, Profil */}
-<div className="lg:hidden fixed top-0 left-0 w-full bg-[#1F2937] shadow-[0_4px_12px_rgba(0,0,0,0.3)] border-b border-gray-400 flex justify-between items-center px-3 py-2 z-[1000] backdrop-blur-md">
-  {/* Sol: Direct Messages */}
-  <Link href="/direct-messages" className="p-2 hover:scale-105 transition-transform duration-200">
-    <Image src="/icons/send2.png" alt="DM" width={18} height={18} />
-  </Link>
-
-  {/* Ortada: Dil Seçici ve Arama */}
-  <div className="flex items-center flex-1 justify-center gap-3 mx-3">
-    <div className="flex gap-2">
-      <Link href="/tr">
-        <Image src="/icons/turkey.png" alt="tr" width={18} height={18} />
-      </Link>
-      <Link href="/en">
-        <Image src="/icons/united-kingdom.png" alt="en" width={18} height={18} />
-      </Link>
-    </div>
-    <div className="flex-1">
-      <Search/>
-    </div>
-  </div>
-
-  {/* Sağ: Profil */}
-  {auth?.user && (
-    <div className="p-1 relative" onClick={() => setShowUserOptions((prev) => !prev)}>
-      <Image
-        src={auth.user.profile_image || "/icons/pp.png"}
-        alt="Profile"
-        width={34}
-        height={34}
-        className="rounded-full border border-white shadow-lg hover:scale-105 transition-transform duration-200"
-      />
-      {showUserOptions && (
-        <div className="absolute top-12 right-0 rounded-lg px-3 py-2 flex flex-col gap-2 bg-[#f0f0f0] text-[#1c1c1c] z-[1010] shadow-md border border-gray-400">
-          <button
-            onClick={() => {
-              setShowUserOptions(false);
-              router.push("/profile");
-            }}
-            className="hover:text-gray-600 transition"
-          >
-            Profile
-          </button>
-          <button
-            onClick={handleLogout}
-            className="hover:text-red-500 transition"
-          >
-            Logout
-          </button>
-        </div>
-      )}
-    </div>
-  )}
-</div>
-
-
-
-
-{/* MOBİL: Alt sabit navbar */}
-<div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#1F2937] shadow-[0_-4px_12px_rgba(0,0,0,0.3)] border-t border-gray-400 flex justify-around items-center py-2 z-[1000] backdrop-blur-md">
-  {menuList.map((item) =>
-    item.link ? (
-      (isMobile || (item.id !== 9 && item.id !== 8)) && (
-        <Link key={item.id} href={item.link} className="p-2 hover:scale-110 transition-transform duration-200">
-          <Image src={`/icons/${item.icon}`} alt={item.name} width={28} height={28} />
+      {/* MOBİL: Üst Navbar */}
+      <div className="lg:hidden fixed top-0 left-0 w-full bg-[#1F2937] shadow-[0_4px_12px_rgba(0,0,0,0.3)] border-b border-gray-400 flex items-center px-3 py-2 z-[1000] backdrop-blur-md">
+        <Link href="/direct-messages" className="p-2 hover:scale-105 transition-transform duration-200">
+          <Image src="/icons/send2.png" alt="DM" width={18} height={18} />
         </Link>
-      )
-    ) : (
-      <button key={item.id} onClick={handleChatClick} className="p-2 hover:scale-110 transition-transform duration-200">
-        <Image src={`/icons/${item.icon}`} alt={item.name} width={28} height={28} />
-      </button>
-    )
-  )}
-</div>
 
+        {/* Dropdown (Dil Seçici) */}
+        <div className="relative mx-2">
+          <button
+            onClick={() => setShowLanguages((prev) => !prev)}
+            className="p-1 rounded-full bg-gray-700 hover:bg-gray-600 transition"
+          >
+            🌐
+          </button>
+          {showLanguages && (
+            <div className="absolute top-10 left-0 bg-white text-black rounded shadow-lg flex flex-col z-[1010]">
+              <Link href="/tr" className="p-2 hover:bg-gray-200 flex items-center gap-2">
+                <Image src="/icons/turkey.png" alt="tr" width={18} height={18} />
+                Türkçe
+              </Link>
+              <Link href="/en" className="p-2 hover:bg-gray-200 flex items-center gap-2">
+                <Image src="/icons/united-kingdom.png" alt="en" width={18} height={18} />
+                English
+              </Link>
+            </div>
+          )}
+        </div>
 
+        <div className="flex-1 mx-2">
+          <Search />
+        </div>
+
+        {auth?.user && (
+          <div className="p-1 relative" onClick={() => setShowUserOptions((prev) => !prev)}>
+            <Image
+              src={auth.user.profile_image || "/icons/pp.png"}
+              alt="Profile"
+              width={34}
+              height={34}
+              className="rounded-full border border-white shadow-lg hover:scale-105 transition-transform duration-200"
+            />
+            {showUserOptions && (
+              <div className="absolute top-12 right-0 rounded-lg px-3 py-2 flex flex-col gap-2 bg-[#f0f0f0] text-[#1c1c1c] z-[1010] shadow-md border border-gray-400">
+                <button
+                  onClick={() => {
+                    setShowUserOptions(false);
+                    router.push("/profile");
+                  }}
+                  className="hover:text-gray-600 transition"
+                >
+                  Profile
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="hover:text-red-500 transition"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* MOBİL: Alt Navbar */}
+      <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#1F2937] shadow-[0_-4px_12px_rgba(0,0,0,0.3)] border-t border-gray-400 flex justify-around items-center py-2 z-[1000] backdrop-blur-md">
+        {menuList.map((item) =>
+          item.link ? (
+            (isMobile || (item.id !== 9 && item.id !== 8)) && (
+              <Link key={item.id} href={item.link} className="p-2 hover:scale-110 transition-transform duration-200">
+                <Image src={`/icons/${item.icon}`} alt={item.name} width={28} height={28} />
+              </Link>
+            )
+          ) : (
+            <button key={item.id} onClick={handleChatClick} className="p-2 hover:scale-110 transition-transform duration-200">
+              <Image src={`/icons/${item.icon}`} alt={item.name} width={28} height={28} />
+            </button>
+          )
+        )}
+      </div>
 
       {isChatOpen && !isMobile && (
         <div className="fixed inset-0 flex items-center justify-center z-[1100] bg-[#000000] bg-opacity-50">
@@ -209,6 +210,4 @@ export default function LeftBar() {
       )}
     </>
   );
-  
 }
-
