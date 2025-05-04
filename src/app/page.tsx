@@ -25,7 +25,6 @@ export default function Homepage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white">
-      {/* pt-14 → ~56px üst boşluk, pb-16 → ~64px alt boşluk */}
       <Feed />
     </div>
   );

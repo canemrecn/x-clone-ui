@@ -31,8 +31,6 @@ body {
   color: #ededed;
   background: black;
   font-family: Arial, Helvetica, sans-serif;
-  padding-top: 27px;    /* üst bar yüksekliği kadar */
-  padding-bottom: 27px; /* alt bar yüksekliği kadar */
   margin: 0;
   width: 100%;
   overflow-x: hidden;
