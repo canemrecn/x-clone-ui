@@ -24,7 +24,7 @@ export default function Homepage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white   padding-top: 10px;">
+    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white pt-10">
       <Feed />
     </div>
   );
