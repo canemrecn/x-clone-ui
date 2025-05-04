@@ -4,13 +4,10 @@ seçici, arama bileşeni (Search), kare ele geçirme oyunu (Square_Conquest_Game
 akışı (Feed) gibi bileşenleri sırasıyla gösterir ve bu yapıyı mobil ve masaüstü cihazlara duyarlı bir şekilde düzenler.*/
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import Link from "next/link";
-import Image from "next/image";
 import Feed from "@/components/Feed";
-import WhatToWatchCard from "@/components/WhatToWatchCard";
 
 export default function Homepage() {
   const auth = useAuth();
@@ -26,18 +23,12 @@ export default function Homepage() {
     return <div className="text-center text-lg font-bold">Yükleniyor...</div>;
   }
 
-  const content = useMemo(
-    () => (
-      <div className="flex flex-col gap-1"> {/* gap-1 aralığı artırdım */}
+  return (
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-800 to-gray-700 text-white">
+      {/* İçerik alanı üst ve alt navbar arasında esner */}
+      <div className="flex-1 overflow-y-auto p-4">
         <Feed />
       </div>
-    ),
-    []
-  );
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4">
-      {content}
     </div>
   );
 }
