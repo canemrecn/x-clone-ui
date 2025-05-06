@@ -1,7 +1,6 @@
 // src/app/admin/page.tsx
 /*Bu dosya, admin rolüne sahip kullanıcıların erişebileceği bir admin paneli sayfasıdır. 
 Kullanıcı admin değilse, anasayfaya yönlendirilir. */
-
 import Link from "next/link";
 import { getAuthUser } from "@/utils/getAuthUser";
 import { redirect } from "next/navigation";
@@ -9,7 +8,6 @@ import { redirect } from "next/navigation";
 export default async function AdminPage() {
   const user = await getAuthUser();
 
-  // Kullanıcı admin değilse anasayfaya yönlendir
   if (!user || user.role !== "admin") {
     redirect("/");
   }
@@ -78,6 +76,13 @@ export default async function AdminPage() {
           <Link href="/admin/cookie-logs">
             <div className="p-4 bg-gray-700 hover:bg-gray-600 rounded-md transition cursor-pointer">
               <span className="text-base font-semibold">Çerez Günlükleri</span>
+            </div>
+          </Link>
+        </li>
+        <li>
+          <Link href="/admin/reported-posts">
+            <div className="p-4 bg-red-600 hover:bg-red-500 rounded-md transition cursor-pointer">
+              <span className="text-base font-semibold">Şikayet Edilen Gönderiler</span>
             </div>
           </Link>
         </li>

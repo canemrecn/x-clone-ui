@@ -15,7 +15,6 @@ import Comments from "@/components/Comments";
 import Cookies from "js-cookie";
 import { useAuth } from "@/context/AuthContext";
 
-// SWR fetcher: Token'ı cookies üzerinden alıyoruz
 const fetcher = (url: string) => {
   const token = Cookies.get("token");
   return fetch(url, {
@@ -34,13 +33,8 @@ export default function PostDetailPage() {
   const router = useRouter();
   const { user } = useAuth();
 
-  // postId tam olarak gelmeden render etme
   if (!postId) {
-    return (
-      <p className="p-4 text-center text-white">
-        Gönderi yükleniyor...
-      </p>
-    );
+    return <p className="p-4 text-center text-white">Gönderi yükleniyor...</p>;
   }
 
   const { data, error } = useSWR<{ posts: PostData[] }>(
@@ -50,29 +44,17 @@ export default function PostDetailPage() {
   );
 
   if (!data && !error) {
-    return (
-      <p className="p-4 text-center text-white">
-        Gönderi yükleniyor...
-      </p>
-    );
+    return <p className="p-4 text-center text-white">Gönderi yükleniyor...</p>;
   }
 
   if (error) {
-    return (
-      <p className="p-4 text-center text-red-400">
-        Gönderi bulunamadı
-      </p>
-    );
+    return <p className="p-4 text-center text-red-400">Gönderi bulunamadı</p>;
   }
 
   const postData = data?.posts && data.posts.length > 0 ? data.posts[0] : null;
 
   if (!postData) {
-    return (
-      <p className="p-4 text-center text-white">
-        Gönderi bulunamadı
-      </p>
-    );
+    return <p className="p-4 text-center text-white">Gönderi bulunamadı</p>;
   }
 
   const handleDelete = async () => {
@@ -94,17 +76,42 @@ export default function PostDetailPage() {
     }
   };
 
+  const handleReport = async () => {
+    try {
+      const res = await fetch(`/api/reports`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ post_id: postId }),
+      });
+
+      if (!res.ok) throw new Error("Şikayet başarısız");
+
+      alert("Gönderi şikayet edildi.");
+    } catch (err) {
+      alert("Şikayet işlemi başarısız oldu.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4">
       <Post postData={postData} />
-      {user?.role === "admin" && (
+      <div className="mt-4 flex gap-2">
+        {user?.role === "admin" && (
+          <button
+            onClick={handleDelete}
+            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded"
+          >
+            Gönderiyi Sil
+          </button>
+        )}
         <button
-          onClick={handleDelete}
-          className="mt-4 bg-red-600 hover:bg-red-700 px-4 py-2 rounded"
+          onClick={handleReport}
+          className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded"
         >
-          Gönderiyi Sil
+          Şikayet Et
         </button>
-      )}
+      </div>
       <Comments postId={Number(postId)} />
     </div>
   );
