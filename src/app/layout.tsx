@@ -14,7 +14,7 @@ import Analytics from "@/components/Analytics";
 export const metadata = {
   title: "UnderGo",
   description: "UnderGo KVKK ve GDPR uyumlu sosyal medya platformudur.",
-  icons: { icon: "/icons/logom2.png" },
+  icons: { icon: "/icons/logo22.png" },
   other: {
     "privacy-policy": "https://undergo.com/policies/privacy-policy",
     "cookie-policy": "https://undergo.com/cookies-policy",

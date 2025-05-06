@@ -20,7 +20,7 @@ export default function AdBar() {
     <div className="fixed top-0 left-0 w-full z-[9999] bg-gradient-to-br from-gray-800 to-gray-700 text-white py-2 px-4 shadow-md flex items-center justify-center">
       <div className="flex items-center gap-2">
         <Image
-          src="/icons/logom2.png"
+          src="/icons/logo22.png"
           alt="Ad Logo"
           width={30}
           height={30}

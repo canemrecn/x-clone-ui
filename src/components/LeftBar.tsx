@@ -56,7 +56,7 @@ export default function LeftBar() {
     <>
       {/* MASAÜSTÜ: Sidebar */}
       <div className="hidden lg:flex flex-col fixed top-0 left-0 w-20 bg-gradient-to-br from-gray-700 to-gray-900 shadow-2xl items-center pt-4 pb-4 z-[1000]">
-        <Image src="/icons/logom2.png" alt="Logo" width={40} height={40} className="mb-6" />
+        <Image src="/icons/logo22.png" alt="Logo" width={40} height={40} className="mb-6" />
         <div className="flex flex-col gap-6">
           {menuList
             .filter((item) => item.id !== 9) // reels masaüstünde gösterme

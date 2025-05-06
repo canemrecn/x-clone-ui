@@ -39,7 +39,7 @@ export default function Login() {
       {/* Sol Taraf: yalnızca md ve üzeri ekranlarda göster */}
       <div className="w-1/2 hidden md:flex items-center justify-center relative z-10">
         <Image
-          src="/icons/logom2.png"
+          src="/icons/logo22.png"
           alt="Left column background"
           width={300}
           height={300}

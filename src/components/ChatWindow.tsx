@@ -47,14 +47,14 @@ const LinkPreview = ({ url }: { url: string }) => {
           setPreview(data);
         } else {
           setPreview({
-            image: "/icons/logom2.png",
+            image: "/icons/logo22.png",
             title: url,
             description: "",
           });
         }
       } catch (e) {
         setPreview({
-          image: "/icons/logom2.png",
+          image: "/icons/logo22.png",
           title: url,
           description: "",
         });

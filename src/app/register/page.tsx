@@ -68,7 +68,7 @@ export default function Register() {
 
       <div className="hidden md:flex w-1/2 items-center justify-center relative z-10">
         <Image
-          src="/icons/logom2.png"
+          src="/icons/logo22.png"
           alt="Left column background"
           width={900}
           height={900}

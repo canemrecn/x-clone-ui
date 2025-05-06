@@ -34,7 +34,7 @@ export default function AdPlaceholder({
     >
       <div className="flex items-center gap-2">
         <Image
-          src="/icons/logom2.png"
+          src="/icons/logo22.png"
           alt="Ad Logo"
           width={30}
           height={30}

@@ -40,7 +40,7 @@ export default async function handler(
 
     // Gelecekte URL'ye göre gerçek preview işlemi buraya gelecek
     return res.status(200).json({
-      image: "/icons/logom2.png",
+      image: "/icons/logo22.png",
     });
   } catch (err) {
     console.error("link-preview error:", err);
