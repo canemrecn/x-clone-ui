@@ -10,7 +10,7 @@ HTTP-only cookie uyumludur; logout işlemi dahil fetch çağrıları context iç
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import GeminiChat from "./GeminiChat";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -20,7 +20,7 @@ const menuList = [
   { id: 1, name: "Homepage", link: "/", icon: "home.svg" },
   { id: 2, name: "Notification", link: "/notifications", icon: "notification.svg" },
   { id: 3, name: "Chat AI", icon: "generative.png" },
-  { id: 9, name: "", link: "/reels", icon: "film-reel.png" },
+  { id: 9, name: "", link: "/reels", icon: "film-reel.png" }, // sadece mobil
   { id: 10, name: "Daily", link: "/daily", icon: "daily.png" },
   { id: 6, name: "Arrangement", link: "/arrangement", icon: "king.png" },
 ];
@@ -54,40 +54,57 @@ export default function LeftBar() {
 
   return (
     <>
-      {/* MASAÜSTÜ: Left Sidebar */}
+      {/* MASAÜSTÜ: Sidebar */}
       <div className="hidden lg:flex flex-col fixed top-0 left-0 w-20 bg-gradient-to-br from-gray-700 to-gray-900 shadow-2xl items-center pt-4 pb-4 z-[1000]">
         <Image src="/icons/logom2.png" alt="Logo" width={40} height={40} className="mb-6" />
         <div className="flex flex-col gap-6">
-          {menuList.map((item) =>
-            item.link ? (
-              <Link key={item.id} href={item.link} className="hover:scale-110 transition">
-                <Image src={`/icons/${item.icon}`} alt={item.name} width={28} height={28} />
-              </Link>
-            ) : (
-              <button key={item.id} onClick={handleChatClick} className="hover:scale-110 transition">
-                <Image src={`/icons/${item.icon}`} alt={item.name} width={28} height={28} />
-              </button>
-            )
-          )}
+          {menuList
+            .filter((item) => item.id !== 9) // reels masaüstünde gösterme
+            .map((item) =>
+              item.link ? (
+                <Link key={item.id} href={item.link} className="hover:scale-110 transition">
+                  <Image src={`/icons/${item.icon}`} alt={item.name} width={28} height={28} />
+                </Link>
+              ) : (
+                <button key={item.id} onClick={handleChatClick} className="hover:scale-110 transition">
+                  <Image src={`/icons/${item.icon}`} alt={item.name} width={28} height={28} />
+                </button>
+              )
+            )}
         </div>
-        {auth?.user && (
-          <div className="mt-auto mb-4 cursor-pointer" onClick={() => setShowUserOptions((prev) => !prev)}>
+      </div>
+
+      {/* MASAÜSTÜ: Sol Alt Profil */}
+      {auth?.user && (
+        <div className="hidden lg:block fixed bottom-4 left-4 z-[1050]">
+          <div className="relative">
             <Image
               src={auth.user.profile_image || "/icons/pp.png"}
               alt="Profile"
-              width={30}
-              height={30}
-              className="rounded-full"
+              width={50}
+              height={50}
+              className="rounded-full border-2 border-white shadow-lg cursor-pointer hover:scale-110 transition"
+              onClick={() => setShowUserOptions((prev) => !prev)}
             />
             {showUserOptions && (
-              <div className="absolute left-20 top-0 bg-white text-black rounded shadow p-2">
-                <button onClick={() => router.push("/profile")} className="block w-full text-left p-1">Profile</button>
-                <button onClick={handleLogout} className="block w-full text-left p-1 text-red-500">Logout</button>
+              <div className="absolute bottom-14 left-0 bg-white text-black rounded shadow-md p-2 w-28">
+                <button
+                  onClick={() => router.push("/profile")}
+                  className="block w-full text-left p-1 hover:bg-gray-100"
+                >
+                  Profile
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left p-1 text-red-500 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
               </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* MOBİL: Üst Navbar */}
       <div className="lg:hidden fixed top-0 left-0 w-full bg-[#1F2937] shadow border-b border-gray-400 flex items-center px-2 py-2 z-[1000]">
@@ -135,7 +152,7 @@ export default function LeftBar() {
       <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#1F2937] shadow border-t border-gray-400 flex justify-around items-center py-2 z-[1000]">
         {menuList.map((item) =>
           item.link ? (
-            <Link key={item.id} href={item.link} className="p-2">
+            <Link key={item.id} href={item.link} className={`p-2 ${item.id === 9 ? "block" : ""}`}>
               <Image src={`/icons/${item.icon}`} alt={item.name} width={24} height={24} />
             </Link>
           ) : (
