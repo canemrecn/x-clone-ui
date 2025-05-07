@@ -6,7 +6,7 @@ kullanıcı gönderiyi raporlayabilir veya doğrudan mesaj yoluyla paylaşabilir
 ve mobil/masaüstü uyumlu şekilde dinamik render edilir.*/
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -42,10 +42,9 @@ export default function Post({ postData }: PostProps) {
   const [showInput, setShowInput] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showPointAnim, setShowPointAnim] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
   const auth = useAuth();
   const router = useRouter();
-  const [showOptions, setShowOptions] = useState(false);
-  const [showSendModal, setShowSendModal] = useState(false);
 
   const translateWordWithInput = async (word: string) => {
     setHoveredWord(word);
@@ -90,7 +89,41 @@ export default function Post({ postData }: PostProps) {
     }, 2000);
   };
 
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("Gönderiyi silmek istediğinize emin misiniz?");
+    if (!confirmDelete) return;
+    try {
+      const res = await fetch(`/api/posts/delete/${postData.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Silinemedi");
+      alert("Gönderi silindi.");
+      router.refresh();
+    } catch (err) {
+      alert("Silme işlemi başarısız oldu.");
+    }
+  };
+
+  const handleReport = async () => {
+    const confirmReport = window.confirm("Bu gönderiyi şikayet etmek istediğinize emin misiniz?");
+    if (!confirmReport) return;
+    try {
+      const res = await fetch("/api/reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ post_id: postData.id }),
+      });
+      if (!res.ok) throw new Error("Şikayet başarısız");
+      alert("Gönderi şikayet edildi.");
+    } catch (err) {
+      alert("Şikayet başarısız oldu.");
+    }
+  };
+
   const isYouTubeLink = postData.media_url?.includes("youtube.com") ?? false;
+  const isOwner = auth?.user?.id === postData.user_id;
 
   return (
     <div className="p-4 border-y border-gray-300 w-full max-w-full bg-gradient-to-br from-gray-800 to-gray-800 shadow-md rounded-lg text-white relative">
@@ -113,10 +146,22 @@ export default function Post({ postData }: PostProps) {
             <div className="relative">
               <button onClick={() => setShowOptions(!showOptions)} className="px-2 py-1 text-white hover:text-orange-500 transition">...</button>
               {showOptions && (
-                <div className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-300 rounded shadow-md w-24 text-sm">
-                  <button className="block w-full text-left px-2 py-1 hover:bg-orange-500 transition text-red-500">
-                    Delete
-                  </button>
+                <div className="absolute right-0 top-full mt-1 bg-gray-800 border border-gray-300 rounded shadow-md w-32 text-sm z-50">
+                  {isOwner ? (
+                    <button
+                      onClick={handleDelete}
+                      className="block w-full text-left px-2 py-1 hover:bg-red-600 transition text-red-500"
+                    >
+                      Delete
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleReport}
+                      className="block w-full text-left px-2 py-1 hover:bg-yellow-500 transition text-yellow-400"
+                    >
+                      Şikayet Et
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -142,7 +187,6 @@ export default function Post({ postData }: PostProps) {
                 {word}
                 {hoveredWord === word && showInput && (
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-xs p-3 rounded shadow-lg w-64 min-h-[130px] z-50 flex flex-col justify-start">
-                    {/* Reklam Bileşeni */}
                     <div className="mb-3 w-full h-80 bg-gradient-to-r from-orange-400 to-red-500 text-center text-[11px] flex items-center justify-center rounded">
                       🔥 UnderGo ile İngilizce öğren, puan kazan, seviye atla!
                     </div>
@@ -159,8 +203,6 @@ export default function Post({ postData }: PostProps) {
                     {feedback && <div className="text-center text-sm">{feedback}</div>}
                   </div>
                 )}
-
-
               </span>
             ))}
           </div>
