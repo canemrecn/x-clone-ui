@@ -1,66 +1,138 @@
 "use client";
 
-import useSWR from "swr";
+import { useEffect, useState } from "react";
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" }).then((res) => res.json());
+interface ReportedPost {
+  id: number; // report id
+  post_id: number;
+  user_id: number;
+  reason: string;
+  created_at: string;
+  title: string;
+  content: string;
+  media_url: string | null;
+  media_type: string | null;
+  username: string;
+  full_name: string;
+}
 
 export default function ReportedPostsPage() {
-  const { data, error, mutate } = useSWR("/api/reported-posts", fetcher);
+  const [reports, setReports] = useState<ReportedPost[]>([]);
+  const [error, setError] = useState("");
 
-  const handleDelete = async (postId: number) => {
-    const confirm = window.confirm("Bu gönderiyi silmek istediğinize emin misiniz?");
+  useEffect(() => {
+    async function fetchReports() {
+      try {
+        const res = await fetch("/api/reported-posts", {
+          credentials: "include",
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.message || "Veri çekilemedi");
+        }
+        const data = await res.json();
+        setReports(data.reports);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    }
+    fetchReports();
+  }, []);
+
+  async function handleDelete(postId: number, reportId: number) {
+    const confirm = window.confirm("Bu gönderiyi silmek istediğine emin misin?");
     if (!confirm) return;
 
-    await fetch(`/api/posts/delete/${postId}`, {
+    const res = await fetch(`/api/posts/delete/${postId}`, {
       method: "DELETE",
       credentials: "include",
     });
-    mutate();
-  };
 
-  const handleIgnore = async (reportId: number) => {
-    await fetch(`/api/reports/ignore/${reportId}`, {
-      method: "POST",
+    if (res.ok) {
+      // Hem gönderiyi hem raporu arayüzden kaldır
+      setReports((prev) => prev.filter((r) => r.post_id !== postId));
+    }
+  }
+
+  async function handleIgnore(reportId: number) {
+    const res = await fetch(`/api/reported-posts/${reportId}`, {
+      method: "DELETE",
       credentials: "include",
     });
-    mutate();
-  };
-
-  if (!data && !error) return <div className="text-center">Yükleniyor...</div>;
-  if (error) return <div className="text-center text-red-500">Hata oluştu</div>;
+    if (res.ok) {
+      setReports((prev) => prev.filter((r) => r.id !== reportId));
+    }
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-xl font-bold mb-4">Şikayet Edilen Gönderiler</h1>
-      {data.reports.length === 0 ? (
-        <p>Hiç şikayet edilen gönderi yok.</p>
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">Şikayet Edilen Gönderiler</h1>
+      {error ? (
+        <p className="text-red-500 text-center">{error}</p>
+      ) : reports.length === 0 ? (
+        <p className="text-center">Şikayet edilen gönderi yok.</p>
       ) : (
-        data.reports.map((report: any) => (
-          <div
-            key={report.id}
-            className="p-4 mb-2 bg-gray-800 rounded flex justify-between items-center"
-          >
-            <div>
-              <p>Gönderi ID: {report.post_id}</p>
-              <p>Şikayet Nedeni: {report.reason || "Belirtilmedi"}</p>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleDelete(report.post_id)}
-                className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
-              >
-                Gönderiyi Sil
-              </button>
-              <button
-                onClick={() => handleIgnore(report.id)}
-                className="bg-gray-500 hover:bg-gray-600 px-3 py-1 rounded"
-              >
-                Yoksay
-              </button>
-            </div>
-          </div>
-        ))
+        <table className="w-full border border-gray-700">
+          <thead>
+            <tr className="bg-gray-800">
+              <th className="p-2 text-left">Kullanıcı</th>
+              <th className="p-2 text-left">İçerik</th>
+              <th className="p-2 text-left">Şikayet Nedeni</th>
+              <th className="p-2 text-left">Tarih</th>
+              <th className="p-2">Medya</th>
+              <th className="p-2">İşlem</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reports.map((report) => (
+              <tr key={report.id} className="border-t border-gray-700">
+                <td className="p-2">
+                  {report.full_name} <span className="text-gray-400">@{report.username}</span>
+                </td>
+                <td className="p-2 whitespace-pre-wrap max-w-xs overflow-hidden">
+                  {report.content}
+                </td>
+                <td className="p-2 whitespace-pre-wrap max-w-xs overflow-hidden">
+                  {report.reason}
+                </td>
+                <td className="p-2">
+                  {new Date(report.created_at).toLocaleString()}
+                </td>
+                <td className="p-2">
+                  {report.media_url && (
+                    report.media_type?.includes("video") ? (
+                      <video
+                        src={report.media_url}
+                        controls
+                        className="max-w-[180px] max-h-[140px] rounded shadow"
+                      />
+                    ) : (
+                      <img
+                        src={report.media_url}
+                        alt="media"
+                        className="max-w-[180px] max-h-[140px] object-cover rounded shadow"
+                      />
+                    )
+                  )}
+                </td>
+                <td className="p-2 text-center">
+                  <button
+                    onClick={() => handleDelete(report.post_id, report.id)}
+                    className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded mr-2"
+                  >
+                    Gönderiyi Sil
+                  </button>
+                  <button
+                    onClick={() => handleIgnore(report.id)}
+                    className="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded"
+                  >
+                    Yoksay
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
