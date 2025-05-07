@@ -6,8 +6,6 @@ gönderiyi Post bileşeni ile ekrana render eder; dil filtresi (lang) desteği d
 "use client";
 
 import { useState, useEffect } from "react";
-import Post from "./Post";
-import AdPlaceholder from "./AdPlaceholder";
 import { useAuth } from "@/context/AuthContext"; // Importing AuthContext for managing authentication
 
 interface FeedProps {
@@ -66,13 +64,6 @@ export default function Feed({ posts, lang }: FeedProps) {
 
   return (
     <div className="flex flex-col gap-4 p-4 bg-gradient-to-br from-gray-800 to-gray-800">
-      {finalPosts.map((item) => {
-        if (item.isAd) {
-          return <AdPlaceholder key={item.id} />; // Render the ad
-        } else {
-          return <Post key={item.id} postData={item} />; // Render the post
-        }
-      })}
     </div>
   );
 }
