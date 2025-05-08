@@ -268,36 +268,8 @@ export default function Register() {
                     className="mt-1"
                   />
                   <span>
-                    Çerez ve analiz verilerimin işlenmesini kabul ediyorum.
+                    Çerez ve analiz verilerimin işlenmesini, bilgilendirme mesajları ve mailleri gönderilmesini ve verilerimin yurt dışına aktarılmasını kabul ediyorum.
                   </span>
-                </label>
-                <label className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    onChange={(e) =>
-                      setUser((prev) => ({
-                        ...prev,
-                        analyticsConsent: e.target.checked,
-                      }))
-                    }
-                    className="mt-1"
-                  />
-                  <span>
-                    Bilgilendirme mesajları ve mailleri gönderilmesini kabul ediyorum
-                  </span>
-                </label>
-                <label className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    onChange={(e) =>
-                      setUser((prev) => ({
-                        ...prev,
-                        transferConsent: e.target.checked,
-                      }))
-                    }
-                    className="mt-1"
-                  />
-                  <span>Verilerimin yurt dışına aktarılmasını kabul ediyorum.</span>
                 </label>
               </div>
 
