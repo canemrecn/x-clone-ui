@@ -1,12 +1,14 @@
-//src/components/Post.tsx
-/*Bu dosya, bir sosyal medya gönderisini detaylı şekilde görüntüleyen Post bileşenini içerir; kullanıcı adı, profil fotoğrafı, gönderi 
-metni (kelime çeviri özelliğiyle), medya içeriği (resim, video veya YouTube bağlantısı), dil bayrağı, oluşturulma tarihi ve etkileşimler 
-(beğeni, yorum sayısı, detay sayfasına link) gibi bilgileri gösterir. Ayrıca kullanıcı yetkiliyse gönderiyi silebilir, herhangi bir 
-kullanıcı gönderiyi raporlayabilir veya doğrudan mesaj yoluyla paylaşabilir. Medya dosyasının detayları gerekiyorsa sunucudan alınır 
-ve mobil/masaüstü uyumlu şekilde dinamik render edilir.*/
 // src/components/Post.tsx
 
 "use client";
+
+/*
+Bu dosya, bir sosyal medya gönderisini detaylı şekilde görüntüleyen Post bileşenini içerir; kullanıcı adı, profil fotoğrafı, gönderi 
+metni (kelime çeviri özelliğiyle), medya içeriği (resim, video veya YouTube bağlantısı), dil bayrağı, oluşturulma tarihi ve etkileşimler 
+(beğeni, yorum sayısı, detay sayfasına link) gibi bilgileri gösterir. Ayrıca kullanıcı yetkiliyse gönderiyi silebilir, herhangi bir 
+kullanıcı gönderiyi raporlayabilir veya doğrudan mesaj yoluyla paylaşabilir. Medya dosyasının detayları gerekiyorsa sunucudan alınır 
+ve mobil/masaüstü uyumlu şekilde dinamik render edilir.
+*/
 
 import React, { useState } from "react";
 import Image from "next/image";
@@ -38,32 +40,36 @@ interface PostProps {
 }
 
 export default function Post({ postData }: PostProps) {
-  const [hoveredWordIndex, setHoveredWordIndex] = useState<number | null>(null);
+  const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
   const [correctTranslation, setCorrectTranslation] = useState<string | null>(null);
   const [userInput, setUserInput] = useState<string>("");
-  const [showInput, setShowInput] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showPointAnim, setShowPointAnim] = useState(false);
+  const [translatedWords, setTranslatedWords] = useState<Record<number, boolean>>({});
   const [showOptions, setShowOptions] = useState(false);
-  const [completedTranslations, setCompletedTranslations] = useState<Set<number>>(new Set());
   const auth = useAuth();
   const router = useRouter();
 
   const translateWordWithInput = async (word: string, index: number) => {
-    if (completedTranslations.has(index)) {
-      setHoveredWordIndex(index);
-      setShowInput(false);
-      setFeedback("✅ Bu çeviriyi zaten yaptınız.");
-      return;
-    }
-
-    setHoveredWordIndex(index);
+    setActiveWordIndex(index);
     setCorrectTranslation(null);
     setUserInput("");
-    setShowInput(true);
     setFeedback(null);
 
     try {
+      // İlk olarak daha önce bu kelime bu konumda çevrilmiş mi kontrol et
+      const resCheck = await fetch(
+        `/api/check-translation?postId=${postData.id}&word=${encodeURIComponent(`${word}_${index}`)}`,
+        { credentials: "include" }
+      );
+      const dataCheck = await resCheck.json();
+
+      if (dataCheck.alreadyTranslated) {
+        setFeedback("✅ Bu kelimeyi zaten çevirdiniz.");
+        return;
+      }
+
+      // Çeviri al
       const res = await fetch("/api/translate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -82,22 +88,26 @@ export default function Post({ postData }: PostProps) {
     }
   };
 
-  const checkTranslation = async (index: number) => {
+  const checkTranslation = async (word: string, index: number) => {
     if (userInput.trim().toLowerCase() === correctTranslation?.toLowerCase()) {
       setFeedback("✅ Doğru! +1 puan");
       setShowPointAnim(true);
-      setCompletedTranslations((prev) => new Set(prev).add(index));
 
-      // ✅ Puan ekleme çağrısı
       try {
-        await fetch("/api/updatePoints", {
+        await fetch("/api/check-translation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ points: 1 }),
+          body: JSON.stringify({
+            postId: postData.id,
+            word: `${word}_${index}`, // ✅ Konumla birlikte kaydet
+          }),
         });
-      } catch (err) {
-        console.error("Puan güncelleme hatası:", err);
+
+        // O kelime artık çevrildi olarak işaretleniyor
+        setTranslatedWords((prev) => ({ ...prev, [index]: true }));
+      } catch (error) {
+        console.error("Puan ekleme hatası:", error);
       }
 
       setTimeout(() => setShowPointAnim(false), 1500);
@@ -106,8 +116,7 @@ export default function Post({ postData }: PostProps) {
     }
 
     setTimeout(() => {
-      setHoveredWordIndex(null);
-      setShowInput(false);
+      setActiveWordIndex(null);
       setUserInput("");
       setFeedback(null);
     }, 2000);
@@ -202,32 +211,34 @@ export default function Post({ postData }: PostProps) {
                 className="relative group cursor-pointer mx-1 inline-block"
                 onMouseEnter={() => translateWordWithInput(word, index)}
                 onMouseLeave={() => {
-                  setHoveredWordIndex(null);
-                  setShowInput(false);
+                  setActiveWordIndex(null);
                   setUserInput("");
                   setFeedback(null);
                 }}
               >
                 {word}
-                {hoveredWordIndex === index && (
+                {activeWordIndex === index && (
                   <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-700 text-white text-xs p-3 rounded shadow-lg w-64 min-h-[130px] z-50 flex flex-col justify-start">
-                    {completedTranslations.has(index) ? (
-                      <div className="text-center text-sm">{feedback || "✅ Bu çeviriyi zaten yaptınız."}</div>
-                    ) : (
+                    <div className="mb-3 w-full h-80 bg-gradient-to-r from-orange-400 to-red-500 text-center text-[11px] flex items-center justify-center rounded">
+                      🔥 UnderGo ile İngilizce öğren, puan kazan, seviye atla!
+                    </div>
+
+                    {translatedWords[index] ? (
+                      <div className="text-center text-green-400 text-sm">✅ Bu kelimeyi zaten çevirdiniz.</div>
+                    ) : correctTranslation ? (
                       <>
-                        <div className="mb-3 w-full h-80 bg-gradient-to-r from-orange-400 to-red-500 text-center text-[11px] flex items-center justify-center rounded">
-                          🔥 UnderGo ile İngilizce öğren, puan kazan, seviye atla!
-                        </div>
                         <input
                           type="text"
                           className="w-full text-black px-2 py-1 rounded mb-2"
                           placeholder="Çeviriyi yaz..."
                           value={userInput}
                           onChange={(e) => setUserInput(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && checkTranslation(index)}
+                          onKeyDown={(e) => e.key === "Enter" && checkTranslation(word, index)}
                         />
                         {feedback && <div className="text-center text-sm">{feedback}</div>}
                       </>
+                    ) : (
+                      <div className="text-center text-sm">Yükleniyor...</div>
                     )}
                   </div>
                 )}
@@ -235,7 +246,6 @@ export default function Post({ postData }: PostProps) {
             ))}
           </div>
 
-          {/* (Medya kısmı değişmedi) */}
           {postData.media_url && (
             <div className="mt-4 max-w-full">
               {isYouTubeLink ? (
@@ -256,6 +266,17 @@ export default function Post({ postData }: PostProps) {
             </div>
           )}
 
+          {postData.lang && (
+            <div className="flex items-center gap-2 text-xs text-white italic">
+              <Image
+                src={postData.lang === "en" ? "/icons/united-kingdom.png" : "/icons/turkey.png"}
+                alt={postData.lang}
+                width={25}
+                height={25}
+              />
+            </div>
+          )}
+
           <span className="text-xs text-white">
             {new Date(postData.created_at).toLocaleString("tr-TR", {
               hour: "numeric",
@@ -266,6 +287,8 @@ export default function Post({ postData }: PostProps) {
               year: "numeric",
             })}
           </span>
+
+          <p className="text-xs text-gray-400 mt-2">Gönderi ID: {postData.id}</p>
 
           <PostInteractions
             postId={postData.id}
