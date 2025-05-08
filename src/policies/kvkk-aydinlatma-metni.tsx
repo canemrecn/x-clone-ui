@@ -14,14 +14,13 @@ const KvkkAydinlatmaMetni = () => {
       <h1 className="text-2xl font-bold mb-4">KVKK Aydınlatma Metni</h1>
 
       <p className="mb-4">
-        6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, veri sorumlusu sıfatıyla Undergo platformu
-        olarak kişisel verilerinizi, aşağıda açıklanan kapsamda işlemekteyiz.
+        6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, veri sorumlusu sıfatıyla Undergo platformunu işleten kişi olarak kişisel verilerinizi aşağıda açıklanan kapsamda işlemekteyim.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">Veri Sorumlusu</h2>
       <p className="mb-4">
-        Undergo Dijital Teknolojiler A.Ş. <br />
-        E-posta: destek@undergo.com
+        Emrecan Zeytünlü <br />
+        E-posta: emrecancnzytnl@gmail.com
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">İşlenen Kişisel Veriler</h2>
@@ -29,7 +28,7 @@ const KvkkAydinlatmaMetni = () => {
         <li>Kimlik bilgileri (ad, soyad, kullanıcı adı)</li>
         <li>İletişim bilgileri (e-posta adresi)</li>
         <li>Profil verileri (fotoğraf, biyografi, gönderiler)</li>
-        <li>Mesajlar, yorumlar</li>
+        <li>Mesajlar ve yorumlar</li>
         <li>IP adresi ve cihaz bilgileri</li>
         <li>Çerez verileri</li>
       </ul>
@@ -38,38 +37,39 @@ const KvkkAydinlatmaMetni = () => {
       <ul className="list-disc list-inside mb-4">
         <li>Platform hizmetlerinin sunulması</li>
         <li>Kullanıcı hesabı oluşturulması ve yönetimi</li>
-        <li>İletişim ve bildirim faaliyetlerinin yürütülmesi</li>
+        <li>İletişim ve bilgilendirme faaliyetlerinin yürütülmesi</li>
         <li>Hukuki yükümlülüklerin yerine getirilmesi</li>
         <li>İstatistiksel analiz ve iyileştirme çalışmaları</li>
       </ul>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">Veri Toplama Yöntemleri</h2>
       <p className="mb-4">
-        Kişisel veriler; kullanıcı kayıt formları, profil güncellemeleri, platform içi etkileşimler ve çerezler aracılığıyla
-        elektronik ortamda toplanmaktadır.
+        Kişisel veriler; kullanıcı kayıt formları, profil güncellemeleri, platform içi etkileşimler (gönderi, yorum, mesaj) ve çerezler aracılığıyla elektronik ortamda toplanmaktadır.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">Verilerin Aktarımı</h2>
       <p className="mb-4">
-        Kişisel verileriniz, sadece hizmet alınan tedarikçiler ve yasal yükümlülükler çerçevesinde resmi kurumlarla
-        paylaşılmaktadır. Yurt dışına aktarım, açık rızanıza bağlıdır.
+        Kişisel verileriniz yalnızca hizmet alınan üçüncü taraf tedarikçiler (örneğin; barındırma ve analiz sağlayıcıları) ile ve yasal yükümlülükler çerçevesinde resmi kurumlarla paylaşılmaktadır. Yurt dışına veri aktarımı, yalnızca açık rızanız doğrultusunda gerçekleştirilmektedir.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">Veri Sahibi Hakları</h2>
       <p className="mb-4">
-        KVKK’nın 11. maddesi uyarınca, kullanıcılar kişisel verilerine ilişkin olarak:
+        KVKK’nın 11. maddesi uyarınca, kullanıcılar kişisel verilerine ilişkin olarak aşağıdaki haklara sahiptir:
       </p>
       <ul className="list-disc list-inside mb-4">
-        <li>İşlenip işlenmediğini öğrenme</li>
-        <li>Bilgi talep etme</li>
-        <li>Amacına uygun kullanılıp kullanılmadığını öğrenme</li>
-        <li>Üçüncü kişilere aktarımını bilme</li>
-        <li>Düzeltme ve silme isteme</li>
-        <li>İtiraz etme ve zarar tazmini talep etme</li>
+        <li>Kişisel verilerinin işlenip işlenmediğini öğrenme</li>
+        <li>İşlenmişse buna ilişkin bilgi talep etme</li>
+        <li>Verilerin işlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme</li>
+        <li>Verilerin yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme</li>
+        <li>Eksik veya yanlış işlenmişse düzeltilmesini isteme</li>
+        <li>KVKK’da öngörülen şartlar çerçevesinde silinmesini veya yok edilmesini isteme</li>
+        <li>Düzeltme, silme veya yok etme işlemlerinin verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme</li>
+        <li>İşlenen verilerin münhasıran otomatik sistemler aracılığıyla analiz edilmesi suretiyle kişinin kendisi aleyhine bir sonucun ortaya çıkmasına itiraz etme</li>
+        <li>Kişisel verilerin kanuna aykırı olarak işlenmesi sebebiyle zarara uğraması hâlinde zararın giderilmesini talep etme</li>
       </ul>
 
       <p className="mb-4">
-        Bu haklarınızı kullanmak için <strong>kvkk@undergo.com</strong> adresinden başvuru yapabilirsiniz.
+        Bu haklarınızı kullanmak için <strong>emrecancnzytnl@gmail.com</strong> adresine başvuru yapabilirsiniz.
       </p>
     </div>
   );

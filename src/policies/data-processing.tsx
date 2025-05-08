@@ -9,8 +9,8 @@ export default function DataProcessingPolicyPage() {
       <h1 className="text-3xl font-bold mb-6">Veri İşleyici Sözleşmeleri (Data Processing Agreements - DPA)</h1>
 
       <p className="mb-4">
-        UnderGo platformu olarak, kullanıcılarımızın kişisel verilerini yalnızca gerekli durumlarda ve güvenilir hizmet sağlayıcılarla paylaşmaktayız. 
-        Bu hizmet sağlayıcılarla yapılan Veri İşleyici Sözleşmeleri (DPA), KVKK ve GDPR hükümlerine uygundur.
+        UnderGo platformu olarak, kullanıcılarımızın kişisel verilerini yalnızca gerekli durumlarda ve güvenilir hizmet sağlayıcılarla paylaşmaktayız.
+        Bu hizmet sağlayıcılarla yapılan Veri İşleyici Sözleşmeleri (DPA), 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR) hükümlerine uygundur.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">1. DPA Nedir?</h2>
@@ -27,6 +27,7 @@ export default function DataProcessingPolicyPage() {
             href="https://openai.com/policies/data-processing-addendum"
             className="underline text-cyan-400"
             target="_blank"
+            rel="noopener noreferrer"
           >
             DPA Detayları
           </a>
@@ -37,6 +38,7 @@ export default function DataProcessingPolicyPage() {
             href="https://imagekit.io/legal/data-processing-agreement"
             className="underline text-cyan-400"
             target="_blank"
+            rel="noopener noreferrer"
           >
             DPA Detayları
           </a>
@@ -49,23 +51,23 @@ export default function DataProcessingPolicyPage() {
       <h2 className="text-xl font-semibold mt-6 mb-2">3. Sorumluluklar</h2>
       <p className="mb-4">
         UnderGo, bu hizmet sağlayıcıların veri güvenliği yükümlülüklerini yerine getirdiğini denetlemekle ve kullanıcı verilerini yalnızca yasal ve belirtilen amaçlar çerçevesinde işlemekle yükümlüdür.
-        Her hizmet sağlayıcı ile imzalanan DPA metinleri, GDPR Madde 28 ile uyumludur.
+        Her hizmet sağlayıcı ile imzalanan DPA metinleri, GDPR Madde 28 ve KVKK'nın ilgili maddeleri ile uyumludur.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">4. Kullanıcı Hakları</h2>
       <p className="mb-4">
-        Kullanıcılarımız, verilerinin hangi işleyicilerle paylaşıldığını öğrenme, onaylarını geri çekme ve veri silinmesini talep etme haklarına sahiptir.
+        Kullanıcılarımız, verilerinin hangi işleyicilerle paylaşıldığını öğrenme, açık rızalarını geri çekme ve kişisel verilerinin silinmesini talep etme haklarına sahiptir.
         Bu hakları kullanmak için{" "}
-        <a href="mailto:destek@undergo.com" className="underline text-cyan-400">
-          destek@undergo.com
+        <a href="mailto:emrecancnzytnl@gmail.com" className="underline text-cyan-400">
+          emrecancnzytnl@gmail.com
         </a>{" "}
-        adresi üzerinden bize ulaşabilirsiniz.
+        adresi üzerinden bizimle iletişime geçebilirsiniz.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">5. Gelecekteki Entegrasyonlar</h2>
       <p className="mb-4">
-        UnderGo platformuna yeni üçüncü taraf servisler eklendiğinde, veri işleme süreçleri gözden geçirilir ve ilgili DPA’lar güncellenir.
-        Güncel liste bu sayfada ilan edilir.
+        UnderGo platformuna yeni üçüncü taraf servisler eklendiğinde, veri işleme süreçleri düzenli olarak gözden geçirilir ve ilgili DPA’lar güncellenir.
+        Güncel liste ve bilgiler bu sayfada ilan edilmeye devam edecektir.
       </p>
     </div>
   );

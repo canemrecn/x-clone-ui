@@ -13,38 +13,38 @@ const VeriImhaPolitikasi = () => {
 
       <p className="mb-4">
         Bu politika, Undergo platformu tarafından işlenen kişisel verilerin, 6698 sayılı KVKK ve ilgili mevzuata uygun
-        şekilde ne süreyle saklanacağını, ne zaman ve hangi yöntemlerle imha edileceğini düzenlemektedir.
+        şekilde ne süreyle saklanacağını, ne zaman ve hangi yöntemlerle imha edileceğini düzenler.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">Verilerin Saklanma Süresi</h2>
       <ul className="list-disc list-inside mb-4">
-        <li>Kullanıcı hesabı açık olduğu sürece veriler saklanır.</li>
-        <li>Kullanıcı hesabı silindikten sonra veriler 180 gün içinde imha edilir.</li>
+        <li>Kullanıcı hesabı aktif olduğu sürece veriler saklanır.</li>
+        <li>Kullanıcı hesabı silindikten sonra kişisel veriler 180 gün içinde imha edilir.</li>
         <li>İletişim kayıtları (destek talepleri, e-postalar) en fazla 1 yıl saklanır.</li>
-        <li>Yasal yükümlülüklerden doğan veriler (log kayıtları) 2 yıl süreyle saklanır.</li>
+        <li>Yasal zorunluluk gereği tutulan log kayıtları 2 yıl süreyle saklanır.</li>
       </ul>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">Verilerin Silinmesi ve Yok Edilmesi</h2>
       <p className="mb-4">
-        Saklama süresi dolan kişisel veriler, periyodik olarak silinir, yok edilir veya anonim hale getirilir. Silme işlemi,
-        verinin ilgili kullanıcı veya işlemle ilişiğinin kalmaması şeklinde gerçekleştirilir.
+        Saklama süresi dolan kişisel veriler, düzenli aralıklarla silinir, yok edilir veya anonim hale getirilir. Silme işlemi,
+        verinin ilgili kullanıcı veya işlemle ilişiğinin tamamen ortadan kaldırılması şeklinde gerçekleştirilir.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">İmha Yöntemleri</h2>
       <ul className="list-disc list-inside mb-4">
-        <li><strong>Yazılımdan silme:</strong> Veritabanından güvenli şekilde silinir.</li>
-        <li><strong>Fiziksel imha:</strong> Fiziksel ortamdaki belgeler imha edilir.</li>
-        <li><strong>Anonimleştirme:</strong> Kimlikle ilişkilendirilemeyecek hale getirilir.</li>
+        <li><strong>Yazılımdan silme:</strong> Veriler güvenli bir şekilde veritabanından silinir.</li>
+        <li><strong>Fiziksel imha:</strong> Fiziksel ortamdaki belgeler güvenli bir şekilde yok edilir.</li>
+        <li><strong>Anonimleştirme:</strong> Veriler, kimlikle ilişkilendirilemeyecek hale getirilir.</li>
       </ul>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">Kullanıcı Talepleri</h2>
       <p className="mb-4">
-        Kullanıcılar, verilerinin silinmesini <strong>kvkk@undergo.com</strong> adresine başvurarak talep edebilir.
-        Talep en geç 30 gün içinde sonuçlandırılır.
+        Kullanıcılar, kişisel verilerinin silinmesini <strong>emrecancnzytnl@gmail.com</strong> adresine başvurarak talep edebilir.
+        Başvurular en geç 30 gün içinde sonuçlandırılır.
       </p>
 
       <p>
-        Platformumuz, silme ve imha işlemlerini belgeleyerek yasal yükümlülüklere uygun şekilde işlemektedir.
+        Platform, tüm silme ve imha işlemlerini kaydederek yasal yükümlülüklere uygun şekilde işlemektedir.
       </p>
     </div>
   );

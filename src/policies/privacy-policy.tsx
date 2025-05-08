@@ -21,7 +21,8 @@ const translations = {
     breach: "Veri İhlali Durumunda Bilgilendirme",
     rights: "Veri Sahibi Hakları",
     cookies: "Çerezler ve Takip Teknolojileri",
-    dpia: "Veri Koruma Etki Değerlendirmesi (DPIA)"
+    dpia: "Veri Koruma Etki Değerlendirmesi (DPIA)",
+    logs: "Yer Sağlayıcı Kayıtları"
   },
   en: {
     title: "Privacy Policy",
@@ -35,7 +36,8 @@ const translations = {
     breach: "Notification in Case of Data Breach",
     rights: "Data Subject Rights",
     cookies: "Cookies and Tracking Technologies",
-    dpia: "Data Protection Impact Assessment (DPIA)"
+    dpia: "Data Protection Impact Assessment (DPIA)",
+    logs: "Hosting Provider Logs"
   }
 };
 
@@ -65,63 +67,69 @@ const PrivacyPolicy = () => {
 
       <h2 className="text-xl font-semibold mt-6 mb-2">{t.collectedData}</h2>
       <ul className="list-disc list-inside mb-4">
-        <li>Name, surname, username</li>
-        <li>Email address</li>
-        <li>Profile info (photo, bio, etc.)</li>
-        <li>Posts, comments, direct messages</li>
-        <li>IP address and device info</li>
-        <li>Cookie data and preferences</li>
+        <li>Ad, soyad, kullanıcı adı</li>
+        <li>E-posta adresi</li>
+        <li>Profil bilgileri (fotoğraf, biyografi vb.)</li>
+        <li>Gönderiler, yorumlar, özel mesajlar</li>
+        <li>IP adresi ve cihaz bilgisi</li>
+        <li>Çerez verileri ve tercihleri</li>
       </ul>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">{t.purposes}</h2>
       <ul className="list-disc list-inside mb-4">
-        <li>Service delivery and account management</li>
-        <li>Post sharing and social interaction</li>
-        <li>Security and abuse detection</li>
-        <li>Performance improvement and analytics</li>
-        <li>Fulfilling legal obligations</li>
+        <li>Hizmet sunumu ve hesap yönetimi</li>
+        <li>Gönderi paylaşımı ve sosyal etkileşim</li>
+        <li>Güvenlik ve kötüye kullanım tespiti</li>
+        <li>Performans iyileştirme ve analiz</li>
+        <li>Yasal yükümlülüklerin yerine getirilmesi</li>
       </ul>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">{t.storageTransfer}</h2>
       <p className="mb-4">
-        We may use servers located abroad (e.g. ImageKit, OpenAI, socket.io). By using the platform, you consent to international data transfer.
+        Veriler yurtiçindeki veya yurtdışındaki güvenilir hizmet sağlayıcılarda saklanabilir (örn. ImageKit, OpenAI, socket.io).
+        Yurtdışı aktarım KVKK’ya uygundur ve açık rıza ile gerçekleştirilir.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">{t.retention}</h2>
       <p className="mb-4">
-        Data is deleted, destroyed or anonymized when the processing purpose ends. When an account is deleted, the data is also removed within a reasonable time.
+        Veriler amacın sona ermesi veya yasal zorunlulukların tamamlanması sonrası silinir veya anonimleştirilir. Hesap kapatma durumunda veriler makul sürede kaldırılır.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">{t.security}</h2>
       <p className="mb-4">
-        We implement necessary security measures including encryption, access controls, firewall, and logging.
+        Şifreleme, erişim kontrolü, yedekleme ve güvenlik duvarı gibi önlemlerle veri güvenliği sağlanır.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">{t.breach}</h2>
       <p className="mb-4">
-        In case of unauthorized access or data breach, affected users will be notified via email as soon as possible.
+        Yetkisiz erişim veya veri ihlali olması durumunda etkilenen kullanıcılara ve KVKK’ya derhal bildirim yapılır.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">{t.rights}</h2>
       <ul className="list-disc list-inside mb-4">
-        <li>Access to your personal data</li>
-        <li>Correction, deletion, or erasure</li>
-        <li>Knowledge of third-party transfers</li>
-        <li>Objection and request for compensation</li>
+        <li>Kişisel verilere erişim</li>
+        <li>Düzeltme, silme, yok etme</li>
+        <li>Üçüncü kişilere aktarımlar hakkında bilgi alma</li>
+        <li>İtiraz ve zarar tazmini talep etme</li>
       </ul>
 
       <p className="mb-4">
-        To exercise your rights, contact us at <strong>destek@undergo.com</strong>.
+        Haklarınızı kullanmak için <strong>emrecancnzytnl@gmail.com</strong> adresine başvurabilirsiniz.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">{t.cookies}</h2>
       <p className="mb-4">
-        Our site uses essential, analytical and marketing cookies. Visit our <a href="/cookies-policy" className="underline text-cyan-400">Cookies Policy</a> page for details and preferences.
+        Çerezler, temel işlevler ve analiz için kullanılmaktadır. Detaylar için Çerez Politikası sayfasına göz atabilirsiniz.
+      </p>
+
+      <h2 className="text-xl font-semibold mt-6 mb-2">{t.logs}</h2>
+      <p className="mb-4">
+        Platform, 5651 sayılı Kanun kapsamında yer sağlayıcı olarak erişim kayıtlarını 1 yıl süreyle saklamakla yükümlüdür.
       </p>
 
       <h2 className="text-xl font-semibold mt-6 mb-2">{t.dpia}</h2>
       <p className="mb-4">
-        We conduct regular DPIA assessments especially for features like messaging, analytics and AI-powered functionalities.
+        Özellikle mesajlaşma, analiz ve yapay zekâ özellikleri için düzenli Veri Koruma Etki Değerlendirmesi yapılmaktadır.
       </p>
     </div>
   );

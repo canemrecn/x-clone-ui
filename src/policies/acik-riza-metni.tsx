@@ -38,7 +38,7 @@ const AcikRizaMetni = () => {
 
       <p className="mt-6">
         Bu metni okuyarak yukarıdaki konularda verdiğiniz açık rızalar, kayıt altına alınmakta ve talep halinde tarafınıza sunulmaktadır.
-        Rızanızı her zaman kullanıcı ayarları veya <strong>kvkk@undergo.com</strong> adresi üzerinden geri çekebilirsiniz.
+        Rızanızı her zaman kullanıcı ayarları veya <strong>emrecancnzytnl@gmail.com</strong> adresi üzerinden geri çekebilirsiniz.
       </p>
     </div>
   );

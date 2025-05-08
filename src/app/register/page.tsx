@@ -193,11 +193,47 @@ export default function Register() {
                   </Link>{" "}
                   ve{" "}
                   <Link
-                    href="/terms-of-use"
+                    href="/terms-of-service"
                     target="_blank"
                     className="underline text-blue-400 hover:text-blue-300"
                   >
                     Kullanım Koşulları
+                  </Link>
+                  {" "}
+                  ve{" "}
+                  <Link
+                    href="/kvkk-aydinlatma-metni"
+                    target="_blank"
+                    className="underline text-blue-400 hover:text-blue-300"
+                  >
+                    Aydınlatma Metni (KVKK uyarınca)
+                  </Link>
+                  {" "}
+                  ve{" "}
+                  <Link
+                    href="/acik-riza-metni"
+                    target="_blank"
+                    className="underline text-blue-400 hover:text-blue-300"
+                  >
+                    Açık Rıza Metni
+                  </Link>
+                  {" "}
+                  ve{" "}
+                  <Link
+                    href="/data-processing"
+                    target="_blank"
+                    className="underline text-blue-400 hover:text-blue-300"
+                  >
+                    Veri İşleyici Sözleşmeleri (DPA) Özeti
+                  </Link>
+                  {" "}
+                  ve{" "}
+                  <Link
+                    href="/veri-imha-politikasi"
+                    target="_blank"
+                    className="underline text-blue-400 hover:text-blue-300"
+                  >
+                    Veri Saklama ve İmha Politikası
                   </Link>
                   ’nı okudum ve kabul ediyorum.
                 </span>
@@ -217,8 +253,7 @@ export default function Register() {
                     className="mt-1"
                   />
                   <span>
-                    Bana tanıtım ve bilgilendirme mesajları gönderilmesini
-                    kabul ediyorum.
+                    13 yaşından büyüğüm
                   </span>
                 </label>
                 <label className="flex items-start gap-2">
@@ -234,6 +269,21 @@ export default function Register() {
                   />
                   <span>
                     Çerez ve analiz verilerimin işlenmesini kabul ediyorum.
+                  </span>
+                </label>
+                <label className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    onChange={(e) =>
+                      setUser((prev) => ({
+                        ...prev,
+                        analyticsConsent: e.target.checked,
+                      }))
+                    }
+                    className="mt-1"
+                  />
+                  <span>
+                    Bilgilendirme mesajları ve mailleri gönderilmesini kabul ediyorum
                   </span>
                 </label>
                 <label className="flex items-start gap-2">

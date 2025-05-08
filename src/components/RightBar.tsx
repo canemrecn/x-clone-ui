@@ -25,13 +25,6 @@ export default function RightBar() {
       <Search/>
       <Arrangement />
       <Notes />
-      <div className="text-gray-300 text-sm flex gap-x-4 flex-wrap border-t border-gray-300 pt-2 mt-2 px-2">
-        <span className="hover:text-orange-400 cursor-pointer">Terms of Service</span>
-        <span className="hover:text-orange-400 cursor-pointer">Privacy Policy</span>
-        <span className="hover:text-orange-400 cursor-pointer">Cookie Policy</span>
-        <span className="hover:text-orange-400 cursor-pointer">Accessibility</span>
-        <span className="text-gray-500">2025 Undergo</span>
-      </div>
     </div>
   );
 }
