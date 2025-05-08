@@ -106,18 +106,16 @@ export default function LeftBar() {
 
     {/* MASAÜSTÜ: Dil Seçme Butonu */}
     <div className="relative">
-      <button onClick={() => setShowLanguages((prev) => !prev)} className="p-1 rounded-full bg-white">
+      <button onClick={() => setShowLanguages((prev) => !prev)} className="p-1 rounded-full">
         <Image src="/icons/languages.png" alt="Language" width={30} height={30} />
       </button>
       {showLanguages && (
         <div className="absolute bottom-14 left-0 bg-white text-black rounded shadow z-[1010]">
           <Link href="/tr" className="p-2 flex items-center hover:bg-gray-100">
             <Image src="/icons/turkey.png" alt="tr" width={20} height={20} />
-            <span className="ml-2 text-sm">Türkçe</span>
           </Link>
           <Link href="/en" className="p-2 flex items-center hover:bg-gray-100">
             <Image src="/icons/united-kingdom.png" alt="en" width={20} height={20} />
-            <span className="ml-2 text-sm">English</span>
           </Link>
         </div>
       )}
