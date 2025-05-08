@@ -76,35 +76,55 @@ export default function LeftBar() {
 
       {/* MASAÜSTÜ: Sol Alt Profil */}
       {auth?.user && (
-        <div className="hidden lg:block fixed bottom-4 left-4 z-[1050]">
-          <div className="relative">
-            <Image
-              src={auth.user.profile_image || "/icons/pp.png"}
-              alt="Profile"
-              width={50}
-              height={50}
-              className="rounded-full border-2 border-white shadow-lg cursor-pointer hover:scale-110 transition"
-              onClick={() => setShowUserOptions((prev) => !prev)}
-            />
-            {showUserOptions && (
-              <div className="absolute bottom-14 left-0 bg-white text-black rounded shadow-md p-2 w-28">
-                <button
-                  onClick={() => router.push("/profile")}
-                  className="block w-full text-left p-1 hover:bg-gray-100"
-                >
-                  Profile
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left p-1 text-red-500 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
+  <div className="hidden lg:flex fixed bottom-4 left-4 z-[1050] items-center gap-4">
+    <div className="relative">
+      <Image
+        src={auth.user.profile_image || "/icons/pp.png"}
+        alt="Profile"
+        width={50}
+        height={50}
+        className="rounded-full border-2 border-white shadow-lg cursor-pointer hover:scale-110 transition"
+        onClick={() => setShowUserOptions((prev) => !prev)}
+      />
+      {showUserOptions && (
+        <div className="absolute bottom-14 left-0 bg-white text-black rounded shadow-md p-2 w-28">
+          <button
+            onClick={() => router.push("/profile")}
+            className="block w-full text-left p-1 hover:bg-gray-100"
+          >
+            Profile
+          </button>
+          <button
+            onClick={handleLogout}
+            className="block w-full text-left p-1 text-red-500 hover:bg-gray-100"
+          >
+            Logout
+          </button>
         </div>
       )}
+    </div>
+
+    {/* MASAÜSTÜ: Dil Seçme Butonu */}
+    <div className="relative">
+      <button onClick={() => setShowLanguages((prev) => !prev)} className="p-1 rounded-full bg-white">
+        <Image src="/icons/languages.png" alt="Language" width={30} height={30} />
+      </button>
+      {showLanguages && (
+        <div className="absolute bottom-14 left-0 bg-white text-black rounded shadow z-[1010]">
+          <Link href="/tr" className="p-2 flex items-center hover:bg-gray-100">
+            <Image src="/icons/turkey.png" alt="tr" width={20} height={20} />
+            <span className="ml-2 text-sm">Türkçe</span>
+          </Link>
+          <Link href="/en" className="p-2 flex items-center hover:bg-gray-100">
+            <Image src="/icons/united-kingdom.png" alt="en" width={20} height={20} />
+            <span className="ml-2 text-sm">English</span>
+          </Link>
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
 
       {/* MOBİL: Üst Navbar */}
       <div className="lg:hidden fixed top-0 left-0 w-full bg-[#1F2937] shadow border-b border-gray-400 flex items-center px-2 py-2 z-[1000]">
