@@ -51,83 +51,93 @@ Kullanıcılar gönderi paylaşabilir, gönderilerdeki kelimeleri çevirerek pua
 
 ## 🗂️ Klasör Yapısı
 
-src/
-├── app/
-│ ├── [username]/
-│ ├── admin/
-│ ├── api/
-│ └── components/
-├── lib/
-├── styles/
-scripts/
+**src/**
+**├── app/**
+**│ ├── [username]/**
+**│ ├── admin/**
+**│ ├── api/**
+**│ └── components/**
+**├── lib/**
+**├── styles/**
+**scripts/**
 
 ## ⚙️ Kurulum
 
-```bash
-# 1. Depoyu klonla
-git clone https://github.com/kullaniciadi/undergo.git
+**Depoyu klonla**
+**git clone https://github.com/kullaniciadi/undergo.git**
 
-# 2. Dizin içine gir
-cd undergo
+**Dizin içine gir**
+**cd undergo**
 
-# 3. Bağımlılıkları yükle
-npm install
+**Bağımlılıkları yükle**
+**npm install**
 
-# 4. Ortam değişkenlerini ayarla
-cp .env.example .env
-# .env dosyasına DB ve SMTP bilgilerini gir
+**Ortam değişkenlerini ayarla**
+**cp .env.example .env**
+**.env dosyasına DB ve SMTP bilgilerini gir**
 
-# 5. Veritabanını başlat
-# (MySQL üzerinde tabloları oluştur)
+**Veritabanını başlat**
+**(MySQL üzerinde tabloları oluştur)**
 
-# 6. Geliştirme sunucusunu başlat
-npm run dev
+**Geliştirme sunucusunu başlat**
+**npm run dev**
 
-.env dosyasında olması gerekenler:
+**.env dosyasında olması gerekenler:**
 
-GEMINI_API_KEY=.......
-DB_HOST=.......
-DB_USER=.......
-DB_PASS=.......
-DB_NAME=.......
-JWT_SECRET=.......
-NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY=.......
-NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=.......
-NEXT_PUBLIC_URL_ENDPOINT=.......
-IMAGEKIT_PUBLIC_KEY=.......
-IMAGEKIT_PRIVATE_KEY=.......
-IMAGEKIT_URL_ENDPOINT=.......
-GITHUB_CLIENT_ID=.......
-GITHUB_CLIENT_SECRET=.......
-NEXTAUTH_SECRET=.......
-BASE_URL=.......
-NEXTAUTH_URL=.......
-EMAIL_PASSWORD=.......
-GMAIL_USER=.......
-GMAIL_APP_PASSWORD=.......
-REPORT_EMAIL=.......
-OPENAI_API_KEY=.......
-S_API_USER=.......
-S_API_SECRET=.......
-NODE_ENV=.......
-ADMIN_EMAIL=.......
-NEXT_PUBLIC_DISABLE_CSP=.......
+**GEMINI_API_KEY=.......**
 
+**DB_HOST=.......**
 
+**DB_USER=.......**
 
+**DB_PASS=.......**
 
-## 📸 Ekran Görüntüleri
+**DB_NAME=.......**
 
-Ana sayfa ve yönetim paneli:
+**JWT_SECRET=.......**
 
-![Görsel 1](/images/1.png)  
-![Görsel 2](/images/2.png)  
-![Görsel 3](/images/3.png)  
-![Görsel 4](/images/4.png)  
-![Görsel 5](/images/5.png)  
-![Görsel 6](/images/6.png)
+**NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY=.......**
 
-> Görseller `public/images` klasörüne yerleştirilmelidir.
+**NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT=.......**
+
+**NEXT_PUBLIC_URL_ENDPOINT=.......**
+
+**IMAGEKIT_PUBLIC_KEY=.......**
+
+**IMAGEKIT_PRIVATE_KEY=.......**
+
+**IMAGEKIT_URL_ENDPOINT=.......**
+
+**GITHUB_CLIENT_ID=.......**
+
+**GITHUB_CLIENT_SECRET=.......**
+
+**NEXTAUTH_SECRET=.......**
+
+**BASE_URL=.......**
+
+**NEXTAUTH_URL=.......**
+
+**EMAIL_PASSWORD=.......**
+
+**GMAIL_USER=.......**
+
+**GMAIL_APP_PASSWORD=.......**
+
+**REPORT_EMAIL=.......**
+
+**OPENAI_API_KEY=.......**
+
+**S_API_USER=.......**
+
+**S_API_SECRET=.......**
+
+**NODE_ENV=.......**
+
+**ADMIN_EMAIL=.......**
+
+**NEXT_PUBLIC_DISABLE_CSP=.......**
+
 
 
 ## 👨‍💻 Katkıda Bulunan
@@ -135,9 +145,11 @@ Ana sayfa ve yönetim paneli:
 **Geliştirici:** Emrecan Zeytünlü  
 📧 E-posta: emrecancnzytnl@gmail.com
 
----
 
 ## 📄 Lisans
 
 Bu proje MIT lisansı ile lisanslanmıştır.  
 Daha fazla bilgi için [LICENSE](./LICENSE) dosyasına göz atın.
+
+## Website
+undergo.com.tr
