@@ -1,3 +1,4 @@
+//src/lib/translateSentence.ts
 export function translateSentence(words: string[]): string {
     if (words.length < 2) return "Eksik cümle";
   

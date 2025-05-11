@@ -1,4 +1,3 @@
-// src/app/api/daily-words/route.ts
 // 📁 src/app/api/daily-words/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import customEnglishWords from "@/data/customEnglishWords.json";

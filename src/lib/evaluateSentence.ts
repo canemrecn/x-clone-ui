@@ -1,3 +1,4 @@
+//src/lib/evaluateSentence.ts
 export async function evaluateSentence(sentence: string): Promise<string> {
     const res = await fetch("/api/evaluate", {
       method: "POST",

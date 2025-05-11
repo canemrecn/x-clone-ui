@@ -1,6 +1,4 @@
 // src/app/admin/comments/page.tsx
-// src/app/admin/comments/page.tsx
-
 "use client"; // Bu satırı ekleyin
 
 import { useEffect, useState } from "react";

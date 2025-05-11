@@ -1,3 +1,4 @@
+//src/lib/getClientIP.ts
 export function getClientIP(): string {
     if (typeof window !== "undefined") return "";
     const forwarded = process.env.X_FORWARDED_FOR;

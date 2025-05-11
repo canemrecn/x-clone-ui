@@ -1,3 +1,4 @@
+//src/lib/checkGrammar.ts
 export function checkGrammar(selected: string[]): string | null {
     const [subject, verb] = selected;
   

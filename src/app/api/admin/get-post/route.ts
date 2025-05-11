@@ -1,5 +1,4 @@
 // src/app/api/admin/get-post/route.ts
-// src/app/api/admin/get-post/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 

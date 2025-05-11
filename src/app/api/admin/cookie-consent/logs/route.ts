@@ -1,5 +1,4 @@
 // src/app/api/admin/cookie-consent/logs/route.ts
-// src/app/api/admin/cookie-consent/logs/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getAuthUser } from "@/utils/getAuthUser";

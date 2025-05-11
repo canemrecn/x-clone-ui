@@ -1,3 +1,4 @@
+//src/lib/translationMap.ts
 export const translationMap: Record<string, string> = {
     I: "Ben", You: "Sen", He: "O (erkek)", She: "O (kadın)", It: "O (cansız)", We: "Biz", They: "Onlar",
     eat: "yerim", eats: "yer", play: "oynarım", plays: "oynar", write: "yazarım", writes: "yazar",

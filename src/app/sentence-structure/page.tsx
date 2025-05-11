@@ -1,3 +1,4 @@
+//src/app/sentence-structure/page.tsx
 import React from "react";
 import SentenceBuilder from "@/components/SentenceBuilder";
 

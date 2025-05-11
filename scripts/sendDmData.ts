@@ -1,4 +1,4 @@
-// scripts/sendDmData.ts
+//scripts/sendDmData.ts
 import { db } from "@/lib/db";
 import nodemailer from "nodemailer";
 import fs from "fs";

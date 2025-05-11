@@ -1,3 +1,4 @@
+//src/lib/getWords.ts
 export async function getWords({ step, prev }: { step: string; prev: string }) {
     const endpoint = "https://api.datamuse.com/words";
     let url = "";

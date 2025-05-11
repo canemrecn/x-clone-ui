@@ -1,3 +1,4 @@
+//scripys/docx-to-array.ts
 import fs from 'fs';
 import path from 'path';
 

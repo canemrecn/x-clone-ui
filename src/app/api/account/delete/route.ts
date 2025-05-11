@@ -1,3 +1,4 @@
+//src/app/api/account/delete/route.ts
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";

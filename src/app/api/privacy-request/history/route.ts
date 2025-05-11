@@ -1,3 +1,4 @@
+//src/app/api/privacy-request/history/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getAuthUser } from "@/utils/getAuthUser";
