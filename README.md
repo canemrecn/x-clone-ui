@@ -114,18 +114,16 @@ NEXT_PUBLIC_DISABLE_CSP=.......
 
 
 
-
 ## 📸 Ekran Görüntüleri
 
 Ana sayfa ve yönetim paneli:
 
-(/images/1.png)  
-(/images/2.png)  
-(/images/3.png)  
-(/images/4.png)  
-(/images/5.png)  
-(/images/6.png)
-
+![Görsel 1](/images/1.png)  
+![Görsel 2](/images/2.png)  
+![Görsel 3](/images/3.png)  
+![Görsel 4](/images/4.png)  
+![Görsel 5](/images/5.png)  
+![Görsel 6](/images/6.png)
 
 
 ## 👨‍💻 Katkıda Bulunan
