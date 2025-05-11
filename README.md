@@ -113,19 +113,6 @@ ADMIN_EMAIL=.......
 NEXT_PUBLIC_DISABLE_CSP=.......
 
 
-
-## 📸 Ekran Görüntüleri
-
-Ana sayfa ve yönetim paneli:
-
-![Görsel 1](/images/1.png)  
-![Görsel 2](/images/2.png)  
-![Görsel 3](/images/3.png)  
-![Görsel 4](/images/4.png)  
-![Görsel 5](/images/5.png)  
-![Görsel 6](/images/6.png)
-
-
 ## 👨‍💻 Katkıda Bulunan
 
 **Geliştirici:** Emrecan Zeytünlü  
@@ -137,3 +124,5 @@ Ana sayfa ve yönetim paneli:
 
 Bu proje MIT lisansı ile lisanslanmıştır.  
 Daha fazla bilgi için [LICENSE](./LICENSE) dosyasına göz atın.
+
+undergo.com.tr
