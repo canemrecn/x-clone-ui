@@ -24,7 +24,7 @@ export default function Homepage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white pt-20 pb-10">
       <h1>PROJE GELİŞTİRME AŞAMASINDADIR. HENÜZ PLATFORM KULLANIMA AÇILMAMIŞTIR VE TÜM TELİF HAKLARI SAKLIDIR</h1>
       <Feed />
     </div>
