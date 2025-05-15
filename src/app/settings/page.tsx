@@ -15,7 +15,7 @@ const SettingsPage = React.memo(function SettingsPage() {
   const token = Cookies.get("token");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white pt-20 pb-20">
       <h1 className="text-3xl font-extrabold mb-8 text-center bg-gradient-to-r from-gray-800 to-gray-800 p-4 rounded-lg shadow-md">
         Ayarlar
       </h1>
