@@ -207,7 +207,7 @@ export default function UserPage() {
 
   if (!profileUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-6">
+      <div className="min-h-screen text-white p-6">
         <div className="max-w-3xl mx-auto space-y-6">
           <Skeleton height={220} borderRadius={10} />
           <div className="flex gap-4 items-center">
