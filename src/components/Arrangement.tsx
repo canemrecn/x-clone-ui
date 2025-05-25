@@ -35,7 +35,6 @@ export default function Arrangement() {
     revalidateOnFocus: false,
   });
 
-  // Follow handler: Now checks for the user and sends requests via HTTP-only cookies for authentication.
   const handleFollow = useCallback(
     async (userId: number) => {
       if (!auth?.user) {
@@ -48,15 +47,13 @@ export default function Arrangement() {
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include", // Using credentials to send HTTP-only cookies
+          credentials: "include",
           body: JSON.stringify({ following_id: userId, action: "follow" }),
         });
         if (res.ok) {
-          // After following, mutate the arrangement list to reflect the change
           mutate("/api/arrangement");
         } else {
           const errorData = await res.json();
-          console.error("Follow error:", errorData.message);
           alert("Takip işlemi başarısız oldu: " + (errorData.message || ""));
         }
       } catch (err: any) {
@@ -68,17 +65,16 @@ export default function Arrangement() {
 
   const renderedUsers = useMemo(() => {
     if (!data?.users || data.users.length === 0) {
-      return <p className="text-center text-white">No users found.</p>;
+      return <p className="text-center text-gray-300">No users found.</p>;
     }
     return data.users.map((u, index) => (
       <Link key={u.id} href={`/${u.username}`}>
-        <div className="flex items-center justify-between bg-gradient-to-br from-gray-800 to-gray-700 p-3 rounded-lg shadow-2xl hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition-all">
-          <h1 className="text-xl font-bold text-white">
-            {index + 1}{" "}
-            {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : ""}
+        <div className="flex items-center justify-between bg-gradient-to-br from-gray-900 to-gray-800 p-4 rounded-xl shadow-lg hover:ring-2 hover:ring-orange-400 transition-all duration-200">
+          <h1 className="text-xl font-extrabold text-white">
+            {index + 1} {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : ""}
           </h1>
-          <div className="flex items-center gap-3">
-            <div className="relative rounded-full overflow-hidden w-12 h-12 border-2 border-gray-300 shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-600 shadow">
               <Image
                 src={u.profile_image || "/icons/pp.png"}
                 alt="Avatar"
@@ -88,8 +84,8 @@ export default function Arrangement() {
               />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white">{u.full_name}</h1>
-              <span className="text-sm text-white">@{u.username}</span>
+              <h1 className="text-base font-semibold text-gray-100">{u.full_name}</h1>
+              <span className="text-sm text-gray-400">@{u.username}</span>
             </div>
           </div>
           <button
@@ -97,7 +93,7 @@ export default function Arrangement() {
               e.preventDefault();
               handleFollow(u.id);
             }}
-            className="py-1 px-4 font-semibold bg-gradient-to-br from-gray-800 to-gray-700 text-white rounded-full shadow-md hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition-all"
+            className="py-1 px-4 font-medium bg-gradient-to-br from-orange-500 to-yellow-500 text-white rounded-full shadow hover:brightness-110 transition-all"
           >
             Follow
           </button>
@@ -110,13 +106,14 @@ export default function Arrangement() {
     return <p className="text-center text-red-500">Error: {error.message}</p>;
   }
   if (!data) {
-    return <p className="text-center text-white">Loading...</p>;
+    return <p className="text-center text-gray-300">Loading...</p>;
   }
 
   return (
-    <div className="p-6 rounded-2xl border border-gray-300 bg-gradient-to-br from-gray-800 to-gray-700 shadow-2xl">
-      <h1 className="text-2xl font-bold text-center pb-4 text-white">Arrangement</h1>
-      <div className="flex flex-col gap-4">{renderedUsers}</div>
+    <div className="p-6 rounded-2xl border border-gray-700 bg-gradient-to-br from-gray-900 to-gray-800 shadow-xl">
+      <h1 className="text-2xl font-bold text-center pb-4 text-white tracking-wide">Arrangement</h1>
+      <div className="flex flex-col gap-6">{renderedUsers}</div>
     </div>
   );
 }
+
