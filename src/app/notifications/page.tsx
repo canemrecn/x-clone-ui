@@ -96,7 +96,7 @@ export default function NotificationsPage() {
       );
     }
     return (
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 pt-24 pb-20">
         {data.notifications.map((noti) => (
           <div
             key={noti.id}
