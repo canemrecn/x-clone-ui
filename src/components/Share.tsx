@@ -5,7 +5,6 @@ medya dosyası varsa önce /api/image-upload ile ImageKit'e yüklenir, ardından
 /api/posts/create endpoint’ine POST isteğiyle gönderilerek paylaşılır. Başarılı işlem sonrası giriş kutusu 
 ve medya temizlenir. Ayrıca gönderi dili lang prop'u ile belirlenebilir ve video içerikler isReel olarak işaretlenir.*/
 // ✅ GÜNCELLENMİŞ Share.tsx (video için tamamen çalışan hali)
-
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
@@ -50,15 +49,12 @@ const checkNsfw = async (file: File): Promise<boolean> => {
   });
 };
 
-interface ShareProps {
-  lang?: string;
-}
-
-export default function Share({ lang }: ShareProps) {
+export default function Share() {
   const auth = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const [lang, setLang] = useState<"en" | "tr" | null>(null);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -70,6 +66,8 @@ export default function Share({ lang }: ShareProps) {
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth?.user) return alert("Giriş yapmalısın");
+    if (!lang) return alert("Lütfen gönderi dili seçiniz.");
+
     const textValue = inputRef.current?.value.trim() || "";
 
     let mediaUrl = null;
@@ -110,6 +108,7 @@ export default function Share({ lang }: ShareProps) {
       alert("Paylaşım yapıldı");
       if (inputRef.current) inputRef.current.value = "";
       setFile(null);
+      setLang(null);
     } catch (err) {
       console.error("Hata:", err);
       alert("Paylaşım hatası");
@@ -133,15 +132,38 @@ export default function Share({ lang }: ShareProps) {
       </div>
 
       <div className="flex-1 flex flex-col gap-4">
+        {/* 🏳 Dil Seçme */}
+        <div className="flex gap-3 items-center">
+          <span className="text-sm text-white">Dil Seç:</span>
+          <button
+            type="button"
+            onClick={() => setLang("tr")}
+            className={`rounded-full p-1 border-2 ${
+              lang === "tr" ? "border-yellow-400" : "border-transparent"
+            } transition`}
+          >
+            <Image src="/icons/turkey.png" alt="TR" width={28} height={28} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setLang("en")}
+            className={`rounded-full p-1 border-2 ${
+              lang === "en" ? "border-yellow-400" : "border-transparent"
+            } transition`}
+          >
+            <Image src="/icons/united-kingdom.png" alt="EN" width={28} height={28} />
+          </button>
+        </div>
+
         <input
           ref={inputRef}
           type="text"
           placeholder="What is happening?"
-          className="bg-gradient-to-br from-gray-800 to-gray-800 outline-none placeholder:text-white text-lg text-white px-2 py-1 border-b border-gray-300"
+          className="bg-gray-900 outline-none placeholder:text-gray-400 text-lg text-white px-3 py-2 rounded border border-gray-700"
         />
 
         {file && (
-          <div className="relative p-2 border border-gray-300 bg-gradient-to-br from-gray-800 to-gray-800 rounded shadow-md">
+          <div className="relative p-2 border border-gray-300 bg-gray-900 rounded shadow-md">
             <p className="text-sm text-white font-semibold">{file.name}</p>
             <span
               className="absolute top-1 right-1 bg-red-500 text-white px-2 rounded cursor-pointer hover:bg-red-600 transition"
@@ -167,9 +189,9 @@ export default function Share({ lang }: ShareProps) {
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full py-2 px-4 disabled:opacity-50"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full py-2 px-5 disabled:opacity-50 transition"
           >
-            {loading ? "Yükleniyor..." : "Post"}
+            {loading ? "Yükleniyor..." : "Paylaş"}
           </button>
         </div>
       </div>
