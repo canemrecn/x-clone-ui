@@ -59,7 +59,7 @@ export default function ArrangementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 sm:p-10">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 sm:p-10 pt-24 pb-20">
       <h1 className="text-3xl font-extrabold text-center mb-8 tracking-wide text-white">
         🏆 Overall Ranking
       </h1>
