@@ -72,7 +72,7 @@ export default function LanguageFeed({ lang }: LanguageFeedProps) {
 
   // Handle loading and error states
   return (
-    <div className="p-4 bg-gradient-to-br from-gray-800 to-gray-700 text-white">
+    <div className="p-4 text-white">
       <h1 className="mb-4 text-center">
         {lang.toUpperCase()} PAGE ŞUAN SADECE İNGİLİZCE VE TÜRKÇE ÜZERİNDEN ÇEVİRİ YAPILMAKTADIR. ÇOK
         YAKINDA TÜM DİLLERDEN ÇEVİRİ ÖZELLİĞİ GELECEKTİR. BEKLEMEDE KALIN
