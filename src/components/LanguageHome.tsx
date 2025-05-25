@@ -24,9 +24,9 @@ const LanguageHome = React.memo(function LanguageHome({ lang }: LanguageHomeProp
         {lang.toUpperCase()} Posts
       </h1>
       {/* Gönderi paylaşma alanı */}
-      <Share lang={lang} />
+      <Share/>
       {/* Gönderi akışı */}
-      <Feed lang={lang} />
+      <Feed/>
     </div>
   );
 });
