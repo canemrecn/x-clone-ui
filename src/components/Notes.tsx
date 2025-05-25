@@ -153,35 +153,55 @@ export default function Notes() {
   }
 
   return (
-    <div className="p-4 rounded-2xl border border-gray-300 flex flex-col gap-4 bg-gradient-to-br from-gray-800 to-gray-700 shadow-2xl w-full max-w-3xl mx-auto text-white">
-      <h1 className="text-xl font-bold text-center">Notlarım</h1>
+  <div className="p-5 rounded-2xl border border-gray-700 flex flex-col gap-4 bg-gradient-to-br from-gray-900 to-gray-800 shadow-xl w-full max-w-3xl mx-auto text-white">
+    <h1 className="text-2xl font-bold text-center text-white tracking-wide">Notlarım</h1>
 
-      <form onSubmit={handleAddNote} className="flex gap-2">
-        <input
-          type="text"
-          maxLength={45}
-          placeholder="Yeni not ekle... (Max 45 karakter)"
-          className="flex-1 p-2 border border-gray-300 rounded text-white bg-gray-900 placeholder-white outline-none"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          disabled={notes.length >= 2}
-        />
-        <button
-          type="submit"
-          className={`px-4 py-2 rounded font-bold border ${
-            notes.length >= 2
-              ? "bg-gray-500 cursor-not-allowed border-gray-500 text-gray-300"
-              : "bg-gradient-to-br from-gray-800 to-gray-700 text-white border-gray-300 hover:from-gray-700 hover:to-gray-600 transition"
-          }`}
-          disabled={notes.length >= 2}
+    <form onSubmit={handleAddNote} className="flex gap-3">
+      <input
+        type="text"
+        maxLength={45}
+        placeholder="Yeni not ekle... (Max 45 karakter)"
+        className="flex-1 p-3 rounded-lg border border-gray-600 bg-gray-900 text-white placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-orange-500 transition"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        disabled={notes.length >= 2}
+      />
+      <button
+        type="submit"
+        className={`px-5 py-2 rounded-lg font-semibold border transition-all duration-200 ${
+          notes.length >= 2
+            ? "bg-gray-600 cursor-not-allowed border-gray-600 text-gray-300"
+            : "bg-gradient-to-br from-orange-500 to-yellow-500 text-white border-none hover:brightness-110"
+        }`}
+        disabled={notes.length >= 2}
+      >
+        Ekle
+      </button>
+    </form>
+
+    {error && <p className="text-center text-red-400 font-medium">{error}</p>}
+
+    {notes.length === 0 ? (
+      <p className="text-center text-gray-300">Henüz not yok.</p>
+    ) : (
+      notes.map((note) => (
+        <div
+          key={note.id}
+          className="p-4 rounded-xl border border-gray-600 bg-gradient-to-br from-gray-800 to-gray-700 relative shadow-lg hover:ring-2 hover:ring-orange-500 transition-all"
         >
-          Ekle
-        </button>
-      </form>
-
-      {error && <p className="text-center text-red-400">{error}</p>}
-
-      {renderedNotes}
-    </div>
-  );
+          <button
+            onClick={() => handleDelete(note.id)}
+            className="absolute top-2 right-2 text-sm bg-red-600 text-white rounded px-2 hover:bg-red-500 transition-all"
+          >
+            ✕
+          </button>
+          <p className="text-gray-100 break-words">{note.text}</p>
+          <p className="text-xs text-gray-400 mt-2 italic">
+            {new Date(note.created_at).toLocaleString("tr-TR")}
+          </p>
+        </div>
+      ))
+    )}
+  </div>
+);
 }
