@@ -67,7 +67,7 @@ export default function Feed({ posts, lang }: FeedProps) {
   });
 
   return (
-    <div className="flex flex-col gap-6 bg-gray-900 p-4 rounded-xl shadow-inner max-w-3xl mx-auto">
+    <div className="">
       {finalPosts.map((post) => (
         <Post key={post.id} postData={post} />
       ))}
