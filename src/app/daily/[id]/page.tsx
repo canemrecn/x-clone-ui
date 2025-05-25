@@ -1,18 +1,9 @@
-// 📁 src/app/daily/[id]/page.tsx
-
 import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import type { RowDataPacket } from "mysql2";
 import Link from "next/link";
 import { analyzeTextErrors } from "@/lib/analyzeTextErrors";
 
-// ✅ build-time'da statik olarak sayfa üretimi için
-//export async function generateStaticParams() {
-//  const [rows] = await db.query<RowDataPacket[]>("SELECT id FROM daily_notes");
-//  return rows.map((row: any) => ({ id: String(row.id) }));
-//}
-
-// ✅ Next.js 15 uyumlu parametre kullanımı
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -41,25 +32,25 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   }
 
   return (
-    <div className="bg-gray-800 max-w-2xl mx-auto py-10 px-4 text-white">
-      <form action={handleDelete}>
+    <div className="bg-gradient-to-br from-gray-900 to-gray-800 max-w-3xl mx-auto py-10 px-6 text-white rounded-xl shadow-lg">
+      <form action={handleDelete} className="flex items-center gap-4 mb-6">
         <button
           type="submit"
-          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mr-4"
+          className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-semibold transition"
         >
           Günlüğü Sil
         </button>
         <Link
           href="/daily"
-          className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded"
+          className="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-lg font-semibold transition"
         >
           Geri Dön
         </Link>
       </form>
 
-      <h1 className="text-2xl font-bold mt-6 mb-4">Günlük</h1>
+      <h1 className="text-3xl font-bold mb-2">Günlük</h1>
 
-      <p className="text-sm text-gray-400 mb-2">
+      <p className="text-sm text-gray-400 mb-1">
         {new Date(note.created_at).toLocaleString("tr-TR", {
           weekday: "long",
           year: "numeric",
@@ -75,26 +66,22 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         <strong>%{(note.error_rate * 100).toFixed(1)}</strong>
       </p>
 
-      <div className="bg-gray-700 p-4 rounded whitespace-pre-line mb-6 break-words overflow-x-hidden">
+      <div className="bg-gray-800 p-5 rounded-xl whitespace-pre-line mb-6 break-words overflow-x-auto border border-gray-700">
         {result.details.map((sentence, i) => (
           <div
             key={i}
-            className={
-              sentence.sentenceErrors > 0
-                ? "bg-yellow-800/50 px-2 py-1 rounded mb-2"
-                : ""
-            }
+            className={sentence.sentenceErrors > 0 ? "bg-yellow-800/40 px-2 py-1 rounded mb-2" : ""}
           >
             {sentence.analyzedWords.map((word, j) => (
               <span
                 key={j}
-                className={`inline-block px-1 rounded mr-1 relative group cursor-help ${
-                  word.isWrong ? "bg-red-500 text-white" : "text-white"
+                className={`inline-block px-1 py-0.5 rounded mr-1 mb-1 relative group cursor-help transition ${
+                  word.isWrong ? "bg-red-600 text-white" : "text-white"
                 }`}
               >
                 {word.original}
                 {word.isWrong && word.suggestion && (
-                  <div className="absolute z-10 top-full left-0 bg-black text-white text-xs px-2 py-1 rounded shadow-md mt-1 hidden group-hover:block">
+                  <div className="absolute z-10 top-full left-0 bg-black text-white text-xs px-2 py-1 rounded shadow-lg mt-1 hidden group-hover:block">
                     Doğrusu: {word.suggestion}
                   </div>
                 )}

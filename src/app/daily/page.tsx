@@ -1,11 +1,8 @@
-// 📁 src/app/daily/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { analyzeTextErrors } from "@/lib/analyzeTextErrors";
-
 
 export default function DailyPage() {
   const [notes, setNotes] = useState<any[]>([]);
@@ -65,31 +62,30 @@ export default function DailyPage() {
   };
 
   return (
-    <div className="bg-gray-800 max-w-2xl mx-auto py-10 px-4 text-white">
-      <h1 className="text-2xl font-bold mb-4">Günlük</h1>
+    <div className="bg-gradient-to-br from-gray-900 to-gray-800 max-w-2xl mx-auto py-10 px-4 text-white rounded-xl shadow-xl">
+      <h1 className="text-3xl font-bold mb-6 text-center tracking-wide">Günlük</h1>
 
-      <div className="mb-6">
+      <div className="mb-6 text-center">
         <button
           onClick={() => setIsWriting(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow transition"
         >
           Yeni Günlük
         </button>
       </div>
 
       {isWriting && (
-        <div className="mb-6 space-y-2">
+        <div className="mb-6 space-y-3">
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value)}
-            className="w-full p-2 rounded bg-gray-700 text-white"
+            className="w-full p-2 rounded-lg bg-gray-800 text-white border border-gray-700"
           >
             <option value="en">İngilizce</option>
-
           </select>
 
           <textarea
-            className="w-full h-40 p-2 rounded bg-gray-800 text-white"
+            className="w-full h-40 p-3 rounded-lg bg-gray-900 text-white border border-gray-700"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Bugün ne yaşadın?.."
@@ -97,23 +93,24 @@ export default function DailyPage() {
 
           <button
             onClick={handleSave}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow transition"
           >
             Kaydet
           </button>
 
           {errorMsg && (
-            <div className="mt-2 text-red-400 font-medium">{errorMsg}</div>
+            <div className="text-red-400 font-medium">{errorMsg}</div>
           )}
         </div>
       )}
-      <h2 className="text-xl font-semibold mb-3">Kayıtlı Günlükler</h2>
+
+      <h2 className="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Kayıtlı Günlükler</h2>
       <div className="flex flex-col gap-4">
         {notes.map((note) => (
           <Link href={`/daily/${note.id}`} key={note.id}>
-            <div className="bg-gray-700 p-3 rounded hover:bg-gray-600 cursor-pointer">
-              <div className="flex justify-between">
-                <span>{formatDateTime(note.created_at)}</span>
+            <div className="bg-gray-800 border border-gray-700 p-4 rounded-lg hover:bg-gray-700 cursor-pointer transition shadow">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-200">{formatDateTime(note.created_at)}</span>
                 <span className="text-sm text-yellow-400 font-semibold">
                   Hata: %{(note.error_rate * 100).toFixed(0)}
                 </span>
