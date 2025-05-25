@@ -105,23 +105,6 @@ export default function LeftBar() {
               </div>
             )}
           </div>
-
-          {/* Dil seçme */}
-          <div className="relative">
-            <button onClick={() => setShowLanguages((prev) => !prev)} className="p-1 rounded-full hover:scale-105 transition-transform">
-              <Image src="/icons/languages.png" alt="Language" width={30} height={30} />
-            </button>
-            {showLanguages && (
-              <div className="absolute bottom-14 left-0 bg-white text-black rounded-xl shadow-lg z-[1010] p-2 space-y-2">
-                <Link href="/tr" className="p-2 flex items-center hover:bg-gray-100 rounded">
-                  <Image src="/icons/turkey.png" alt="tr" width={20} height={20} />
-                </Link>
-                <Link href="/en" className="p-2 flex items-center hover:bg-gray-100 rounded">
-                  <Image src="/icons/united-kingdom.png" alt="en" width={20} height={20} />
-                </Link>
-              </div>
-            )}
-          </div>
         </div>
       )}
 
@@ -130,21 +113,6 @@ export default function LeftBar() {
         <Link href="/direct-messages" className="p-2">
           <Image src="/icons/send2.png" alt="DM" width={24} height={24} />
         </Link>
-        <div className="relative mx-2">
-          <button onClick={() => setShowLanguages((prev) => !prev)} className="p-1 rounded-full hover:scale-105 transition-transform">
-            <Image src="/icons/languages.png" alt="Language" width={24} height={24} />
-          </button>
-          {showLanguages && (
-            <div className="absolute top-10 left-0 bg-white text-black rounded-xl shadow-lg z-[1010] space-y-2">
-              <Link href="/tr" className="p-2 flex items-center hover:bg-gray-100 rounded">
-                <Image src="/icons/turkey.png" alt="tr" width={18} height={18} />
-              </Link>
-              <Link href="/en" className="p-2 flex items-center hover:bg-gray-100 rounded">
-                <Image src="/icons/united-kingdom.png" alt="en" width={18} height={18} />
-              </Link>
-            </div>
-          )}
-        </div>
         <div className="flex-1 mx-1 max-w-[250px]">
           <Search />
         </div>
