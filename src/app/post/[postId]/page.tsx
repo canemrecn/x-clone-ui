@@ -94,7 +94,7 @@ export default function PostDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4">
+    <div className="min-h-screen text-white p-4 pt-24 pb-20">
       <Post postData={postData} />
       <div className="mt-4 flex gap-2">
         {user?.role === "admin" && (
