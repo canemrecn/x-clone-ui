@@ -51,42 +51,44 @@ export default function Post({ postData }: PostProps) {
   const router = useRouter();
 
   const translateWordWithInput = async (word: string, index: number) => {
-    setActiveWordIndex(index);
-    setCorrectTranslation(null);
-    setUserInput("");
-    setFeedback(null);
+  setActiveWordIndex(index);
+  setCorrectTranslation(null);
+  setUserInput("");
+  setFeedback(null);
 
-    try {
-      // İlk olarak daha önce bu kelime bu konumda çevrilmiş mi kontrol et
-      const resCheck = await fetch(
-        `/api/check-translation?postId=${postData.id}&word=${encodeURIComponent(`${word}_${index}`)}`,
-        { credentials: "include" }
-      );
-      const dataCheck = await resCheck.json();
+  try {
+    // Kullanıcının seçtiği hedef dili al
+    const savedLang = localStorage.getItem("targetLanguage") || "tr";
 
-      if (dataCheck.alreadyTranslated) {
-        setFeedback("✅ Bu kelimeyi zaten çevirdiniz.");
-        return;
-      }
+    const resCheck = await fetch(
+      `/api/check-translation?postId=${postData.id}&word=${encodeURIComponent(`${word}_${index}`)}`,
+      { credentials: "include" }
+    );
+    const dataCheck = await resCheck.json();
 
-      // Çeviri al
-      const res = await fetch("/api/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          word,
-          targetLang: "tr",
-        }),
-      });
-
-      const data = await res.json();
-      setCorrectTranslation(data.translation);
-    } catch (error) {
-      console.error("Çeviri hatası:", error);
-      setCorrectTranslation("Hata");
+    if (dataCheck.alreadyTranslated) {
+      setFeedback("✅ Bu kelimeyi zaten çevirdiniz.");
+      return;
     }
-  };
+
+    const res = await fetch("/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        word,
+        targetLang: savedLang, // ⬅️ Burada artık localStorage'dan gelen dil kullanılıyor
+      }),
+    });
+
+    const data = await res.json();
+    setCorrectTranslation(data.translation);
+  } catch (error) {
+    console.error("Çeviri hatası:", error);
+    setCorrectTranslation("Hata");
+  }
+};
+
 
   const checkTranslation = async (word: string, index: number) => {
     if (userInput.trim().toLowerCase() === correctTranslation?.toLowerCase()) {
