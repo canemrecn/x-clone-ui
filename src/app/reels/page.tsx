@@ -31,6 +31,7 @@ export default function ReelsPage() {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [screenHeight, setScreenHeight] = useState(800);
+  const [likeEffect, setLikeEffect] = useState(false);
   const videoRefs = useRef<HTMLVideoElement[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -47,7 +48,8 @@ export default function ReelsPage() {
   const handleScroll = () => {
     if (!containerRef.current) return;
     const scrollTop = containerRef.current.scrollTop;
-    const newIndex = Math.round(scrollTop / screenHeight);
+    const threshold = screenHeight * 0.6;
+    const newIndex = Math.floor((scrollTop + threshold) / screenHeight);
     if (newIndex !== currentIndex) {
       setCurrentIndex(newIndex);
     }
@@ -66,6 +68,19 @@ export default function ReelsPage() {
       }
     });
   }, [currentIndex]);
+
+  const handleLike = async (postId: number) => {
+    try {
+      await fetch(`/api/posts/${postId}/like`, {
+        method: "POST",
+        credentials: "include",
+      });
+      setLikeEffect(true);
+      setTimeout(() => setLikeEffect(false), 1000);
+    } catch (err) {
+      console.error("Beğenme hatası:", err);
+    }
+  };
 
   return (
     <>
@@ -96,32 +111,41 @@ export default function ReelsPage() {
               muted={index !== currentIndex}
               loop
               playsInline
-              onTimeUpdate={index === currentIndex ? (e) => setProgress(e.currentTarget.currentTime) : undefined}
-              onLoadedMetadata={index === currentIndex ? (e) => setDuration(e.currentTarget.duration) : undefined}
+              onTimeUpdate={
+                index === currentIndex
+                  ? (e) => setProgress(e.currentTarget.currentTime)
+                  : undefined
+              }
+              onLoadedMetadata={
+                index === currentIndex
+                  ? (e) => setDuration(e.currentTarget.duration)
+                  : undefined
+              }
               onClick={(e) => {
                 const video = e.currentTarget;
                 video.paused ? video.play() : video.pause();
               }}
+              onDoubleClick={() => handleLike(item.id)} // ✅ çift tıklama ile beğeni
             />
 
+            {/* ❤️ Beğeni efekti */}
+            {index === currentIndex && likeEffect && (
+              <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
+                <div className="text-white text-6xl animate-ping font-bold select-none">❤️</div>
+              </div>
+            )}
+
+            {/* Sağdaki butonlar */}
             {index === currentIndex && (
               <div className="absolute bottom-14 right-4 z-40 flex flex-col gap-4 items-center">
-                <button onClick={() => setShowSendModal(true)} className="bg-black/40 p-2 rounded-full">
+                <button
+                  onClick={() => setShowSendModal(true)}
+                  className="bg-black/40 p-2 rounded-full"
+                >
                   <Image src="/icons/gonder.png" alt="Gönder" width={30} height={30} />
                 </button>
                 <button
-                  onClick={async () => {
-                    try {
-                      await fetch(`/api/posts/${item.id}/like`, {
-                        method: "POST",
-                        credentials: "include",
-                      });
-                      alert("Beğendin!");
-                    } catch (error) {
-                      console.error("Beğenme hatası:", error);
-                      alert("Beğenirken bir hata oluştu.");
-                    }
-                  }}
+                  onClick={() => handleLike(item.id)}
                   className="bg-black/40 p-2 rounded-full"
                 >
                   <Image src="/icons/like.png" alt="Like" width={30} height={30} />
@@ -135,6 +159,7 @@ export default function ReelsPage() {
               </div>
             )}
 
+            {/* Kullanıcı bilgisi */}
             {index === currentIndex && (
               <div className="absolute bottom-16 left-4 text-white z-40 max-w-sm">
                 <div className="flex items-center gap-2 mb-2">
@@ -153,6 +178,7 @@ export default function ReelsPage() {
               </div>
             )}
 
+            {/* Alt açıklama ve ilerleme çubuğu */}
             {index === currentIndex && duration > 0 && (
               <div className="absolute bottom-1 left-0 w-full px-4 z-50">
                 <p className="text-sm break-words text-white mb-1">
@@ -170,6 +196,7 @@ export default function ReelsPage() {
         ))}
       </div>
 
+      {/* DM gönderme modalı */}
       {showSendModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
           <div className="bg-black p-4 rounded shadow-lg w-full max-w-md">
