@@ -29,12 +29,14 @@ animasyonu uygular.*/
 }
 body {
   color: #ededed;
-  background: rgb(255, 255, 255);
+  background: url('/general/bg.png') no-repeat center center fixed;
+  background-size: cover;
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   width: 100%;
   overflow-x: hidden;
 }
+
 html {
   width: 100%;
   overflow-x: hidden;
