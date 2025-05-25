@@ -198,9 +198,6 @@ export default function Comments({ postId }: CommentsProps) {
             {new Date(c.created_at).toLocaleString()}
           </div>
           <div className="flex gap-4 text-xs mt-2">
-            <button onClick={() => handleLike(c.id)} className="text-cyan-400 hover:underline">
-              Beğen ({c.likes})
-            </button>
             <button onClick={() => handleReply(c.id)} className="text-yellow-300 hover:underline">
               Yanıtla
             </button>
@@ -232,6 +229,7 @@ export default function Comments({ postId }: CommentsProps) {
           type="submit"
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg transition disabled:opacity-50"
         >
+          <br></br>
           Gönder
         </button>
       </form>
