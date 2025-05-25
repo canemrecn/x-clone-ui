@@ -32,7 +32,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   }
 
   return (
-    <div className="bg-gradient-to-br from-gray-900 to-gray-800 max-w-3xl mx-auto py-10 px-6 text-white rounded-xl shadow-lg">
+    <div className="bg-gradient-to-br from-gray-900 to-gray-800 max-w-3xl mx-auto py-10 px-6 text-white rounded-xl shadow-lg pt-24 pb-20">
       <form action={handleDelete} className="flex items-center gap-4 mb-6">
         <button
           type="submit"
@@ -75,7 +75,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             {sentence.analyzedWords.map((word, j) => (
               <span
                 key={j}
-                className={`inline-block px-1 py-0.5 rounded mr-1 mb-1 relative group cursor-help transition ${
+                className={`inline-block px-3 py-0.5 rounded mr-1 mb-1 relative group cursor-help transition ${
                   word.isWrong ? "bg-red-600 text-white" : "text-white"
                 }`}
               >
