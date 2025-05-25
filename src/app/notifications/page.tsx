@@ -4,10 +4,16 @@
 ardından liste güncellenir.*/
 "use client";
 
+/* 
+  Bu dosya, kullanıcının bildirimlerini listeleyen bir sayfa oluşturur; SWR ile /api/notifications endpoint’inden kullanıcıya özel bildirimleri 
+  çeker, bildirim türüne göre simge ve mesaj gösterir, her bildirimin yanında silme butonu bulunur ve butona tıklanınca ilgili bildirim silinir, 
+  ardından liste güncellenir.
+*/
+
 import { useCallback, useMemo } from "react";
 import useSWR from "swr";
 import Image from "next/image";
-import Cookies from "js-cookie"; // Using js-cookie to get the token from cookies
+import Cookies from "js-cookie";
 
 interface NotificationRow {
   id: number;
@@ -20,9 +26,9 @@ interface NotificationRow {
   created_at: string;
 }
 
-// SWR fetcher: Token'ı HTTP-only cookies'ten alıyoruz
+// SWR fetcher
 const fetcher = (url: string) => {
-  const token = Cookies.get("token"); // Get token from cookies
+  const token = Cookies.get("token");
   return fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => {
@@ -57,7 +63,6 @@ function renderIcon(noti: NotificationRow): string {
 }
 
 export default function NotificationsPage() {
-  // SWR ile sosyal hesap verilerini çekiyoruz
   const { data, error, mutate } = useSWR<{ notifications: NotificationRow[] }>(
     "/api/notifications",
     fetcher,
@@ -66,7 +71,6 @@ export default function NotificationsPage() {
     }
   );
 
-  // Silme işlemi useCallback ile optimize edildi
   const deleteNotification = useCallback(
     async (id: number) => {
       try {
@@ -75,7 +79,6 @@ export default function NotificationsPage() {
           body: JSON.stringify({ id }),
           headers: { "Content-Type": "application/json" },
         });
-        // Mutate ile veri yeniden doğrulanıyor
         mutate();
       } catch (err) {
         console.error("Bildirim silme hatası:", err);
@@ -84,34 +87,35 @@ export default function NotificationsPage() {
     [mutate]
   );
 
-  // Notifikasyon listesinin render işlemi useMemo ile optimize ediliyor
   const renderedNotifications = useMemo(() => {
     if (!data?.notifications || data.notifications.length === 0) {
       return (
-        <p className="text-center text-lg text-white">
+        <p className="text-center text-lg text-gray-300 mt-10">
           No notifications yet.
         </p>
       );
     }
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-5">
         {data.notifications.map((noti) => (
           <div
             key={noti.id}
-            className="p-4 border border-gray-300 bg-gradient-to-br from-gray-800 to-gray-800 rounded-lg flex items-center gap-4 shadow-md"
+            className="p-4 border border-gray-700 bg-gradient-to-br from-gray-800 to-gray-700 rounded-xl flex items-center gap-4 shadow-lg hover:ring-2 hover:ring-orange-500 transition-all"
           >
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-gray-800 to-gray-800 flex items-center justify-center border-2 border-gray-300 shadow-md">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-900 flex items-center justify-center border-2 border-gray-600 shadow">
               <Image src={renderIcon(noti)} alt={noti.type} width={28} height={28} />
             </div>
+
             <div className="flex-1">
-              <p className="text-white font-semibold">{renderMessage(noti)}</p>
-              <p className="text-xs text-white">
+              <p className="text-gray-200 font-semibold">{renderMessage(noti)}</p>
+              <p className="text-xs text-gray-400">
                 {new Date(noti.created_at).toLocaleString()}
               </p>
             </div>
+
             <button
               onClick={() => deleteNotification(noti.id)}
-              className="bg-gradient-to-br from-gray-800 to-gray-800 text-white px-3 py-2 rounded-lg font-bold shadow-md hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition-all"
+              className="bg-gradient-to-br from-red-600 to-red-500 text-white px-3 py-2 rounded-lg font-bold shadow hover:scale-105 hover:brightness-110 transition-all"
             >
               ✖
             </button>
@@ -123,8 +127,8 @@ export default function NotificationsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 p-4 sm:p-6">
-        <p className="text-center text-white font-bold text-lg">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 sm:p-6">
+        <p className="text-center text-red-400 font-bold text-lg">
           Error loading notifications.
         </p>
       </div>
@@ -133,8 +137,8 @@ export default function NotificationsPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 p-4 sm:p-6">
-        <p className="text-center text-white font-bold text-lg">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 sm:p-6">
+        <p className="text-center text-gray-300 font-medium text-lg">
           Loading notifications...
         </p>
       </div>
@@ -142,11 +146,11 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4 sm:p-6">
-      <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-gray-800 to-gray-800 p-4 rounded-lg shadow-md">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-4 sm:p-6">
+      <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-gray-800 to-gray-700 p-5 rounded-xl shadow-xl tracking-wide">
         Notifications
       </h1>
-      <div className="max-w-full sm:max-w-2xl mx-auto mt-6">
+      <div className="max-w-full sm:max-w-2xl mx-auto mt-8">
         {renderedNotifications}
       </div>
     </div>
