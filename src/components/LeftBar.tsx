@@ -19,9 +19,9 @@ import useIsMobile from "@/hooks/useIsMobile";
 import Search from "./Search";
 
 const menuList = [
-  { id: 1, name: "Homepage", link: "/", icon: "home.svg" },
-  { id: 2, name: "Notification", link: "/notifications", icon: "notification.svg" },
-  { id: 3, name: "Chat AI", icon: "generative.png" },
+  { id: 1, name: "Homepage", link: "/", icon: "home1.png" },
+  { id: 2, name: "Notification", link: "/notifications", icon: "notification2.png" },
+  { id: 3, name: "Chat AI", icon: "ai4.png" },
   { id: 9, name: "", link: "/reels", icon: "film-reel.png" },
   { id: 10, name: "Daily", link: "/daily", icon: "daily.png" },
   { id: 6, name: "Arrangement", link: "/arrangement", icon: "king.png" },
