@@ -168,7 +168,7 @@ export default function NewChatGemini() {
       </div>
 
       {/* Mesaj Giriş Alanı */}
-      <div className="fixed bottom-0 left-0 right-0 px-4 pb-4">
+      <div className="fixed bottom-0 left-0 right-0 px-6 pb-4">
         <div className="border border-gray-700 p-3 rounded-2xl bg-gray-900 flex items-center gap-2 shadow-xl">
           <input
             type="text"
