@@ -62,7 +62,7 @@ export default function DailyPage() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-900 to-gray-800 max-w-2xl mx-auto py-10 px-4 text-white rounded-xl shadow-xl">
+    <div className="bg-gradient-to-br from-gray-900 to-gray-800 max-w-2xl mx-auto py-10 px-4 text-white rounded-xl shadow-xl pt-24 pb-20">
       <h1 className="text-3xl font-bold mb-6 text-center tracking-wide">Günlük</h1>
 
       <div className="mb-6 text-center">
