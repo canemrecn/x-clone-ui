@@ -11,13 +11,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-// TYPES
 interface Message {
   text: string;
   sender: "user" | "bot";
 }
 
-// ÇEVİRİ API
 const translateWord = async (word: string): Promise<string> => {
   try {
     const res = await fetch("/api/translate", {
@@ -90,10 +88,10 @@ const MessageBubble = ({
       className={`w-full flex ${isUser ? "justify-end" : "justify-start"} mb-4`}
     >
       <div className={`flex items-start gap-2 max-w-[75%] ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-        <Image src={avatar} alt="Avatar" width={36} height={36} className="rounded-full border" />
+        <Image src={avatar} alt="Avatar" width={36} height={36} className="rounded-full border border-gray-600 shadow" />
         <div
-          className={`px-4 py-2 rounded-lg shadow text-sm whitespace-pre-wrap ${
-            isUser ? "bg-blue-600 text-white" : "bg-gray-700 text-white"
+          className={`px-4 py-2 rounded-xl text-sm shadow-lg whitespace-pre-wrap ${
+            isUser ? "bg-blue-600 text-white" : "bg-gray-800 text-white"
           }`}
         >
           <TranslatableText text={msg.text} />
@@ -146,16 +144,16 @@ export default function NewChatGemini() {
   }, [messages]);
 
   return (
-    <div className="relative flex flex-col h-screen bg-black from-gray-900 to-gray-800 text-white">
-      {/* 🔙 Geri Dön Butonu */}
+    <div className="relative flex flex-col h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+      {/* Geri Dön Butonu */}
       <div className="fixed top-4 left-4 z-50">
-        <button onClick={() => router.back()}>
+        <button onClick={() => router.back()} className="hover:scale-110 transition">
           <Image src="/icons/left.png" alt="Geri" width={30} height={30} />
         </button>
       </div>
 
       {/* Mesajlar */}
-      <div className="flex-1 overflow-y-auto px-4 pb-24 pt-14">
+      <div className="flex-1 overflow-y-auto px-4 pb-28 pt-20">
         <AnimatePresence>
           {messages.map((msg, i) => (
             <MessageBubble
@@ -169,12 +167,12 @@ export default function NewChatGemini() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Alt Giriş Alanı */}
-      <div className="fixed bottom-0 left-0 right-0 px-0">
-        <div className="border border-gray-700 p-3 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center gap-2 shadow-lg">
+      {/* Mesaj Giriş Alanı */}
+      <div className="fixed bottom-0 left-0 right-0 px-4 pb-4">
+        <div className="border border-gray-700 p-3 rounded-2xl bg-gray-900 flex items-center gap-2 shadow-xl">
           <input
             type="text"
-            className="flex-1 rounded px-4 py-2 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="flex-1 rounded-xl px-4 py-2 bg-gray-800 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Mesaj yaz..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -182,7 +180,7 @@ export default function NewChatGemini() {
           />
           <button
             onClick={sendMessage}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl transition-all font-semibold"
           >
             Gönder
           </button>
