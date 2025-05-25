@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import * as nsfwjs from "nsfwjs";
 
+// 🧠 Dosya yükleme
 async function uploadFile(file: File): Promise<{ url: string; fileType: string }> {
   const formData = new FormData();
   formData.append("file", file);
@@ -24,12 +25,13 @@ async function uploadFile(file: File): Promise<{ url: string; fileType: string }
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error("Dosya yuklenemedi: " + err);
+    throw new Error("Dosya yüklenemedi: " + err);
   }
 
   return await res.json();
 }
 
+// 🔞 Uygunsuz içerik kontrolü
 const checkNsfw = async (file: File): Promise<boolean> => {
   if (!file.type.startsWith("image")) return false;
 
@@ -65,7 +67,7 @@ export default function Share() {
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth?.user) return alert("Giriş yapmalısın");
+    if (!auth?.user) return alert("Giriş yapmalısın.");
     if (!lang) return alert("Lütfen gönderi dili seçiniz.");
 
     const textValue = inputRef.current?.value.trim() || "";
@@ -79,7 +81,7 @@ export default function Share() {
 
       if (file) {
         const isNsfw = await checkNsfw(file);
-        if (isNsfw) return alert("Uygunsuz görsel");
+        if (isNsfw) return alert("Uygunsuz görsel tespit edildi.");
 
         const result = await uploadFile(file);
         mediaUrl = result.url;
@@ -87,7 +89,7 @@ export default function Share() {
         isReel = mediaType === "video";
       }
 
-      if (!textValue && !mediaUrl) return alert("Metin veya medya ekle");
+      if (!textValue && !mediaUrl) return alert("Metin veya medya ekle.");
 
       const res = await fetch("/api/posts/create", {
         method: "POST",
@@ -103,9 +105,9 @@ export default function Share() {
         }),
       });
 
-      if (!res.ok) throw new Error("Paylaşım başarısız");
+      if (!res.ok) throw new Error("Paylaşım başarısız.");
 
-      alert("Paylaşım yapıldı");
+      alert("Paylaşım yapıldı.");
       if (inputRef.current) inputRef.current.value = "";
       setFile(null);
       setLang(null);
@@ -132,7 +134,7 @@ export default function Share() {
       </div>
 
       <div className="flex-1 flex flex-col gap-4">
-        {/* 🏳 Dil Seçme */}
+        {/* 🌐 Dil Seçme */}
         <div className="flex gap-3 items-center">
           <span className="text-sm text-white">Dil Seç:</span>
           <button
@@ -155,6 +157,7 @@ export default function Share() {
           </button>
         </div>
 
+        {/* 📝 Metin Alanı */}
         <input
           ref={inputRef}
           type="text"
@@ -162,6 +165,7 @@ export default function Share() {
           className="bg-gray-900 outline-none placeholder:text-gray-400 text-lg text-white px-3 py-2 rounded border border-gray-700"
         />
 
+        {/* 📎 Dosya Önizlemesi */}
         {file && (
           <div className="relative p-2 border border-gray-300 bg-gray-900 rounded shadow-md">
             <p className="text-sm text-white font-semibold">{file.name}</p>
@@ -174,6 +178,7 @@ export default function Share() {
           </div>
         )}
 
+        {/* 📤 Alt Kısım */}
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <input
             type="file"
