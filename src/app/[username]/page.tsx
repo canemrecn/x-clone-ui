@@ -304,7 +304,7 @@ export default function UserPage() {
         </div>
       </div>
 
-      <div className="mt-20 p-4 flex flex-col gap-2">
+      <div className="mt-20 p-4 flex flex-col gap-2 bg-gradient-to-br from-gray-800 to-gray-700">
         <h1 className="text-2xl font-bold">{profileUser.full_name}</h1>
         <span className="text-sm">@{profileUser.username}</span>
         <p>Level: {profileUser.level}</p>
