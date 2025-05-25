@@ -8,6 +8,7 @@ gönderiyi Post bileşeni ile ekrana render eder; dil filtresi (lang) desteği d
 import { useState, useEffect } from "react";
 import Post from "./Post";
 import { useAuth } from "@/context/AuthContext";
+import Share from "./Share";
 
 interface FeedProps {
   posts?: any[];
@@ -68,6 +69,7 @@ export default function Feed({ posts, lang }: FeedProps) {
 
   return (
     <div className="">
+      <Share></Share>
       {finalPosts.map((post) => (
         <Post key={post.id} postData={post} />
       ))}
