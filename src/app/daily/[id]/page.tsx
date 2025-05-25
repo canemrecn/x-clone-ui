@@ -81,7 +81,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               >
                 {word.original}
                 {word.isWrong && word.suggestion && (
-                  <div className="absolute z-10 top-full left-0 bg-black text-white text-xs px-2 py-1 rounded shadow-lg mt-1 hidden group-hover:block">
+                  <div className="absolute z-50 top-full left-1/2 -translate-x-1/2 bg-black text-white text-xs px-3 py-1 rounded shadow-lg mt-1 min-w-max whitespace-nowrap">
                     Doğrusu: {word.suggestion}
                   </div>
                 )}
