@@ -59,7 +59,7 @@ export default function UserProfile({ username, auth }: UserProfileProps) {
       <h1 className="text-2xl font-bold text-center my-4 bg-gradient-to-r from-gray-800 to-gray-800 p-4 rounded shadow-md">
         @{profileUser.username}
       </h1>
-      <Share lang={profileUser.lang || "en"} />
+      <Share />
       {postsError ? (
         <p className="text-center">Error loading posts.</p>
       ) : (
