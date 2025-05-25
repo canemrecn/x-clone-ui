@@ -77,7 +77,7 @@ export default function LanguageFeed({ lang }: LanguageFeedProps) {
         {lang.toUpperCase()} PAGE ŞUAN SADECE İNGİLİZCE VE TÜRKÇE ÜZERİNDEN ÇEVİRİ YAPILMAKTADIR. ÇOK
         YAKINDA TÜM DİLLERDEN ÇEVİRİ ÖZELLİĞİ GELECEKTİR. BEKLEMEDE KALIN
       </h1>
-      <Share lang={lang} />
+      <Share/>
       {error ? (
         <p className="text-center">Error loading posts.</p>
       ) : !data ? (
