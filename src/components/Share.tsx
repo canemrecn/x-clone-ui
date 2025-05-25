@@ -121,85 +121,86 @@ export default function Share() {
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className="p-4 flex gap-4 bg-gradient-to-br from-gray-800 to-gray-800 border border-gray-300 rounded-lg shadow-md"
-    >
-      <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-300">
-        <Image
-          src={auth?.user?.profile_image || "/icons/pp.png"}
-          alt="Avatar"
-          width={100}
-          height={100}
-        />
+  onSubmit={handleSubmit}
+  className="p-6 flex gap-5 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl shadow-2xl"
+>
+  <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-gray-500 shadow-lg">
+    <Image
+      src={auth?.user?.profile_image || "/icons/pp.png"}
+      alt="Avatar"
+      width={100}
+      height={100}
+    />
+  </div>
+
+  <div className="flex-1 flex flex-col gap-5">
+    {/* 🌐 Dil Seçme */}
+    <div className="flex gap-4 items-center">
+      <span className="text-sm text-white font-semibold">Dil:</span>
+      <button
+        type="button"
+        onClick={() => setLang("tr")}
+        className={`rounded-full p-1 border-2 ${
+          lang === "tr" ? "border-yellow-400 scale-110" : "border-transparent"
+        } transition-transform hover:scale-105`}
+      >
+        <Image src="/icons/turkey.png" alt="TR" width={30} height={30} />
+      </button>
+      <button
+        type="button"
+        onClick={() => setLang("en")}
+        className={`rounded-full p-1 border-2 ${
+          lang === "en" ? "border-yellow-400 scale-110" : "border-transparent"
+        } transition-transform hover:scale-105`}
+      >
+        <Image src="/icons/united-kingdom.png" alt="EN" width={30} height={30} />
+      </button>
+    </div>
+
+    {/* 📝 Metin Alanı */}
+    <input
+      ref={inputRef}
+      type="text"
+      placeholder="Ne düşünüyorsun?"
+      className="bg-gray-900 outline-none placeholder:text-gray-400 text-base sm:text-lg text-white px-4 py-2 rounded-lg border border-gray-700 focus:ring-2 focus:ring-cyan-500"
+    />
+
+    {/* 📎 Dosya Önizlemesi */}
+    {file && (
+      <div className="relative p-3 border border-gray-600 bg-gray-900 rounded-xl shadow-lg">
+        <p className="text-sm text-white font-medium">{file.name}</p>
+        <span
+          className="absolute top-2 right-2 bg-red-500 text-white px-2 rounded-full text-xs cursor-pointer hover:bg-red-600 transition"
+          onClick={() => setFile(null)}
+        >
+          ✕
+        </span>
       </div>
+    )}
 
-      <div className="flex-1 flex flex-col gap-4">
-        {/* 🌐 Dil Seçme */}
-        <div className="flex gap-3 items-center">
-          <span className="text-sm text-white">Dil Seç:</span>
-          <button
-            type="button"
-            onClick={() => setLang("tr")}
-            className={`rounded-full p-1 border-2 ${
-              lang === "tr" ? "border-yellow-400" : "border-transparent"
-            } transition`}
-          >
-            <Image src="/icons/turkey.png" alt="TR" width={28} height={28} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setLang("en")}
-            className={`rounded-full p-1 border-2 ${
-              lang === "en" ? "border-yellow-400" : "border-transparent"
-            } transition`}
-          >
-            <Image src="/icons/united-kingdom.png" alt="EN" width={28} height={28} />
-          </button>
-        </div>
+    {/* 📤 Alt Kısım */}
+    <div className="flex items-center justify-between gap-4 flex-wrap mt-2">
+      <input
+        type="file"
+        onChange={handleFileChange}
+        className="hidden"
+        id="file"
+        accept="image/*,video/*"
+      />
+      <label htmlFor="file" className="cursor-pointer hover:opacity-80 transition">
+        <Image src="/icons/camera.png" alt="Upload" width={26} height={26} />
+      </label>
 
-        {/* 📝 Metin Alanı */}
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="What is happening?"
-          className="bg-gray-900 outline-none placeholder:text-gray-400 text-lg text-white px-3 py-2 rounded border border-gray-700"
-        />
+      <button
+        type="submit"
+        disabled={loading}
+        className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-bold rounded-full py-2 px-6 disabled:opacity-50 transition"
+      >
+        {loading ? "Yükleniyor..." : "Paylaş"}
+      </button>
+    </div>
+  </div>
+</form>
 
-        {/* 📎 Dosya Önizlemesi */}
-        {file && (
-          <div className="relative p-2 border border-gray-300 bg-gray-900 rounded shadow-md">
-            <p className="text-sm text-white font-semibold">{file.name}</p>
-            <span
-              className="absolute top-1 right-1 bg-red-500 text-white px-2 rounded cursor-pointer hover:bg-red-600 transition"
-              onClick={() => setFile(null)}
-            >
-              X
-            </span>
-          </div>
-        )}
-
-        {/* 📤 Alt Kısım */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <input
-            type="file"
-            onChange={handleFileChange}
-            className="hidden"
-            id="file"
-            accept="image/*,video/*"
-          />
-          <label htmlFor="file" className="cursor-pointer hover:opacity-80">
-            <Image src="/icons/camera.png" alt="Upload" width={24} height={24} />
-          </label>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full py-2 px-5 disabled:opacity-50 transition"
-          >
-            {loading ? "Yükleniyor..." : "Paylaş"}
-          </button>
-        </div>
-      </div>
-    </form>
   );
 }
