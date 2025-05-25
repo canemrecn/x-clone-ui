@@ -20,12 +20,20 @@ export default function Homepage() {
   }, [auth?.user, router]);
 
   if (!auth?.user) {
-    return <div className="text-center text-lg font-bold">Yükleniyor...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white text-lg font-semibold">
+        Yükleniyor...
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white pt-20 pb-20">
-      <h1>PROJE GELİŞTİRME AŞAMASINDADIR. HENÜZ PLATFORM KULLANIMA AÇILMAMIŞTIR VE TÜM TELİF HAKLARI SAKLIDIR</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white pt-24 pb-20 px-4">
+      <div className="max-w-4xl mx-auto mb-6 text-center bg-gray-800 rounded-xl p-4 shadow-lg border border-gray-700">
+        <h1 className="text-md md:text-lg font-semibold tracking-wide text-gray-300">
+          PROJE GELİŞTİRME AŞAMASINDADIR. HENÜZ PLATFORM KULLANIMA AÇILMAMIŞTIR VE TÜM TELİF HAKLARI SAKLIDIR
+        </h1>
+      </div>
       <Feed />
     </div>
   );

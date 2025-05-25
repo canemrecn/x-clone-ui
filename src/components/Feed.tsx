@@ -44,14 +44,21 @@ export default function Feed({ posts, lang }: FeedProps) {
   }, [posts, lang]);
 
   if (loading) {
-    return <p className="text-center text-white">Gönderiler yükleniyor...</p>;
+    return (
+      <p className="text-center text-sm text-gray-400 animate-pulse mt-10">
+        Gönderiler yükleniyor...
+      </p>
+    );
   }
 
   if (localPosts.length === 0) {
-    return <p className="text-center text-white">Gönderi bulunamadı.</p>;
+    return (
+      <p className="text-center text-sm text-gray-400 mt-10">
+        Gönderi bulunamadı.
+      </p>
+    );
   }
 
-  // YouTube içeriği işaretlemesi
   const finalPosts = localPosts.map((post) => {
     if (post.media_url && (post.media_url.includes("youtube.com") || post.media_url.includes("youtu.be"))) {
       return { ...post, isYouTube: true };
@@ -60,7 +67,7 @@ export default function Feed({ posts, lang }: FeedProps) {
   });
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-gradient-to-br from-gray-800 to-gray-800">
+    <div className="flex flex-col gap-6 bg-gray-900 p-4 rounded-xl shadow-inner max-w-3xl mx-auto">
       {finalPosts.map((post) => (
         <Post key={post.id} postData={post} />
       ))}
