@@ -267,7 +267,7 @@ export default function UserPage() {
         </div>
 
 
-        <div className="absolute bottom-0 w-full flex flex-col sm:flex-row items-center justify-between px-4 sm:px-7 translate-y-1/2">
+        <div className="absolute bottom-0 w-full flex flex-col sm:flex-row items-center justify-between px-4 sm:px-7">
           <div className="relative">
             <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-black bg-gradient-to-br from-gray-800 to-gray-700 shadow-2xl">
               <Image
