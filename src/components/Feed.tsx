@@ -69,7 +69,10 @@ export default function Feed({ posts, lang }: FeedProps) {
 
   return (
     <div className="">
-      <Share></Share>
+      <div className="mb-4">
+        <Share/>
+      </div>
+      
       {finalPosts.map((post) => (
         <Post key={post.id} postData={post} />
       ))}
