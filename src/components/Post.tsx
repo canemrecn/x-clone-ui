@@ -159,7 +159,7 @@ export default function Post({ postData }: PostProps) {
   const isOwner = auth?.user?.id === postData.user_id;
 
   return (
-    <div className="p-5 border border-gray-700 w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black shadow-lg rounded-xl text-white relative transition-all">
+    <div className="p-5 mb-4 border border-gray-700 w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black shadow-lg rounded-xl text-white relative transition-all">
   {showPointAnim && (
     <div className="absolute top-4 right-4 text-green-400 font-bold text-lg animate-bounce">
       +1 Puan!

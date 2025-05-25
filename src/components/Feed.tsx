@@ -45,7 +45,7 @@ export default function Feed({ posts, lang }: FeedProps) {
 
   if (loading) {
     return (
-      <p className="text-center text-sm text-gray-400 animate-pulse mt-10 p-4">
+      <p className="text-center text-sm text-gray-400 animate-pulse mt-10 p-4 mb-4">
         Gönderiler yükleniyor...
       </p>
     );
@@ -53,7 +53,7 @@ export default function Feed({ posts, lang }: FeedProps) {
 
   if (localPosts.length === 0) {
     return (
-      <p className="text-center text-sm text-gray-400 mt-10 p-4">
+      <p className="text-center text-sm text-gray-400 mt-10 p-4 mb-4">
         Gönderi bulunamadı.
       </p>
     );
