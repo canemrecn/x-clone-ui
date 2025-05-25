@@ -236,7 +236,7 @@ export default function UserPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white pt-20 pb-20">
+    <div className="min-h-screen text-white pt-20 pb-20">
       <div className="sticky top-0 z-10 backdrop-blur-md p-4 bg-gradient-to-br from-gray-800 to-gray-700 flex items-center justify-between flex-wrap shadow-md">
         <Link href="/">
           <Image src="/icons/left.png" alt="back" width={24} height={24} priority className="hover:bg-gray-600 p-1 rounded transition" />
