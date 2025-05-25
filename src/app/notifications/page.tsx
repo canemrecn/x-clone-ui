@@ -96,7 +96,7 @@ export default function NotificationsPage() {
       );
     }
     return (
-      <div className="flex flex-col gap-5 pt-24 pb-20">
+      <div className="flex flex-col gap-5">
         {data.notifications.map((noti) => (
           <div
             key={noti.id}
@@ -146,7 +146,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-4 sm:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-4 sm:p-6 pt-24 pb-20">
       <h1 className="text-3xl font-bold text-center bg-gradient-to-r from-gray-800 to-gray-700 p-5 rounded-xl shadow-xl tracking-wide">
         Notifications
       </h1>
