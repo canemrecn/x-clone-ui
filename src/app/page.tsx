@@ -29,11 +29,11 @@ export default function Homepage() {
 
   return (
     <div className="pt-24 pb-20 px-4">
-
+      <div className="max-w-4xl mx-auto mb-6 text-center bg-gray-800 rounded-xl p-4 shadow-lg border border-gray-700">
         <h1 className="text-md md:text-lg font-semibold tracking-wide text-gray-300">
           PROJE GELİŞTİRME AŞAMASINDADIR. HENÜZ PLATFORM KULLANIMA AÇILMAMIŞTIR VE TÜM TELİF HAKLARI SAKLIDIR
         </h1>
-
+      </div>
       <Feed />
     </div>
   );
