@@ -15,7 +15,7 @@ const SettingsPage = React.memo(function SettingsPage() {
   const token = Cookies.get("token");
 
   return (
-    <div className="min-h-screen text-white pt-24 pb-20 px-6">
+    <div className="max-h-screen bg-gradient-to-br from-[#1e1e2f] to-[#2c2c3e] text-white pt-24 pb-20 px-6">
       <h1 className="text-4xl font-extrabold mb-12 text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
         Hesap Ayarları
       </h1>
