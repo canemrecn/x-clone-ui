@@ -105,12 +105,6 @@ export default function PostDetailPage() {
             Gönderiyi Sil
           </button>
         )}
-        <button
-          onClick={handleReport}
-          className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded"
-        >
-          Şikayet Et
-        </button>
       </div>
       <Comments postId={Number(postId)} />
     </div>
