@@ -169,19 +169,16 @@ export default function Comments({ postId }: CommentsProps) {
   const commentTree = buildCommentTree();
 
   const renderComment = (c: CommentData, level = 0) => {
-    const isOwner = auth?.user?.id === c.user_id;
-    const indent = Math.min(level * 16, 48);
-    return (
-      <div
-  key={c.id}
-  className="rounded-xl p-4 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg mb-4"
-  style={{
-    marginLeft: `${Math.min(level * 16, 48)}px`, // en fazla 48px içeri kay
-    maxWidth: "100%",
-    overflowWrap: "break-word",
-    wordBreak: "break-word"
-  }}
->
+  const isOwner = auth?.user?.id === c.user_id;
+
+  return (
+    <div key={c.id} className="relative mb-4">
+      {/* Araya çizgi ekle (yanıt varsa) */}
+      {level > 0 && (
+        <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-700" />
+      )}
+
+      <div className="rounded-xl p-4 pl-6 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg">
         <div className="flex gap-4">
           <Link href={`/${c.username}`}>
             <Image
@@ -199,6 +196,7 @@ export default function Comments({ postId }: CommentsProps) {
               </Link>
               <span className="text-[11px] text-gray-500">ID: {c.id}</span>
             </div>
+
             <p className="text-sm text-white mt-1">
               {c.text.split(" ").map((word, index) => (
                 <span
@@ -219,29 +217,29 @@ export default function Comments({ postId }: CommentsProps) {
                 </span>
               ))}
             </p>
+
             <div className="mt-2 text-xs text-gray-400">
               {new Date(c.created_at).toLocaleString()}
             </div>
+
             <div className="flex gap-4 text-xs mt-2">
-              <button onClick={() => handleReply(c.id)} className="text-yellow-300 hover:underline">
-                Yanıtla
-              </button>
+              <button onClick={() => handleReply(c.id)} className="text-yellow-300 hover:underline">Yanıtla</button>
               {isOwner ? (
-                <button onClick={() => handleDelete(c.id)} className="text-red-400 hover:underline">
-                  Sil
-                </button>
+                <button onClick={() => handleDelete(c.id)} className="text-red-400 hover:underline">Sil</button>
               ) : (
-                <button onClick={() => handleReport(c.id)} className="text-orange-400 hover:underline">
-                  Şikayet Et
-                </button>
+                <button onClick={() => handleReport(c.id)} className="text-orange-400 hover:underline">Şikayet Et</button>
               )}
             </div>
           </div>
         </div>
-        {c.replies?.map((child) => renderComment(child, level + 1))}
       </div>
-    );
-  };
+
+      {/* Alt yorumlar */}
+      {c.replies?.map((child) => renderComment(child, level + 1))}
+    </div>
+  );
+};
+
 
   return (
     <div className="mt-4 p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg shadow-md border border-gray-600">
