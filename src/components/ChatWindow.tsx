@@ -18,7 +18,7 @@ interface MessageItem {
   message: string;
   created_at: string;
   attachmentUrl?: string | null;
-  attachmentType?: "image" | "video" | "audio" | null;
+  attachmentType?: "image" | "video" | null;
   isRead?: boolean;
 }
 
@@ -90,7 +90,7 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
   const [buddyInfo, setBuddyInfo] = useState<Buddy | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedMediaBase64, setSelectedMediaBase64] = useState<string | null>(null);
-  const [selectedMediaType, setSelectedMediaType] = useState<"image" | "video" | "audio" | null>(null);
+  const [selectedMediaType, setSelectedMediaType] = useState<"image" | "video" | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -312,76 +312,6 @@ useEffect(() => {
   if (isUserNearBottom()) scrollToBottom();
 }, [messages]);
 
-const [isRecording, setIsRecording] = useState(false);
-const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-const audioChunks = useRef<Blob[]>([]);
-
-async function startRecording() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mediaRecorder = new MediaRecorder(stream);
-    mediaRecorderRef.current = mediaRecorder;
-    audioChunks.current = [];
-
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
-        audioChunks.current.push(event.data);
-      }
-    };
-
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(audioChunks.current, { type: "audio/webm" });
-      setAudioBlob(blob);
-    };
-
-    mediaRecorder.start();
-    setIsRecording(true);
-  } catch (error) {
-    console.error("Mikrofon izni reddedildi veya hata oluştu:", error);
-    alert("Ses kaydına erişilemiyor. Lütfen mikrofon izni verin.");
-  }
-}
-
-function stopRecording() {
-  mediaRecorderRef.current?.stop();
-  setIsRecording(false);
-}
-
-async function sendAudioMessage() {
-  if (!audioBlob) return;
-
-  const reader = new FileReader();
-  reader.onloadend = async () => {
-    const base64Audio = reader.result as string;
-
-    try {
-      const res = await fetch("/api/dm_messages/createMedia", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          receiverId: buddyId,
-          attachmentBase64: base64Audio,
-          attachmentType: "audio",
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setMessages((prev) => [...prev, data.newMessage]);
-        setAudioBlob(null);
-      }
-    } catch (err) {
-      console.error("Sesli mesaj gönderme hatası:", err);
-    }
-  };
-
-  reader.readAsDataURL(audioBlob);
-}
-
-
-
 
   return (
   <div className="h-full w-full flex flex-col overflow-hidden bg-gradient-to-br from-[#1e1e2f] to-[#2c2c3e] text-white">
@@ -438,13 +368,6 @@ async function sendAudioMessage() {
                   {msg.attachmentUrl && msg.attachmentType === "video" && (
                     <video src={msg.attachmentUrl} className="mt-2 max-w-[250px] rounded-lg shadow" controls />
                   )}
-                  {msg.attachmentUrl && msg.attachmentType === "audio" && (
-  <audio controls className="mt-2 max-w-xs rounded">
-    <source src={msg.attachmentUrl} type="audio/webm" />
-    Tarayıcınız ses öğesini desteklemiyor.
-  </audio>
-)}
-
                   <div className="text-xs flex items-center gap-2 mt-2 text-gray-300">
                     <span>{formatDate(msg.created_at)}</span>
                     {isMe && (
@@ -485,24 +408,6 @@ async function sendAudioMessage() {
       {selectedMediaBase64 && selectedMediaType === "video" && (
         <video src={selectedMediaBase64} className="w-10 h-10 object-cover rounded" muted />
       )}
-      {/* Ses Kayıt Butonu */}
-<button
-  onClick={isRecording ? stopRecording : startRecording}
-  className={`px-2 py-1 rounded-lg ${isRecording ? "bg-red-600" : "bg-gray-700 hover:bg-purple-600"} transition text-white flex items-center`}
-  title={isRecording ? "Kaydı Durdur" : "Ses Kaydet"}
->
-  <img src="/icons/microphone.png" alt="Mic" className="w-5 h-5" />
-</button>
-
-{/* Kayıtlı Ses Mesajı Varsa Gönder Butonu */}
-{audioBlob && (
-  <button
-    onClick={sendAudioMessage}
-    className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg transition text-sm font-semibold"
-  >
-    🎤 Gönder
-  </button>
-)}
       <input
         id="chatInput"
         type="text"
