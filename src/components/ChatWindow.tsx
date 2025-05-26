@@ -290,6 +290,20 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
   const buddyPhoto = buddyInfo?.profile_image || "/icons/pp.png";
   const mobileOffset = isMobile ? 60 : 0;
 
+  // scroll to bottom
+function scrollToBottom() {
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+}
+
+useEffect(() => {
+  scrollToBottom();
+}, [messages]);
+
+useEffect(() => {
+  scrollToBottom();
+}, []);
+
+
   return (
   <div className="h-full w-full flex flex-col overflow-hidden bg-gradient-to-br from-[#1e1e2f] to-[#2c2c3e] text-white">
     {/* Top Bar */}
