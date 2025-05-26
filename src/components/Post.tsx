@@ -170,14 +170,14 @@ export default function Post({ postData }: PostProps) {
       },
       credentials: "include",
       body: JSON.stringify({
-        post_id: postData.id,
-        reason: "Uygunsuz içerik", // default bir neden
+        postId: postData.id, // ✅ burada düzeltme yapıldı
+        reason: "Uygunsuz içerik",
       }),
     });
 
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.message || "Şikayet başarısız.");
+      throw new Error(data.error || "Şikayet başarısız.");
     }
 
     alert("Gönderi şikayet edildi.");
@@ -186,6 +186,7 @@ export default function Post({ postData }: PostProps) {
     alert("Şikayet başarısız oldu: " + err.message);
   }
 };
+
 
   const isYouTubeLink = postData.media_url?.includes("youtube.com") ?? false;
   const isOwner = auth?.user?.id === postData.user_id;
