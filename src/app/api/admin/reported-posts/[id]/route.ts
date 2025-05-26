@@ -1,14 +1,17 @@
 //src/app/api/admin/reported-posts/[id]/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
-export async function DELETE(_: Request, context: { params: { id: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
   try {
     const cookieStore =await cookies();
     const token = cookieStore.get("token")?.value;
-    const reportId = Number(context?.params?.id);
+    const reportId = Number(context.params.id);
 
     if (!token || isNaN(reportId)) {
       return NextResponse.json({ message: "Geçersiz istek" }, { status: 400 });
