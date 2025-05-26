@@ -288,20 +288,29 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
 
   const myPhoto = auth?.user?.profile_image || "/icons/pp.png";
   const buddyPhoto = buddyInfo?.profile_image || "/icons/pp.png";
+const messagesContainerRef = useRef<HTMLDivElement>(null);
   const mobileOffset = isMobile ? 60 : 0;
 
-  // scroll to bottom
+// Scroll helper
 function scrollToBottom() {
   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 }
 
-useEffect(() => {
-  scrollToBottom();
-}, [messages]);
+function isUserNearBottom(): boolean {
+  const container = messagesContainerRef.current;
+  if (!container) return false;
+  return container.scrollHeight - container.scrollTop - container.clientHeight < 150;
+}
 
+// İlk açılışta otomatik scroll
 useEffect(() => {
   scrollToBottom();
 }, []);
+
+// Sadece kullanıcı en alttaysa scroll
+useEffect(() => {
+  if (isUserNearBottom()) scrollToBottom();
+}, [messages]);
 
 
   return (
