@@ -194,12 +194,9 @@ export default function Comments({ postId }: CommentsProps) {
 
   const renderComment = (c: CommentData, level = 0) => {
   const isOwner = auth?.user?.id === c.user_id;
-  const [showDropdown, setShowDropdown] = useState(false); // local state değilse yukarı taşı
-  const toggleDropdown = () => setShowDropdown((prev) => !prev);
 
   return (
     <div key={c.id} className="relative mb-4">
-      {/* Yanıt varsa dikey çizgi */}
       {level > 0 && (
         <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-700" />
       )}
@@ -222,16 +219,21 @@ export default function Comments({ postId }: CommentsProps) {
                 @{c.username}
               </Link>
               <div className="relative">
-                <button onClick={toggleDropdown} className="px-2 py-1 text-gray-400 hover:text-orange-400 text-xl">
+                <button
+                  onClick={() =>
+                    setShowOptionsId((prev) => (prev === c.id ? null : c.id))
+                  }
+                  className="px-2 py-1 text-gray-400 hover:text-orange-400 text-xl"
+                >
                   ⋯
                 </button>
-                {showDropdown && (
+                {showOptionsId === c.id && (
                   <div className="absolute right-0 mt-2 bg-gray-900 border border-gray-700 rounded shadow-lg z-50 w-32">
                     {isOwner ? (
                       <button
                         onClick={() => {
                           handleDelete(c.id);
-                          setShowDropdown(false);
+                          setShowOptionsId(null);
                         }}
                         className="block w-full text-left px-4 py-2 text-red-400 hover:bg-red-600 hover:text-white text-sm"
                       >
@@ -241,7 +243,7 @@ export default function Comments({ postId }: CommentsProps) {
                       <button
                         onClick={() => {
                           handleReport(c.id);
-                          setShowDropdown(false);
+                          setShowOptionsId(null);
                         }}
                         className="block w-full text-left px-4 py-2 text-yellow-400 hover:bg-yellow-600 hover:text-black text-sm"
                       >
@@ -285,11 +287,11 @@ export default function Comments({ postId }: CommentsProps) {
         </div>
       </div>
 
-      {/* Alt yorumları render et */}
       {c.replies?.map((child) => renderComment(child, level + 1))}
     </div>
   );
 };
+
 
 
 
