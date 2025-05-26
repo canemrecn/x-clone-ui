@@ -291,115 +291,128 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
   const mobileOffset = isMobile ? 60 : 0;
 
   return (
-    <div className="h-full w-full flex flex-col overflow-hidden bg-gradient-to-br from-gray-800 to-gray-700 text-white">
-      {/* Top Bar */}
-      <div className={`${isMobile ? "fixed top-0 left-0 right-0 z-50" : ""} flex items-center justify-between p-4 border-b border-gray-300 bg-gradient-to-br from-gray-800 to-gray-800`}>
-        <button onClick={handleBack} className="text-white hover:text-gray-300 font-semibold">
-          &larr; Geri
-        </button>
-        <div className="flex items-center gap-2">
-          <img src={buddyPhoto} alt="Buddy Photo" className="w-8 h-8 rounded-full object-cover" />
-          <h2 className="font-bold">{buddyInfo?.username || `Buddy ID: ${buddyId}`}</h2>
-          <span className={`w-3 h-3 rounded-full ${buddyInfo?.isOnline ? "bg-green-500" : "bg-gray-800"}`} title={buddyInfo?.isOnline ? "Çevrimiçi" : "Çevrimdışı"} />
+  <div className="h-full w-full flex flex-col overflow-hidden bg-gradient-to-br from-[#1e1e2f] to-[#2c2c3e] text-white">
+    {/* Top Bar */}
+    <div className={`${isMobile ? "fixed top-0 left-0 right-0 z-50" : ""} flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-gradient-to-br from-[#25253a] to-[#2f2f45] shadow-md`}>
+      <button onClick={handleBack} className="text-sm text-white hover:text-gray-300 font-semibold transition">
+        &larr; Geri
+      </button>
+      <div className="flex items-center gap-3">
+        <img src={buddyPhoto} alt="Buddy Photo" className="w-9 h-9 rounded-full object-cover ring-2 ring-purple-600" />
+        <div className="flex items-center gap-1">
+          <h2 className="font-bold text-base">{buddyInfo?.username || `Buddy ID: ${buddyId}`}</h2>
+          <span className={`w-3 h-3 rounded-full ${buddyInfo?.isOnline ? "bg-green-500" : "bg-gray-500"}`} title={buddyInfo?.isOnline ? "Çevrimiçi" : "Çevrimdışı"} />
         </div>
-        <div className="w-8 h-8" />
       </div>
+      <div className="w-8 h-8" />
+    </div>
 
-      {/* Message Area */}
-      <div className="flex-1 overflow-y-auto p-4" style={{ marginTop: `${mobileOffset}px`, marginBottom: `${mobileOffset}px` }}>
-        <div className="flex flex-col justify-end gap-2">
-          {messages.map((msg) => {
-            const isMe = msg.senderId === auth?.user?.id;
-            const senderPhoto = isMe ? myPhoto : buddyPhoto;
-            const urlMatch = msg.message.match(/(https?:\/\/[^\s]+)/i);
-            return (
-              <div key={msg.id} className={`max-w-[70%] p-2 rounded text-sm shadow-sm transition-all duration-300 ease-in-out ${isMe ? "bg-gradient-to-br from-gray-800 to-gray-800 self-end text-right" : "bg-gradient-to-br from-gray-800 to-gray-800 self-start text-left"}`}>
-                <div className="flex items-start gap-2">
-                  <img src={senderPhoto} alt="Sender Photo" className="w-6 h-6 rounded-full object-cover mt-0.5" />
-                  <div className="flex flex-col">
-                    {msg.message && (
-                      <div className="break-words whitespace-pre-wrap w-full">
-                        {msg.message.split(" ").map((word, index) => (
-                          <span key={index} className="relative group cursor-pointer mx-1 inline-block" onMouseEnter={() => translateWord(word)} onMouseLeave={() => setHoveredWord(null)}>
-                            {word}
-                            {hoveredWord === word && (
-                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gradient-to-br from-gray-800 to-gray-800 text-white text-xs px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
-                                {loadingTranslation ? "Çeviriliyor..." : translatedWord || ""}
-                              </span>
-                            )}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    {urlMatch && <LinkPreview url={urlMatch[0]} />}
-                    {msg.attachmentUrl && msg.attachmentType === "image" && (
-                      <img src={msg.attachmentUrl} alt="img-attachment" className="mt-2 max-w-[200px] rounded cursor-pointer" onClick={() => handleImageClick(msg.attachmentUrl!)} />
-                    )}
-                    {msg.attachmentUrl && msg.attachmentType === "video" && <video src={msg.attachmentUrl} className="mt-2 max-w-[200px] rounded" controls />}
-                    <div className="text-xs flex items-center gap-2 mt-1">
-                      <span>{formatDate(msg.created_at)}</span>
-                      {isMe && (
-                        <>
-                          {!msg.isRead ? (
-                            <span className="text-white" title="Gönderildi">✓</span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-white" title="Görüldü">
-                              <span>✓✓</span>
-                              <span>Görüldü</span>
+    {/* Message Area */}
+    <div className="flex-1 overflow-y-auto px-4 py-5" style={{ marginTop: `${mobileOffset}px`, marginBottom: `${mobileOffset}px` }}>
+      <div className="flex flex-col justify-end gap-4">
+        {messages.map((msg) => {
+          const isMe = msg.senderId === auth?.user?.id;
+          const senderPhoto = isMe ? myPhoto : buddyPhoto;
+          const urlMatch = msg.message.match(/(https?:\/\/[^\s]+)/i);
+          return (
+            <div
+              key={msg.id}
+              className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm shadow-md transition-all duration-300 ${
+                isMe ? "bg-gradient-to-br from-indigo-600 to-purple-700 self-end text-right" : "bg-gradient-to-br from-gray-700 to-gray-800 self-start text-left"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <img src={senderPhoto} alt="Sender Photo" className="w-7 h-7 rounded-full object-cover" />
+                <div className="flex flex-col">
+                  {msg.message && (
+                    <div className="break-words whitespace-pre-wrap w-full leading-relaxed">
+                      {msg.message.split(" ").map((word, index) => (
+                        <span key={index} className="relative group cursor-pointer mx-1 inline-block" onMouseEnter={() => translateWord(word)} onMouseLeave={() => setHoveredWord(null)}>
+                          {word}
+                          {hoveredWord === word && (
+                            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded-md shadow-lg whitespace-nowrap">
+                              {loadingTranslation ? "Çeviriliyor..." : translatedWord || ""}
                             </span>
                           )}
-                        </>
-                      )}
+                        </span>
+                      ))}
                     </div>
+                  )}
+                  {urlMatch && <LinkPreview url={urlMatch[0]} />}
+                  {msg.attachmentUrl && msg.attachmentType === "image" && (
+                    <img src={msg.attachmentUrl} alt="img-attachment" className="mt-2 max-w-[250px] rounded-lg cursor-pointer shadow-md" onClick={() => handleImageClick(msg.attachmentUrl!)} />
+                  )}
+                  {msg.attachmentUrl && msg.attachmentType === "video" && (
+                    <video src={msg.attachmentUrl} className="mt-2 max-w-[250px] rounded-lg shadow" controls />
+                  )}
+                  <div className="text-xs flex items-center gap-2 mt-2 text-gray-300">
+                    <span>{formatDate(msg.created_at)}</span>
+                    {isMe && (
+                      <>
+                        {!msg.isRead ? (
+                          <span className="text-white" title="Gönderildi">✓</span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-white" title="Görüldü">
+                            <span>✓✓</span>
+                            <span className="text-green-400">Görüldü</span>
+                          </span>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
-            );
-          })}
-          <div ref={messagesEndRef} />
-        </div>
+            </div>
+          );
+        })}
+        <div ref={messagesEndRef} />
       </div>
-
-      {/* Bottom Bar: Input + Media + Send */}
-      <div className={`${isMobile ? "fixed left-0 right-0 bottom-0 z-50" : ""} flex gap-3 p-3 bg-gradient-to-br from-gray-800 to-gray-800 border-t border-gray-300`}>
-        <button
-          onClick={handleMediaClick}
-          className="bg-gradient-to-br from-gray-800 to-gray-800 text-white px-2 py-1 rounded hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-700 transition flex items-center justify-center"
-        >
-          <img src="/icons/camera.png" alt="Foto/Video" className="w-5 h-5" />
-        </button>
-
-        <input type="file" ref={fileInputRef} accept="image/*,video/*" onChange={handleMediaPick} style={{ display: "none" }} />
-        {selectedMediaBase64 && selectedMediaType === "image" && (
-          <img src={selectedMediaBase64} alt="preview" className="w-10 h-10 object-cover rounded" />
-        )}
-        {selectedMediaBase64 && selectedMediaType === "video" && (
-          <video src={selectedMediaBase64} className="w-10 h-10 object-cover rounded" muted />
-        )}
-        <input
-          id="chatInput"
-          type="text"
-          className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-600 bg-gradient-to-br from-gray-800 to-gray-800 text-white"
-          placeholder="Mesajınız..."
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-        />
-        <button id="chatSendButton" onClick={handleSend} className="bg-gradient-to-br from-gray-800 to-gray-800 text-white px-3 py-1 text-sm rounded hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-700 transition">
-          Gönder
-        </button>
-      </div>
-
-      {/* Modal for image preview */}
-      {selectedImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60" onClick={handleCloseModal}>
-          <div className="relative bg-gradient-to-br from-gray-800 to-gray-800 rounded shadow-lg max-w-[80vw] max-h-[80vh] p-2" onClick={(e) => e.stopPropagation()}>
-            <button onClick={handleCloseModal} className="absolute top-2 right-2 text-white font-bold text-xl">
-              X
-            </button>
-            <img src={selectedImage} alt="modal-preview" className="max-w-full max-h-[75vh] object-contain" />
-          </div>
-        </div>
-      )}
     </div>
-  );
+
+    {/* Bottom Bar: Input + Media + Send */}
+    <div className={`${isMobile ? "fixed left-0 right-0 bottom-0 z-50" : ""} flex gap-3 px-4 py-3 bg-[#1f1f30] border-t border-gray-700`}>
+      <button
+        onClick={handleMediaClick}
+        className="bg-gray-700 hover:bg-purple-600 transition text-white px-2 py-1 rounded-lg flex items-center justify-center"
+      >
+        <img src="/icons/camera.png" alt="Foto/Video" className="w-5 h-5" />
+      </button>
+
+      <input type="file" ref={fileInputRef} accept="image/*,video/*" onChange={handleMediaPick} style={{ display: "none" }} />
+      {selectedMediaBase64 && selectedMediaType === "image" && (
+        <img src={selectedMediaBase64} alt="preview" className="w-10 h-10 object-cover rounded" />
+      )}
+      {selectedMediaBase64 && selectedMediaType === "video" && (
+        <video src={selectedMediaBase64} className="w-10 h-10 object-cover rounded" muted />
+      )}
+      <input
+        id="chatInput"
+        type="text"
+        className="flex-1 border border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none bg-gray-900 text-white"
+        placeholder="Mesajınızı yazın..."
+        value={newMessage}
+        onChange={(e) => setNewMessage(e.target.value)}
+      />
+      <button
+        id="chatSendButton"
+        onClick={handleSend}
+        className="bg-purple-700 hover:bg-purple-600 text-white px-4 py-2 text-sm rounded-lg transition font-semibold"
+      >
+        Gönder
+      </button>
+    </div>
+
+    {/* Modal for image preview */}
+    {selectedImage && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={handleCloseModal}>
+        <div className="relative bg-gray-900 rounded-xl shadow-lg max-w-[85vw] max-h-[85vh] p-3" onClick={(e) => e.stopPropagation()}>
+          <button onClick={handleCloseModal} className="absolute top-2 right-2 text-white font-bold text-xl hover:text-red-400 transition">
+            ×
+          </button>
+          <img src={selectedImage} alt="modal-preview" className="max-w-full max-h-[75vh] object-contain" />
+        </div>
+      </div>
+    )}
+  </div>
+);
 }
