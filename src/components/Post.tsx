@@ -125,20 +125,33 @@ export default function Post({ postData }: PostProps) {
   };
 
   const handleDelete = async () => {
-    const confirmDelete = window.confirm("Gönderiyi silmek istediğinize emin misiniz?");
-    if (!confirmDelete) return;
-    try {
-      const res = await fetch(`/api/posts/delete/${postData.id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Silinemedi");
-      alert("Gönderi silindi.");
-      router.refresh();
-    } catch (err) {
-      alert("Silme işlemi başarısız oldu.");
+  const confirmDelete = window.confirm("Gönderiyi silmek istediğinize emin misiniz?");
+  if (!confirmDelete) return;
+
+  try {
+    const res = await fetch("/api/admin/delete-post", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ postId: postData.id }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(`Silme hatası: ${data.message || "İşlem başarısız."}`);
+    } else {
+      alert("Gönderi başarıyla silindi.");
+      router.refresh(); // sayfayı yenile
     }
-  };
+  } catch (err) {
+    console.error("Silme hatası:", err);
+    alert("Sunucu hatası: Gönderi silinemedi.");
+  }
+};
+
 
   const handleReport = async () => {
     const confirmReport = window.confirm("Bu gönderiyi şikayet etmek istediğinize emin misiniz?");
