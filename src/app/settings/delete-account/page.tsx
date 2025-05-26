@@ -2,6 +2,7 @@
 /*Bu dosya, kullanıcıların e-posta, şifre ve silme nedeni bilgilerini girerek hesaplarını kalıcı olarak silmelerini sağlayan
 bir "Hesabı Sil" sayfası sunar. Kullanıcı bilgileri /api/auth/delete-account endpoint’ine DELETE isteğiyle gönderilir.
 İşlem başarılı olursa kullanıcı /register sayfasına yönlendirilir. Yalnızca HTTP-only cookie kullanımı esas alınmıştır.*/
+// src/app/settings/delete-account/page.tsx
 "use client";
 
 import { useState, FormEvent, useCallback } from "react";
@@ -10,7 +11,7 @@ import { useRouter } from "next/navigation";
 export default function DeleteAccount() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [reason, setReason] = useState(""); // Silme nedeni
+  const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function DeleteAccount() {
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include", // HTTP-only cookie için zorunlu
+          credentials: "include",
           body: JSON.stringify({ email, password, reason }),
         });
 
@@ -55,55 +56,58 @@ export default function DeleteAccount() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-6">
-      <h1 className="text-3xl font-extrabold mb-8 text-center bg-gradient-to-r from-gray-800 to-gray-800 p-4 rounded-lg shadow-md">
-        Hesabı Kalıcı Olarak Sil
+    <div className="min-h-screen bg-gradient-to-br from-[#1e1e2f] via-[#2c2c3e] to-[#25253a] text-white px-6 py-10 pt-24 pb-20">
+      <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-pink-500 to-purple-500 mb-10">
+        🗑️ Hesabı Kalıcı Olarak Sil
       </h1>
 
-      <form onSubmit={handleDelete} className="space-y-6 max-w-md mx-auto">
+      <form
+        onSubmit={handleDelete}
+        className="space-y-6 max-w-xl mx-auto bg-[#2f2f45] p-8 rounded-2xl shadow-lg"
+      >
         <div>
-          <label className="block text-sm font-medium text-white">Email</label>
+          <label className="block mb-1 font-semibold text-sm text-gray-300">📧 E-posta</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gradient-to-br from-gray-800 to-gray-800 text-white outline-none focus:ring-2 focus:ring-gray-600"
+            className="w-full px-4 py-2 rounded-md bg-gray-800 border border-gray-600 focus:ring-2 focus:ring-red-500 outline-none"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-white">Şifre</label>
+          <label className="block mb-1 font-semibold text-sm text-gray-300">🔒 Şifre</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gradient-to-br from-gray-800 to-gray-800 text-white outline-none focus:ring-2 focus:ring-gray-600"
+            className="w-full px-4 py-2 rounded-md bg-gray-800 border border-gray-600 focus:ring-2 focus:ring-red-500 outline-none"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-white">
-            Hesabınızı neden silmek istiyorsunuz? (Opsiyonel)
+          <label className="block mb-1 font-semibold text-sm text-gray-300">
+            ❓ Neden silmek istiyorsunuz? <span className="text-gray-400">(Opsiyonel)</span>
           </label>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Sebebinizi kısaca açıklayın..."
             rows={3}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-gradient-to-br from-gray-800 to-gray-800 text-white outline-none focus:ring-2 focus:ring-gray-600"
+            placeholder="Sebebinizi kısaca açıklayın..."
+            className="w-full px-4 py-2 rounded-md bg-gray-800 border border-gray-600 focus:ring-2 focus:ring-red-500 outline-none"
           />
         </div>
 
-        {error && <p className="text-center text-red-400">{error}</p>}
+        {error && <p className="text-center text-red-400 text-sm">{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold transition"
+          className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white py-3 rounded-lg font-bold shadow-lg transition-all duration-200"
         >
-          {loading ? "İşlem yapılıyor..." : "Hesabı Sil"}
+          {loading ? "İşlem yapılıyor..." : "Hesabı Kalıcı Olarak Sil"}
         </button>
       </form>
     </div>

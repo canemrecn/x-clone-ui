@@ -2,11 +2,12 @@
 /*Bu dosya, giriş yapmış kullanıcının engellediği kullanıcıları listeleyen ve isterse bu engelleri kaldırmasına olanak 
 tanıyan bir "Engellenenler" sayfasını oluşturur; /api/block endpoint'i üzerinden veriler çekilir ve silme işlemi JWT 
 doğrulamasıyla yapılır; kullanıcı engeli kaldırdığında liste anında güncellenir.*/
+// src/app/settings/blocked/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import Cookies from "js-cookie"; // Import js-cookie to access cookies
+import Cookies from "js-cookie";
 
 interface BlockedUser {
   id: number;
@@ -22,19 +23,18 @@ export default function BlockedUsersPage() {
   useEffect(() => {
     if (!auth?.user) return;
 
-    // Engellenen kullanıcıları çekme işlemi
     async function fetchBlockedUsers() {
       setLoading(true);
       try {
-        const token = Cookies.get("token"); // Get the token from cookies
+        const token = Cookies.get("token");
         if (!token) return;
 
         const res = await fetch("/api/block", {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`, // Use token in Authorization header
+            Authorization: `Bearer ${token}`,
           },
-          credentials: "include", // Include cookies
+          credentials: "include",
         });
 
         if (res.ok) {
@@ -53,24 +53,22 @@ export default function BlockedUsersPage() {
     fetchBlockedUsers();
   }, [auth?.user]);
 
-  // Engeli kaldırma işlemi
   async function handleUnblock(userId: number) {
     setLoading(true);
     try {
-      const token = Cookies.get("token"); // Get the token from cookies
+      const token = Cookies.get("token");
       if (!token) return;
 
       const res = await fetch("/api/block", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Use token in Authorization header
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ blockedUserId: userId }),
       });
 
       if (res.ok) {
-        // Listeden engellenen kullanıcıyı kaldırıyoruz
         setBlockedList((prev) => prev.filter((b) => b.id !== userId));
       } else {
         console.error("Error unblocking user");
@@ -83,37 +81,37 @@ export default function BlockedUsersPage() {
   }
 
   if (!auth?.user) {
-    return <div className="text-red-500">Lütfen giriş yapın.</div>;
+    return <div className="text-red-500 text-center py-8">Lütfen giriş yapın.</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-4">
-      <h1 className="text-xl font-bold mb-4 bg-gradient-to-r from-gray-800 to-gray-800 p-4 rounded-lg shadow-md">
-        Engellenenler
+    <div className="min-h-screen bg-gradient-to-br from-[#1e1e2b] to-[#2c2c3b] text-white px-6 py-10 pt-24 pb-20">
+      <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500 text-center mb-10">
+        🚫 Engellenen Kullanıcılar
       </h1>
 
       {loading ? (
-        <p className="text-white">Yükleniyor...</p>
+        <p className="text-center text-sm text-gray-400">Yükleniyor...</p>
       ) : blockedList.length === 0 ? (
-        <p className="text-white">Hiç kimseyi engellemediniz.</p>
+        <p className="text-center text-gray-400">Hiç kimseyi engellemediniz.</p>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="space-y-4 max-w-3xl mx-auto">
           {blockedList.map((user) => (
             <div
               key={user.id}
-              className="flex items-center justify-between p-2 bg-gradient-to-br from-gray-800 to-gray-800 rounded hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition-all"
+              className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 rounded-xl shadow hover:shadow-lg transition-all duration-200"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <img
                   src={user.profile_image || "/icons/pp.png"}
                   alt={user.username}
-                  className="w-10 h-10 rounded-full object-cover border border-gray-300"
+                  className="w-12 h-12 rounded-full border-2 border-gray-600 shadow-sm"
                 />
-                <span className="font-medium text-white">{user.username}</span>
+                <span className="font-semibold text-white tracking-wide">{user.username}</span>
               </div>
               <button
                 onClick={() => handleUnblock(user.id)}
-                className="bg-gradient-to-br from-gray-800 to-gray-800 text-white px-3 py-1 rounded hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition-all"
+                className="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-red-500 to-orange-500 hover:from-orange-500 hover:to-red-500 transition-all font-semibold shadow-md"
               >
                 Engeli Kaldır
               </button>

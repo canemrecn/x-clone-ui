@@ -21,7 +21,7 @@ const SettingsPage = React.memo(function SettingsPage() {
       </h1>
       <ul className="flex flex-col gap-6 max-w-3xl mx-auto">
         {[
-          { href: "/settings/edit-profile", label: "👤 Profili Düzenle" },
+          //{ href: "/settings/edit-profile", label: "👤 Profili Düzenle" },
           { href: "/settings/change-password", label: "🔐 Şifre Değiştir" },
           { href: "/settings/blocked", label: "🚫 Engellediklerim" },
           { href: "/settings/dm-request", label: "📥 DM Veri Talebi" },

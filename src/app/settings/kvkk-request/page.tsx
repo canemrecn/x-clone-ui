@@ -52,51 +52,60 @@ export default function KvkkRequestPage() {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-br from-gray-800 to-gray-700 text-white">
-      <h1 className="text-2xl font-bold mb-4 text-center">KVKK Başvuru Formu</h1>
-      <p>Verilerinizi silmek için ayarlar sayfasına dönüp hesabımı sil seçeneğinden işlem yapmanız gerekmektedir</p>
-      <form onSubmit={handleSubmit} className="max-w-xl mx-auto flex flex-col gap-4 bg-gray-800 p-6 rounded-xl shadow-lg">
+    <div className="min-h-screen p-6 bg-gradient-to-br from-[#1e1e2f] via-[#25253a] to-[#2c2c3e] text-white pt-24 pb-20">
+      <h1 className="text-3xl font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400 mb-2">
+        📄 KVKK Başvuru Formu
+      </h1>
+      <p className="text-center text-gray-300 mb-6 text-sm">
+        Verilerinizi tamamen silmek için "Ayarlar &gt; Hesabımı Sil" adımını kullanmalısınız.
+      </p>
+
+      <form onSubmit={handleSubmit} className="max-w-xl mx-auto flex flex-col gap-5 bg-gray-900 p-8 rounded-xl shadow-xl border border-gray-700">
         <input
           type="text"
           value={fullName}
           disabled
-          className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-300 opacity-70 cursor-not-allowed"
+          className="w-full p-3 rounded-md bg-gray-800 border border-gray-600 text-white opacity-80 cursor-not-allowed"
         />
 
         <input
           type="email"
           value={email}
           disabled
-          className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-300 opacity-70 cursor-not-allowed"
+          className="w-full p-3 rounded-md bg-gray-800 border border-gray-600 text-white opacity-80 cursor-not-allowed"
         />
 
         <select
           value={requestType}
           onChange={(e) => setRequestType(e.target.value)}
-          className="p-3 rounded-md bg-gray-700 text-white"
+          className="w-full p-3 rounded-md bg-gray-800 border border-gray-600 text-white"
           required
         >
-          <option value="veri-goruntuleme">Verilerimi Görüntüleme</option>
-          <option value="veri-aktarimi">Verilerimi Taşıma</option>
+          <option value="veri-goruntuleme">📊 Verilerimi Görüntüleme</option>
+          <option value="veri-aktarimi">🔄 Verilerimi Taşıma</option>
         </select>
 
         <textarea
-          placeholder="Talebinizin detayını yazın..."
+          placeholder="📌 Talebinizin detayını yazın..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          rows={4}
-          className="p-3 rounded-md bg-gray-700 text-white placeholder-gray-300"
+          rows={5}
+          className="w-full p-3 rounded-md bg-gray-800 border border-gray-600 text-white placeholder-gray-400 resize-none"
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-md font-semibold transition"
+          className="w-full py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-fuchsia-600 hover:from-fuchsia-600 hover:to-indigo-600 transition font-semibold disabled:opacity-50"
         >
-          {loading ? "Gönderiliyor..." : "Başvuruyu Gönder"}
+          {loading ? "Gönderiliyor..." : "🚀 Başvuruyu Gönder"}
         </button>
 
-        {result && <p className="text-center text-sm">{result}</p>}
+        {result && (
+          <p className={`text-center text-sm font-medium ${result.startsWith("✅") ? "text-green-400" : "text-red-400"}`}>
+            {result}
+          </p>
+        )}
       </form>
     </div>
   );
