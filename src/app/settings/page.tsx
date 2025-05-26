@@ -15,11 +15,11 @@ const SettingsPage = React.memo(function SettingsPage() {
   const token = Cookies.get("token");
 
   return (
-    <div className="max-h-screen bg-gradient-to-br from-[#1e1e2f] to-[#2c2c3e] text-white pt-24 pb-20 px-6">
+    <div className="min-h-screen bg-gradient-to-br from-[#1e1e2f] to-[#2c2c3e] text-white pt-24 pb-20 px-6">
       <h1 className="text-4xl font-extrabold mb-12 text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
         Hesap Ayarları
       </h1>
-      <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <ul className="flex flex-col gap-6 max-w-3xl mx-auto">
         {[
           { href: "/settings/edit-profile", label: "👤 Profili Düzenle" },
           { href: "/settings/change-password", label: "🔐 Şifre Değiştir" },
