@@ -173,11 +173,15 @@ export default function Comments({ postId }: CommentsProps) {
     const indent = Math.min(level * 16, 48);
     return (
       <div
-        key={c.id}
-        style={{ marginLeft: `${indent}px` }}
-        className="rounded-xl p-4 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg mb-4 w-full"
-
-      >
+  key={c.id}
+  className="rounded-xl p-4 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg mb-4"
+  style={{
+    marginLeft: `${Math.min(level * 16, 48)}px`, // en fazla 48px içeri kay
+    maxWidth: "100%",
+    overflowWrap: "break-word",
+    wordBreak: "break-word"
+  }}
+>
         <div className="flex gap-4">
           <Link href={`/${c.username}`}>
             <Image
