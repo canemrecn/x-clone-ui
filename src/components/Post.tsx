@@ -154,21 +154,38 @@ export default function Post({ postData }: PostProps) {
 
 
   const handleReport = async () => {
-    const confirmReport = window.confirm("Bu gönderiyi şikayet etmek istediğinize emin misiniz?");
-    if (!confirmReport) return;
-    try {
-      const res = await fetch("/api/reports", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ post_id: postData.id }),
-      });
-      if (!res.ok) throw new Error("Şikayet başarısız");
-      alert("Gönderi şikayet edildi.");
-    } catch (err) {
-      alert("Şikayet başarısız oldu.");
+  if (!auth?.user) {
+    alert("Şikayet edebilmek için giriş yapmalısınız.");
+    return;
+  }
+
+  const confirmReport = window.confirm("Bu gönderiyi şikayet etmek istediğinize emin misiniz?");
+  if (!confirmReport) return;
+
+  try {
+    const res = await fetch("/api/reports", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        post_id: postData.id,
+        reason: "Uygunsuz içerik", // default bir neden
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || "Şikayet başarısız.");
     }
-  };
+
+    alert("Gönderi şikayet edildi.");
+  } catch (err: any) {
+    console.error("Şikayet hatası:", err);
+    alert("Şikayet başarısız oldu: " + err.message);
+  }
+};
 
   const isYouTubeLink = postData.media_url?.includes("youtube.com") ?? false;
   const isOwner = auth?.user?.id === postData.user_id;
