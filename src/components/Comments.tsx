@@ -171,74 +171,74 @@ export default function Comments({ postId }: CommentsProps) {
   const renderComment = (c: CommentData, level = 0) => {
   const isOwner = auth?.user?.id === c.user_id;
 
-  // 🧠 Üst yorumu bul
-  const parent = comments.find((p) => p.id === c.parent_comment_id);
-  const repliedTo = parent ? parent.username : null;
-
   return (
-    <div key={c.id} className="mb-4 rounded-xl p-4 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg">
-      <div className="flex gap-4">
-        <Link href={`/${c.username}`}>
-          <Image
-            src={c.profile_image || "/icons/pp.png"}
-            alt={c.username}
-            width={40}
-            height={40}
-            className="rounded-full border-2 border-gray-600"
-          />
-        </Link>
-        <div className="w-full">
-          <div className="flex justify-between items-center">
-            <Link href={`/${c.username}`} className="font-bold text-sm text-white hover:text-cyan-300">
-              @{c.username}
-            </Link>
-            <span className="text-[11px] text-gray-500">ID: {c.id}</span>
-          </div>
+    <div key={c.id} className="relative mb-4">
+      {/* Araya çizgi ekle (yanıt varsa) */}
+      {level > 0 && (
+        <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-700" />
+      )}
 
-          {/* 👇 Eğer bir yanıt ise, üstte göster */}
-          {repliedTo && (
-            <p className="text-xs text-yellow-400 mb-1">@{repliedTo} kullanıcısına cevap</p>
-          )}
+      <div className="rounded-xl p-4 pl-6 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg">
+        <div className="flex gap-4">
+          <Link href={`/${c.username}`}>
+            <Image
+              src={c.profile_image || "/icons/pp.png"}
+              alt={c.username}
+              width={40}
+              height={40}
+              className="rounded-full border-2 border-gray-600"
+            />
+          </Link>
+          <div className="w-full">
+            <div className="flex justify-between items-center">
+              <Link href={`/${c.username}`} className="font-bold text-sm text-white hover:text-cyan-300">
+                @{c.username}
+              </Link>
+              <span className="text-[11px] text-gray-500">ID: {c.id}</span>
+            </div>
 
-          <p className="text-sm text-white">
-            {c.text.split(" ").map((word, index) => (
-              <span
-                key={index}
-                className="inline-block mx-1 relative cursor-pointer group"
-                onMouseEnter={() => translateWord(word)}
-                onMouseLeave={() => {
-                  setHoveredWord(null);
-                  setTranslatedWord(null);
-                }}
-              >
-                {word}
-                {hoveredWord === word && (
-                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded shadow z-50">
-                    {loadingTranslation ? "..." : translatedWord}
-                  </span>
-                )}
-              </span>
-            ))}
-          </p>
+            <p className="text-sm text-white mt-1">
+              {c.text.split(" ").map((word, index) => (
+                <span
+                  key={index}
+                  className="inline-block mx-1 relative cursor-pointer group"
+                  onMouseEnter={() => translateWord(word)}
+                  onMouseLeave={() => {
+                    setHoveredWord(null);
+                    setTranslatedWord(null);
+                  }}
+                >
+                  {word}
+                  {hoveredWord === word && (
+                    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded shadow z-50">
+                      {loadingTranslation ? "..." : translatedWord}
+                    </span>
+                  )}
+                </span>
+              ))}
+            </p>
 
-          <div className="mt-2 text-xs text-gray-400">
-            {new Date(c.created_at).toLocaleString()}
-          </div>
+            <div className="mt-2 text-xs text-gray-400">
+              {new Date(c.created_at).toLocaleString()}
+            </div>
 
-          <div className="flex gap-4 text-xs mt-2">
-            <button onClick={() => handleReply(c.id)} className="text-yellow-300 hover:underline">Yanıtla</button>
-            {isOwner ? (
-              <button onClick={() => handleDelete(c.id)} className="text-red-400 hover:underline">Sil</button>
-            ) : (
-              <button onClick={() => handleReport(c.id)} className="text-orange-400 hover:underline">Şikayet Et</button>
-            )}
+            <div className="flex gap-4 text-xs mt-2">
+              <button onClick={() => handleReply(c.id)} className="text-yellow-300 hover:underline">Yanıtla</button>
+              {isOwner ? (
+                <button onClick={() => handleDelete(c.id)} className="text-red-400 hover:underline">Sil</button>
+              ) : (
+                <button onClick={() => handleReport(c.id)} className="text-orange-400 hover:underline">Şikayet Et</button>
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Alt yorumlar */}
+      {c.replies?.map((child) => renderComment(child, level + 1))}
     </div>
   );
 };
-
 
 
   return (
