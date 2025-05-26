@@ -15,76 +15,34 @@ const SettingsPage = React.memo(function SettingsPage() {
   const token = Cookies.get("token");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white pt-20 pb-20">
-      <h1 className="text-3xl font-extrabold mb-8 text-center bg-gradient-to-r from-gray-800 to-gray-800 p-4 rounded-lg shadow-md">
-        Ayarlar
+    <div className="min-h-screen bg-gradient-to-br from-[#1e1e2f] to-[#2c2c3e] text-white pt-20 pb-20 px-6">
+      <h1 className="text-4xl font-extrabold mb-12 text-center bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
+        Hesap Ayarları
       </h1>
-      <ul className="space-y-6">
-        <li>
-          <Link href="/settings/edit-profile">
-            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-800 rounded-xl shadow hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition cursor-pointer">
-              <span className="text-lg font-semibold">Profili Düzenle</span>
-            </div>
-          </Link>
-        </li>
-        <li>
-          <Link href="/settings/change-password">
-            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-800 rounded-xl shadow hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition cursor-pointer">
-              <span className="text-lg font-semibold">Şifre Değiştir</span>
-            </div>
-          </Link>
-        </li>
-        <li>
-          <Link href="/settings/blocked">
-            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-800 rounded-xl shadow hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition cursor-pointer">
-              <span className="text-lg font-semibold">Engellediklerim</span>
-            </div>
-          </Link>
-        </li>
-        <li>
-          <Link href="/settings/dm-request">
-            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-800 rounded-xl shadow hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition cursor-pointer">
-              <span className="text-lg font-semibold">DM Veri Talebi</span>
-            </div>
-          </Link>
-        </li>
-        <li>
-          <Link href="/settings/export-data">
-            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-800 rounded-xl shadow hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition cursor-pointer">
-              <span className="text-lg font-semibold">Tüm Verilerimi İndir(Gönderiler ve Yorumlar)</span>
-            </div>
-          </Link>
-        </li>
-        <li>
-          <Link href="/settings/kvkk-request">
-            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-800 rounded-xl shadow hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition cursor-pointer">
-              <span className="text-lg font-semibold">KVKK Başvuru Formu</span>
-            </div>
-          </Link>
-        </li>
-        <li>
-          <Link href="/settings/cookie-preferences">
-            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-800 rounded-xl shadow hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition cursor-pointer">
-              <span className="text-lg font-semibold">Çerez Tercihleri</span>
-            </div>
-          </Link>
-        </li>
-        <li>
-          <Link href="/settings/kvkk-history">
-            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-800 rounded-xl shadow hover:from-gray-700 hover:to-gray-600 transition cursor-pointer">
-              <span className="text-lg font-semibold">KVKK Başvuru Geçmişim</span>
-            </div>
-          </Link>
-        </li>
-        <li>
-          <Link href="/settings/delete-account">
-            <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-800 rounded-xl shadow hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition cursor-pointer">
-              <span className="text-lg font-semibold">Hesabımı Sil</span>
-            </div>
-          </Link>
-        </li>
+      <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[
+          { href: "/settings/edit-profile", label: "👤 Profili Düzenle" },
+          { href: "/settings/change-password", label: "🔐 Şifre Değiştir" },
+          { href: "/settings/blocked", label: "🚫 Engellediklerim" },
+          { href: "/settings/dm-request", label: "📥 DM Veri Talebi" },
+          { href: "/settings/export-data", label: "📦 Tüm Verilerimi İndir" },
+          { href: "/settings/kvkk-request", label: "📄 KVKK Başvuru Formu" },
+          { href: "/settings/cookie-preferences", label: "🍪 Çerez Tercihleri" },
+          { href: "/settings/kvkk-history", label: "📜 KVKK Başvuru Geçmişim" },
+          { href: "/settings/delete-account", label: "❌ Hesabımı Sil" },
+        ].map(({ href, label }) => (
+          <li key={href}>
+            <Link href={href}>
+              <div className="p-6 bg-gradient-to-br from-gray-800 to-gray-900 hover:from-purple-600 hover:to-pink-600 transition-all duration-300 rounded-xl shadow-md hover:shadow-lg border border-gray-700 hover:border-transparent cursor-pointer">
+                <span className="text-lg font-semibold tracking-wide">{label}</span>
+              </div>
+            </Link>
+          </li>
+        ))}
       </ul>
-      <LegalComplianceBadges />
+      <div className="mt-12">
+        <LegalComplianceBadges />
+      </div>
     </div>
   );
 });
