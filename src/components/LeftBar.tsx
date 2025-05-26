@@ -113,7 +113,7 @@ export default function LeftBar() {
         <Link href="/direct-messages" className="p-2">
           <Image src="/icons/send2.png" alt="DM" width={24} height={24} />
         </Link>
-        <div className="flex-1 mx-1 max-w-[250px]">
+        <div className="flex-1 mx-1 max-w-[300px]">
           <Search />
         </div>
         {auth?.user && (
