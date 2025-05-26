@@ -50,7 +50,6 @@ export default function ReportedPostsPage() {
     });
 
     if (res.ok) {
-      // Hem gönderiyi hem raporu arayüzden kaldır
       setReports((prev) => prev.filter((r) => r.post_id !== postId));
     }
   }
@@ -75,7 +74,8 @@ export default function ReportedPostsPage() {
       ) : (
         <table className="w-full border border-gray-700">
           <thead>
-            <tr className="bg-gray-800">
+            <tr className="bg-gray-800 text-sm">
+              <th className="p-2 text-left">Gönderi ID</th>
               <th className="p-2 text-left">Kullanıcı</th>
               <th className="p-2 text-left">İçerik</th>
               <th className="p-2 text-left">Şikayet Nedeni</th>
@@ -86,7 +86,8 @@ export default function ReportedPostsPage() {
           </thead>
           <tbody>
             {reports.map((report) => (
-              <tr key={report.id} className="border-t border-gray-700">
+              <tr key={report.id} className="border-t border-gray-700 text-sm">
+                <td className="p-2 font-mono text-sm text-yellow-300">{report.post_id}</td>
                 <td className="p-2">
                   {report.full_name} <span className="text-gray-400">@{report.username}</span>
                 </td>
@@ -96,9 +97,7 @@ export default function ReportedPostsPage() {
                 <td className="p-2 whitespace-pre-wrap max-w-xs overflow-hidden">
                   {report.reason}
                 </td>
-                <td className="p-2">
-                  {new Date(report.created_at).toLocaleString()}
-                </td>
+                <td className="p-2">{new Date(report.created_at).toLocaleString()}</td>
                 <td className="p-2">
                   {report.media_url && (
                     report.media_type?.includes("video") ? (
