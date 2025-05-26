@@ -192,14 +192,7 @@ export default function Post({ postData }: PostProps) {
   >
     Şikayet Et
   </button>
-)} : (
-                <button
-                  onClick={handleReport}
-                  className="block w-full text-left px-4 py-2 hover:bg-yellow-500 hover:text-black transition-all text-yellow-400"
-                >
-                  Şikayet Et
-                </button>
-              )
+)} : 
             </div>
           )}
         </div>
