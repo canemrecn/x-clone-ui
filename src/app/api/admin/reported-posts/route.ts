@@ -1,11 +1,10 @@
 // src/app/api/admin/reported-posts/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-export async function GET(req: NextRequest) {
+export async function GET(_: NextRequest) {
   try {
-    const [rows] = await db.query(`
+    const [rows]: any = await db.query(`
       SELECT 
         r.id, r.post_id, r.reason, r.created_at,
         p.title, p.content, p.media_url, p.media_type,
@@ -18,7 +17,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ reports: rows }, { status: 200 });
   } catch (err: any) {
-    console.error("GET /api/reported-posts error:", err);
+    console.error("GET /api/admin/reported-posts error:", err);
     return NextResponse.json(
       { error: "Şikayet listesi alınamadı", message: err.message },
       { status: 500 }

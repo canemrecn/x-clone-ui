@@ -4,9 +4,9 @@ import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
-export async function DELETE(_: Request, context: any) {
+export async function DELETE(_: Request, context: { params: { id: string } }) {
   try {
-    const cookieStore = await cookies();
+    const cookieStore =await cookies();
     const token = cookieStore.get("token")?.value;
     const reportId = Number(context?.params?.id);
 
@@ -23,12 +23,11 @@ export async function DELETE(_: Request, context: any) {
       return NextResponse.json({ message: "Yalnızca admin işlemi yapabilir" }, { status: 403 });
     }
 
-    // Şikayeti veritabanından sil
     await db.query("DELETE FROM reports WHERE id = ?", [reportId]);
 
     return NextResponse.json({ message: "Şikayet kaldırıldı" }, { status: 200 });
   } catch (err: any) {
-    console.error("DELETE /api/reported-posts/:id error:", err);
+    console.error("DELETE /api/admin/reported-posts/[id] error:", err);
     return NextResponse.json(
       { message: "Sunucu hatası", error: err.message },
       { status: 500 }

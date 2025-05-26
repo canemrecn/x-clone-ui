@@ -1,14 +1,4 @@
-// src/components/Post.tsx
-
 "use client";
-
-/*
-Bu dosya, bir sosyal medya gönderisini detaylı şekilde görüntüleyen Post bileşenini içerir; kullanıcı adı, profil fotoğrafı, gönderi 
-metni (kelime çeviri özelliğiyle), medya içeriği (resim, video veya YouTube bağlantısı), dil bayrağı, oluşturulma tarihi ve etkileşimler 
-(beğeni, yorum sayısı, detay sayfasına link) gibi bilgileri gösterir. Ayrıca kullanıcı yetkiliyse gönderiyi silebilir, herhangi bir 
-kullanıcı gönderiyi raporlayabilir veya doğrudan mesaj yoluyla paylaşabilir. Medya dosyasının detayları gerekiyorsa sunucudan alınır 
-ve mobil/masaüstü uyumlu şekilde dinamik render edilir.
-*/
 
 import React, { useState } from "react";
 import Image from "next/image";
@@ -57,7 +47,6 @@ export default function Post({ postData }: PostProps) {
     setFeedback(null);
 
     try {
-      // Kullanıcının seçtiği hedef dili al
       const savedLang = localStorage.getItem("targetLanguage") || "tr";
 
       const resCheck = await fetch(
@@ -77,7 +66,7 @@ export default function Post({ postData }: PostProps) {
         credentials: "include",
         body: JSON.stringify({
           word,
-          targetLang: savedLang, // ⬅️ Burada artık localStorage'dan gelen dil kullanılıyor
+          targetLang: savedLang,
         }),
       });
 
@@ -88,7 +77,6 @@ export default function Post({ postData }: PostProps) {
       setCorrectTranslation("Hata");
     }
   };
-
 
   const checkTranslation = async (word: string, index: number) => {
     if (userInput.trim().toLowerCase() === correctTranslation?.toLowerCase()) {
@@ -102,11 +90,10 @@ export default function Post({ postData }: PostProps) {
           credentials: "include",
           body: JSON.stringify({
             postId: postData.id,
-            word: `${word}_${index}`, // ✅ Konumla birlikte kaydet
+            word: `${word}_${index}`,
           }),
         });
 
-        // O kelime artık çevrildi olarak işaretleniyor
         setTranslatedWords((prev) => ({ ...prev, [index]: true }));
       } catch (error) {
         console.error("Puan ekleme hatası:", error);
@@ -122,6 +109,33 @@ export default function Post({ postData }: PostProps) {
       setUserInput("");
       setFeedback(null);
     }, 2000);
+  };
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("Gönderiyi silmek istediğinize emin misiniz?");
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch("/api/admin/delete-post", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ postId: postData.id }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(`Silme hatası: ${data.message || "İşlem başarısız."}`);
+      } else {
+        alert("Gönderi başarıyla silindi.");
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Silme hatası:", err);
+      alert("Sunucu hatası: Gönderi silinemedi.");
+    }
   };
 
   const handleReport = async () => {
@@ -141,7 +155,7 @@ export default function Post({ postData }: PostProps) {
         },
         credentials: "include",
         body: JSON.stringify({
-          postId: postData.id,
+          post_id: postData.id, // 🔧 ÖNEMLİ: postId değil post_id olmalı
           reason: "Uygunsuz içerik",
         }),
       });
@@ -157,8 +171,6 @@ export default function Post({ postData }: PostProps) {
       alert("Şikayet başarısız oldu: " + err.message);
     }
   };
-
-
 
   const isYouTubeLink = postData.media_url?.includes("youtube.com") ?? false;
   const isOwner = auth?.user?.id === postData.user_id;
@@ -185,7 +197,14 @@ export default function Post({ postData }: PostProps) {
               <button onClick={() => setShowOptions(!showOptions)} className="px-3 py-1 text-gray-300 hover:text-orange-400 transition-all text-xl">⋯</button>
               {showOptions && (
                 <div className="absolute right-0 top-full mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-md w-36 text-sm z-50">
-                  {!isOwner && (
+                  {isOwner ? (
+                    <button
+                      onClick={handleDelete}
+                      className="block w-full text-left px-4 py-2 hover:bg-red-600 hover:text-white transition-all text-red-400"
+                    >
+                      Delete
+                    </button>
+                  ) : (
                     <button
                       onClick={handleReport}
                       className="block w-full text-left px-4 py-2 hover:bg-yellow-500 hover:text-black transition-all text-yellow-400"
@@ -296,6 +315,5 @@ export default function Post({ postData }: PostProps) {
         </div>
       </div>
     </div>
-
   );
 }

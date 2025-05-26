@@ -1,10 +1,6 @@
 // src/app/api/reports/route.ts
-/* 
-Bu dosya, bir gönderinin şikayet edilmesi durumunda şikayet nedenini ve gönderi bağlantısını belirlenmiş e-posta 
-adresine gönderen POST /api/report endpoint’ini tanımlar. Gelen postId ve reason alanları doğrulanıp temizlenir, 
-ardından nodemailer kullanılarak şikayet içeriği reportEmail adresine e-posta olarak iletilir. 
-E-posta gönderimi için Gmail servis bilgileri ortam değişkenlerinden alınır.
-*/
+// src/app/api/reports/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { cookies } from "next/headers";
@@ -22,26 +18,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const cookieStore =await cookies();
+    const trimmedPostId = postId.toString().trim();
+    const trimmedReason = reason.toString().trim();
+
+    if (!trimmedPostId || !trimmedReason) {
+      return NextResponse.json(
+        { error: "Boş değer gönderilemez." },
+        { status: 400 }
+      );
+    }
+
+    const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
+
     if (!token) {
-      return NextResponse.json({ error: "Token eksik" }, { status: 401 });
+      return NextResponse.json({ error: "Kimlik doğrulaması gerekli." }, { status: 401 });
     }
 
     const secret = process.env.JWT_SECRET;
-    if (!secret) throw new Error("JWT_SECRET tanımsız");
+    if (!secret) {
+      throw new Error("JWT_SECRET tanımlı değil");
+    }
 
     const decoded = jwt.verify(token, secret) as { id: number; role: string };
     const userId = decoded.id;
 
-    // Veritabanına kayıt
+    // Veritabanına kayıt işlemi
     await db.query(
       `INSERT INTO reports (post_id, user_id, reason, created_at)
        VALUES (?, ?, ?, NOW())`,
-      [postId, userId, reason]
+      [trimmedPostId, userId, trimmedReason]
     );
 
-    return NextResponse.json({ message: "Şikayet kaydedildi" }, { status: 200 });
+    return NextResponse.json({ message: "Şikayet başarıyla kaydedildi." }, { status: 200 });
   } catch (err: any) {
     console.error("POST /api/reports error:", err);
     return NextResponse.json(

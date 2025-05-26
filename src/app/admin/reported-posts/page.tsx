@@ -24,19 +24,22 @@ export default function ReportedPostsPage() {
   useEffect(() => {
     async function fetchReports() {
       try {
-        const res = await fetch("/api/reported-posts", {
+        const res = await fetch("/api/admin/reported-posts", {
           credentials: "include",
         });
+
         if (!res.ok) {
           const data = await res.json();
           throw new Error(data.message || "Veri çekilemedi");
         }
+
         const data = await res.json();
         setReports(data.reports);
       } catch (err: any) {
         setError(err.message);
       }
     }
+
     fetchReports();
   }, []);
 
@@ -50,15 +53,17 @@ export default function ReportedPostsPage() {
     });
 
     if (res.ok) {
-      setReports((prev) => prev.filter((r) => r.post_id !== postId));
+      // Şikayet edilen post silindiyse raporları da kaldır
+      await handleIgnore(reportId);
     }
   }
 
   async function handleIgnore(reportId: number) {
-    const res = await fetch(`/api/reported-posts/${reportId}`, {
+    const res = await fetch(`/api/admin/reported-posts/${reportId}`, {
       method: "DELETE",
       credentials: "include",
     });
+
     if (res.ok) {
       setReports((prev) => prev.filter((r) => r.id !== reportId));
     }
@@ -67,6 +72,7 @@ export default function ReportedPostsPage() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
       <h1 className="text-3xl font-bold mb-6 text-center">Şikayet Edilen Gönderiler</h1>
+
       {error ? (
         <p className="text-red-500 text-center">{error}</p>
       ) : reports.length === 0 ? (
@@ -91,12 +97,8 @@ export default function ReportedPostsPage() {
                 <td className="p-2">
                   {report.full_name} <span className="text-gray-400">@{report.username}</span>
                 </td>
-                <td className="p-2 whitespace-pre-wrap max-w-xs overflow-hidden">
-                  {report.content}
-                </td>
-                <td className="p-2 whitespace-pre-wrap max-w-xs overflow-hidden">
-                  {report.reason}
-                </td>
+                <td className="p-2 whitespace-pre-wrap max-w-xs overflow-hidden">{report.content}</td>
+                <td className="p-2 whitespace-pre-wrap max-w-xs overflow-hidden">{report.reason}</td>
                 <td className="p-2">{new Date(report.created_at).toLocaleString()}</td>
                 <td className="p-2">
                   {report.media_url && (
