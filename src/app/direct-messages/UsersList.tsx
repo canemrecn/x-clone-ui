@@ -80,33 +80,34 @@ export default function UsersList({ onSelectBuddy }: UsersListProps) {
   }
 
   return (
-    <div className="flex flex-col w-full h-full p-4 text-white">
-      <h2 className="text-xl font-bold mb-4 text-center border-b border-gray-600 pb-2">
-        📩 Mesajlar
-      </h2>
-      <div className="flex flex-col gap-2 overflow-y-auto">
-        {buddyList.map((buddy) => (
-          <button
-            key={buddy.id}
-            onClick={() => handleSelectBuddy(buddy.id)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-all text-left group"
-          >
-            <div className="relative">
-              <img
-                src={buddy.profile_image || "/icons/pp.png"}
-                alt={buddy.username}
-                className="w-10 h-10 rounded-full object-cover border border-gray-600 shadow-sm"
-              />
-              {buddy.hasNewMessage && (
-                <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border border-white animate-pulse" />
-              )}
-            </div>
-            <span className="font-medium text-white group-hover:text-orange-400">
-              {buddy.username}
-            </span>
-          </button>
-        ))}
-      </div>
+  <div className="flex flex-col w-full h-full p-6 bg-gradient-to-br from-[#1c1c2b] to-[#2a2a3f] text-white rounded-xl shadow-lg">
+    <h2 className="text-2xl font-extrabold mb-6 text-center border-b border-gray-700 pb-3 tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500">
+      📩 Mesajlar
+    </h2>
+    <div className="flex flex-col gap-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+      {buddyList.map((buddy) => (
+        <button
+          key={buddy.id}
+          onClick={() => handleSelectBuddy(buddy.id)}
+          className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 hover:from-purple-700 hover:to-pink-700 transition-all duration-300 group shadow-md hover:shadow-lg text-left"
+        >
+          <div className="relative">
+            <img
+              src={buddy.profile_image || "/icons/pp.png"}
+              alt={buddy.username}
+              className="w-11 h-11 rounded-full object-cover border-2 border-gray-600 group-hover:border-white transition-all"
+            />
+            {buddy.hasNewMessage && (
+              <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white animate-ping" />
+            )}
+          </div>
+          <span className="text-lg font-semibold text-white group-hover:text-white tracking-wide">
+            {buddy.username}
+          </span>
+        </button>
+      ))}
     </div>
-  );
+  </div>
+);
+
 }
