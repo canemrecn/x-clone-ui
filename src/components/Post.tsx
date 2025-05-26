@@ -124,35 +124,6 @@ export default function Post({ postData }: PostProps) {
     }, 2000);
   };
 
-  const handleDelete = async () => {
-  const confirmDelete = window.confirm("Gönderiyi silmek istediğinize emin misiniz?");
-  if (!confirmDelete) return;
-
-  try {
-    const res = await fetch("/api/admin/delete-post", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ postId: postData.id }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(`Silme hatası: ${data.message || "İşlem başarısız."}`);
-    } else {
-      alert("Gönderi başarıyla silindi.");
-      router.refresh(); // sayfayı yenile
-    }
-  } catch (err) {
-    console.error("Silme hatası:", err);
-    alert("Sunucu hatası: Gönderi silinemedi.");
-  }
-};
-
-
   const handleReport = async () => {
   if (!auth?.user) {
     alert("Şikayet edebilmek için giriş yapmalısınız.");
@@ -170,7 +141,7 @@ export default function Post({ postData }: PostProps) {
       },
       credentials: "include",
       body: JSON.stringify({
-        postId: postData.id, // ✅ burada düzeltme yapıldı
+        postId: postData.id,
         reason: "Uygunsuz içerik",
       }),
     });
@@ -186,6 +157,7 @@ export default function Post({ postData }: PostProps) {
     alert("Şikayet başarısız oldu: " + err.message);
   }
 };
+
 
 
   const isYouTubeLink = postData.media_url?.includes("youtube.com") ?? false;
@@ -213,21 +185,21 @@ export default function Post({ postData }: PostProps) {
           <button onClick={() => setShowOptions(!showOptions)} className="px-3 py-1 text-gray-300 hover:text-orange-400 transition-all text-xl">⋯</button>
           {showOptions && (
             <div className="absolute right-0 top-full mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-md w-36 text-sm z-50">
-              {isOwner ? (
-                <button
-                  onClick={handleDelete}
-                  className="block w-full text-left px-4 py-2 hover:bg-red-600 hover:text-white transition-all text-red-400"
-                >
-                  Delete
-                </button>
-              ) : (
+              {!isOwner && (
+  <button
+    onClick={handleReport}
+    className="block w-full text-left px-4 py-2 hover:bg-yellow-500 hover:text-black transition-all text-yellow-400"
+  >
+    Şikayet Et
+  </button>
+)} : (
                 <button
                   onClick={handleReport}
                   className="block w-full text-left px-4 py-2 hover:bg-yellow-500 hover:text-black transition-all text-yellow-400"
                 >
                   Şikayet Et
                 </button>
-              )}
+              )
             </div>
           )}
         </div>
