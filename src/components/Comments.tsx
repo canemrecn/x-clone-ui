@@ -36,6 +36,7 @@ export default function Comments({ postId }: CommentsProps) {
   const [hoveredWord, setHoveredWord] = useState<string | null>(null);
   const [translatedWord, setTranslatedWord] = useState<string | null>(null);
   const [loadingTranslation, setLoadingTranslation] = useState<boolean>(false);
+  const [showOptionsId, setShowOptionsId] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchComments() {
@@ -111,42 +112,65 @@ export default function Comments({ postId }: CommentsProps) {
   };
 
   const handleDelete = async (commentId: number) => {
-    const confirmDelete = confirm("Yorumu silmek istediğine emin misin?");
-    if (!confirmDelete) return;
-    try {
-      const res = await fetch(`/api/posts/${postId}/comment/${commentId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.ok) {
-        setComments((prev) => prev.filter((c) => c.id !== commentId));
-      } else {
-        alert("Silinemedi.");
-      }
-    } catch (err) {
-      console.error("Silme hatası:", err);
+  const confirmDelete = window.confirm("Yorumu silmek istediğinize emin misiniz?");
+  if (!confirmDelete) return;
+
+  try {
+    const res = await fetch(`/api/posts/${postId}/comment/${commentId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.message || "Yorum silinemedi.");
+    } else {
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
     }
-  };
+  } catch (err) {
+    console.error("Silme hatası:", err);
+    alert("Sunucu hatası: Yorum silinemedi.");
+  }
+};
+
 
   const handleReport = async (commentId: number) => {
-    const confirmReport = confirm("Bu yorumu şikayet etmek istiyor musun?");
-    if (!confirmReport) return;
-    try {
-      const res = await fetch(`/api/reports`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ comment_id: commentId }),
-      });
-      if (res.ok) {
-        alert("Yorum şikayet edildi.");
-      } else {
-        alert("Şikayet edilemedi.");
-      }
-    } catch (err) {
-      console.error("Şikayet hatası:", err);
+  if (!auth?.user) {
+    alert("Şikayet edebilmek için giriş yapmalısınız.");
+    return;
+  }
+
+  const confirmReport = window.confirm("Bu yorumu şikayet etmek istediğinize emin misiniz?");
+  if (!confirmReport) return;
+
+  try {
+    const res = await fetch("/api/reports", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        comment_id: commentId,
+        reason: "Uygunsuz yorum",
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Şikayet başarısız.");
     }
-  };
+
+    alert("Yorum şikayet edildi.");
+  } catch (err: any) {
+    console.error("Şikayet hatası:", err);
+    alert("Şikayet başarısız oldu: " + err.message);
+  }
+};
+
 
   const handleReply = async (parentId: number) => {
     if (!auth?.user) return;
@@ -170,10 +194,12 @@ export default function Comments({ postId }: CommentsProps) {
 
   const renderComment = (c: CommentData, level = 0) => {
   const isOwner = auth?.user?.id === c.user_id;
+  const [showDropdown, setShowDropdown] = useState(false); // local state değilse yukarı taşı
+  const toggleDropdown = () => setShowDropdown((prev) => !prev);
 
   return (
     <div key={c.id} className="relative mb-4">
-      {/* Araya çizgi ekle (yanıt varsa) */}
+      {/* Yanıt varsa dikey çizgi */}
       {level > 0 && (
         <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-700" />
       )}
@@ -189,12 +215,42 @@ export default function Comments({ postId }: CommentsProps) {
               className="rounded-full border-2 border-gray-600"
             />
           </Link>
+
           <div className="w-full">
             <div className="flex justify-between items-center">
               <Link href={`/${c.username}`} className="font-bold text-sm text-white hover:text-cyan-300">
                 @{c.username}
               </Link>
-              <span className="text-[11px] text-gray-500">ID: {c.id}</span>
+              <div className="relative">
+                <button onClick={toggleDropdown} className="px-2 py-1 text-gray-400 hover:text-orange-400 text-xl">
+                  ⋯
+                </button>
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 bg-gray-900 border border-gray-700 rounded shadow-lg z-50 w-32">
+                    {isOwner ? (
+                      <button
+                        onClick={() => {
+                          handleDelete(c.id);
+                          setShowDropdown(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-red-400 hover:bg-red-600 hover:text-white text-sm"
+                      >
+                        Sil
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          handleReport(c.id);
+                          setShowDropdown(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-yellow-400 hover:bg-yellow-600 hover:text-black text-sm"
+                      >
+                        Şikayet Et
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <p className="text-sm text-white mt-1">
@@ -224,66 +280,64 @@ export default function Comments({ postId }: CommentsProps) {
 
             <div className="flex gap-4 text-xs mt-2">
               <button onClick={() => handleReply(c.id)} className="text-yellow-300 hover:underline">Yanıtla</button>
-              {isOwner ? (
-                <button onClick={() => handleDelete(c.id)} className="text-red-400 hover:underline">Sil</button>
-              ) : (
-                <button onClick={() => handleReport(c.id)} className="text-orange-400 hover:underline">Şikayet Et</button>
-              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Alt yorumlar */}
+      {/* Alt yorumları render et */}
       {c.replies?.map((child) => renderComment(child, level + 1))}
     </div>
   );
 };
 
 
+
   return (
-    <div className="mt-4 p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg shadow-md border border-gray-600">
-      <form
-  onSubmit={handleSubmit}
-  className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6"
->
-  <div className="flex items-center gap-3">
-    <Image
-      src={auth?.user?.profile_image || "/icons/pp.png"}
-      alt="Avatar"
-      width={40}
-      height={40}
-      className="rounded-full border border-gray-500"
-    />
-    <input
-      type="text"
-      value={text}
-      onChange={(e) => setText(e.target.value)}
-      className="flex-1 w-full bg-gray-900 text-white placeholder:text-gray-500 px-3 py-2 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
-      placeholder={
-        auth?.user
-          ? `@${auth.user.username}, yorum yap...`
-          : "Yorum yazmak için giriş yap"
-      }
-    />
+  <div className="mt-4 p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg shadow-md border border-gray-600">
+    {/* Yorum yazma formu */}
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6"
+    >
+      <div className="flex items-center gap-3 flex-1">
+        <Image
+          src={auth?.user?.profile_image || "/icons/pp.png"}
+          alt="Avatar"
+          width={40}
+          height={40}
+          className="rounded-full border border-gray-500"
+        />
+        <input
+          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          className="flex-1 w-full bg-gray-900 text-white placeholder:text-gray-500 px-3 py-2 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
+          placeholder={
+            auth?.user
+              ? `@${auth.user.username}, yorum yap...`
+              : "Yorum yazmak için giriş yap"
+          }
+        />
+      </div>
+
+      <button
+        type="submit"
+        className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg transition disabled:opacity-50"
+      >
+        Gönder
+      </button>
+    </form>
+
+    {/* Yorum listesi */}
+    {loading ? (
+      <p className="text-gray-300">Yükleniyor...</p>
+    ) : commentTree.length === 0 ? (
+      <p className="text-gray-400">Henüz yorum yok.</p>
+    ) : (
+      commentTree.map((comment) => renderComment(comment))
+    )}
   </div>
+);
 
-  <button
-    type="submit"
-    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg transition disabled:opacity-50"
-  >
-    Gönder
-  </button>
-</form>
-
-
-      {loading ? (
-        <p className="text-gray-300">Yükleniyor...</p>
-      ) : commentTree.length === 0 ? (
-        <p className="text-gray-400">Henüz yorum yok.</p>
-      ) : (
-        commentTree.map((comment) => renderComment(comment))
-      )}
-    </div>
-  );
 }
