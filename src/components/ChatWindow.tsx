@@ -18,7 +18,7 @@ interface MessageItem {
   message: string;
   created_at: string;
   attachmentUrl?: string | null;
-  attachmentType?: "image" | "video" | null;
+  attachmentType?: "image" | "video" | "audio" | null;
   isRead?: boolean;
 }
 
@@ -90,7 +90,7 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
   const [buddyInfo, setBuddyInfo] = useState<Buddy | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedMediaBase64, setSelectedMediaBase64] = useState<string | null>(null);
-  const [selectedMediaType, setSelectedMediaType] = useState<"image" | "video" | null>(null);
+  const [selectedMediaType, setSelectedMediaType] = useState<"image" | "video" | "audio" | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -438,6 +438,13 @@ async function sendAudioMessage() {
                   {msg.attachmentUrl && msg.attachmentType === "video" && (
                     <video src={msg.attachmentUrl} className="mt-2 max-w-[250px] rounded-lg shadow" controls />
                   )}
+                  {msg.attachmentUrl && msg.attachmentType === "audio" && (
+  <audio controls className="mt-2 max-w-xs rounded">
+    <source src={msg.attachmentUrl} type="audio/webm" />
+    Tarayıcınız ses öğesini desteklemiyor.
+  </audio>
+)}
+
                   <div className="text-xs flex items-center gap-2 mt-2 text-gray-300">
                     <span>{formatDate(msg.created_at)}</span>
                     {isMe && (
