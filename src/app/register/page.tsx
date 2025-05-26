@@ -4,8 +4,6 @@ ad-soyad, kullanıcı adı, e-posta, şifre, güvenlik sorusu ve cevabı gibi bi
 endpoint’ine POST isteğiyle gönderir. Kayıt başarılı olursa, e-posta doğrulama sayfasına yönlendirir 
 (/auth/verify?email=...). Sayfa, mobil ve masaüstü için duyarlı tasarlanmış şık bir arayüze sahiptir ve 
 kullanıcının giriş sayfasına geçiş yapabilmesini sağlayan buton da içerir.*/
-//src/app/register/page.tsx
-
 "use client";
 
 import React, { useState, useCallback } from "react";
@@ -34,19 +32,14 @@ export default function Register() {
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
-      // ✅ 13 yaş kontrolü
-      const isOver13 = confirm(
-        "Platformumuzu kullanmak için en az 13 yaşında olmanız gerekmektedir. 13 yaşından büyük müsünüz?"
-      );
+      const isOver13 = confirm("Platformumuzu kullanmak için en az 13 yaşında olmanız gerekmektedir. 13 yaşından büyük müsünüz?");
       if (!isOver13) {
         setError("13 yaşından küçük kullanıcıların kayıt olması yasaktır.");
         return;
       }
 
       if (!user.privacyAccepted) {
-        setError(
-          "Kayıt olmak için Kullanım Koşulları ve Gizlilik Politikası’nı kabul etmelisiniz."
-        );
+        setError("Kayıt olmak için gerekli tüm sözleşmeleri kabul etmelisiniz.");
         return;
       }
 
@@ -75,222 +68,95 @@ export default function Register() {
   );
 
   return (
-    <div className="flex min-h-screen overflow-hidden bg-gradient-to-br from-gray-800 to-gray-700 relative text-white">
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-800/80 blur-[120px] rounded-3xl"></div>
-
-      <div className="hidden md:flex w-1/2 items-center justify-center relative z-10">
+    <div className="flex min-h-screen text-white pt-24 pb-20">
+      <div className="hidden md:flex w-1/2 items-center justify-center">
         <Image
           src="/icons/logo22.png"
-          alt="Left column background"
-          width={900}
-          height={900}
-          className="object-contain drop-shadow-xl"
+          alt="Left"
+          width={320}
+          height={320}
+          className="object-contain drop-shadow-2xl animate-pulse"
         />
       </div>
 
-      <div className="w-full md:w-1/2 flex items-center justify-center relative z-10">
-        <div className="relative p-10 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-800 border border-gray-300 shadow-lg before:absolute before:inset-0 before:bg-gradient-to-br before:from-gray-800 before:to-gray-800/20 before:blur-xl before:rounded-2xl">
-          <div className="p-6 md:p-10 relative z-10">
-            <form onSubmit={handleRegister} className="flex flex-col gap-6">
-              <h1 className="text-center text-2xl font-bold">Register</h1>
-              <div className="flex justify-center">
-                <h1 className="text-lg font-semibold">UNDERGO</h1>
-              </div>
+      <div className="w-full md:w-1/2 flex items-center justify-center p-6">
+        <div className="w-full max-w-xl p-8 bg-[#2b2b3b] rounded-2xl border border-gray-700 shadow-2xl">
+          <h2 className="text-center text-3xl font-extrabold text-white mb-2">Kayıt Ol</h2>
+          <p className="text-center mb-6 text-gray-400">Dil öğrenenler için sosyal medya platformu</p>
 
-              {/* Form inputları */}
+          <form onSubmit={handleRegister} className="space-y-5">
+            {[
+              { placeholder: "Ad Soyad", key: "full_name", type: "text" },
+              { placeholder: "Kullanıcı Adı", key: "username", type: "text" },
+              { placeholder: "Email", key: "email", type: "email" },
+              { placeholder: "Şifre", key: "password", type: "password" },
+              { placeholder: "Güvenlik Sorusu", key: "securityQuestion", type: "text" },
+              { placeholder: "Güvenlik Sorusu Cevabı", key: "securityAnswer", type: "text" },
+            ].map(({ placeholder, key, type }) => (
               <input
-                type="text"
-                placeholder="Full Name"
+                key={key}
+                type={type}
+                placeholder={placeholder}
                 required
-                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
-                onChange={(e) =>
-                  setUser((prev) => ({
-                    ...prev,
-                    full_name: e.target.value,
-                  }))
-                }
+                className="w-full px-4 py-3 rounded-md bg-[#1f1f30] text-white placeholder-gray-400 border border-gray-600 focus:ring-2 focus:ring-purple-600 outline-none"
+                onChange={(e) => setUser((prev) => ({ ...prev, [key]: e.target.value }))}
               />
+            ))}
 
-              <input
-                type="text"
-                placeholder="Username"
-                required
-                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
-                onChange={(e) =>
-                  setUser((prev) => ({
-                    ...prev,
-                    username: e.target.value,
-                  }))
-                }
-              />
-
-              <input
-                type="email"
-                placeholder="Email"
-                required
-                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
-                onChange={(e) =>
-                  setUser((prev) => ({ ...prev, email: e.target.value }))
-                }
-              />
-
-              <input
-                type="password"
-                placeholder="Password"
-                required
-                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
-                onChange={(e) =>
-                  setUser((prev) => ({ ...prev, password: e.target.value }))
-                }
-              />
-
-              <input
-                type="text"
-                placeholder="Güvenlik Sorusu"
-                required
-                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
-                onChange={(e) =>
-                  setUser((prev) => ({
-                    ...prev,
-                    securityQuestion: e.target.value,
-                  }))
-                }
-              />
-
-              <input
-                type="text"
-                placeholder="Güvenlik Sorusu Cevabı"
-                required
-                className="p-3 rounded-lg bg-gray-800/50 placeholder-white border border-gray-300 focus:ring-2"
-                onChange={(e) =>
-                  setUser((prev) => ({
-                    ...prev,
-                    securityAnswer: e.target.value,
-                  }))
-                }
-              />
-
-              {/* Kullanım Koşulları + Gizlilik Politikası tek checkbox */}
-              <label className="flex items-start gap-2 text-sm text-gray-300">
+            <div className="space-y-2 text-sm text-gray-300">
+              <label className="flex items-start gap-2">
                 <input
                   type="checkbox"
                   required
-                  onChange={(e) =>
-                    setUser((prev) => ({
-                      ...prev,
-                      privacyAccepted: e.target.checked,
-                    }))
-                  }
                   className="mt-1"
+                  onChange={(e) => setUser((prev) => ({ ...prev, privacyAccepted: e.target.checked }))}
                 />
                 <span>
-                  <Link
-                    href="/privacy-policy"
-                    target="_blank"
-                    className="underline text-blue-400 hover:text-blue-300"
-                  >
-                    Gizlilik Politikası
-                  </Link>{" "}
-                  ve{" "}
-                  <Link
-                    href="/terms-of-service"
-                    target="_blank"
-                    className="underline text-blue-400 hover:text-blue-300"
-                  >
-                    Kullanım Koşulları
-                  </Link>
-                  {" "}
-                  ve{" "}
-                  <Link
-                    href="/kvkk-aydinlatma-metni"
-                    target="_blank"
-                    className="underline text-blue-400 hover:text-blue-300"
-                  >
-                    Aydınlatma Metni (KVKK uyarınca)
-                  </Link>
-                  {" "}
-                  ve{" "}
-                  <Link
-                    href="/acik-riza-metni"
-                    target="_blank"
-                    className="underline text-blue-400 hover:text-blue-300"
-                  >
-                    Açık Rıza Metni
-                  </Link>
-                  {" "}
-                  ve{" "}
-                  <Link
-                    href="/data-processing"
-                    target="_blank"
-                    className="underline text-blue-400 hover:text-blue-300"
-                  >
-                    Veri İşleyici Sözleşmeleri (DPA) Özeti
-                  </Link>
-                  {" "}
-                  ve{" "}
-                  <Link
-                    href="/veri-imha-politikasi"
-                    target="_blank"
-                    className="underline text-blue-400 hover:text-blue-300"
-                  >
-                    Veri Saklama ve İmha Politikası
-                  </Link>
-                  ’nı okudum ve kabul ediyorum.
+                  <Link href="/privacy-policy" className="underline text-blue-400 hover:text-blue-300" target="_blank">Gizlilik Politikası</Link>,{" "}
+                  <Link href="/terms-of-service" className="underline text-blue-400 hover:text-blue-300" target="_blank">Kullanım Koşulları</Link>,{" "}
+                  <Link href="/kvkk-aydinlatma-metni" className="underline text-blue-400 hover:text-blue-300" target="_blank">KVKK Aydınlatma Metni</Link>,{" "}
+                  <Link href="/acik-riza-metni" className="underline text-blue-400 hover:text-blue-300" target="_blank">Açık Rıza Metni</Link>,{" "}
+                  <Link href="/data-processing" className="underline text-blue-400 hover:text-blue-300" target="_blank">DPA Özeti</Link> ve{" "}
+                  <Link href="/veri-imha-politikasi" className="underline text-blue-400 hover:text-blue-300" target="_blank">Veri İmha Politikası</Link>'nı okudum ve kabul ediyorum.
                 </span>
               </label>
 
-              {/* Açık rıza kutuları */}
-              <div className="flex flex-col gap-2 text-sm text-gray-300">
-                <label className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    onChange={(e) =>
-                      setUser((prev) => ({
-                        ...prev,
-                        promoConsent: e.target.checked,
-                      }))
-                    }
-                    className="mt-1"
-                  />
-                  <span>
-                    13 yaşından büyüğüm
-                  </span>
-                </label>
-                <label className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    onChange={(e) =>
-                      setUser((prev) => ({
-                        ...prev,
-                        analyticsConsent: e.target.checked,
-                      }))
-                    }
-                    className="mt-1"
-                  />
-                  <span>
-                    Çerez ve analiz verilerimin işlenmesini, bilgilendirme mesajları ve mailleri gönderilmesini ve verilerimin yurt dışına aktarılmasını kabul ediyorum.
-                  </span>
-                </label>
-              </div>
+              <label className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  onChange={(e) => setUser((prev) => ({ ...prev, promoConsent: e.target.checked }))}
+                />
+                <span>13 yaşından büyüğüm.</span>
+              </label>
 
-              {error && <p className="text-red-400 text-sm">{error}</p>}
+              <label className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  onChange={(e) => setUser((prev) => ({ ...prev, analyticsConsent: e.target.checked }))}
+                />
+                <span>Çerez ve analiz verilerimin işlenmesini ve verilerimin yurt dışına aktarılmasını kabul ediyorum.</span>
+              </label>
+            </div>
 
-              <button
-                type="submit"
-                className="py-3 px-4 font-semibold rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 text-white hover:from-gray-700 hover:to-gray-600 focus:ring-2 shadow-md transition-all"
-              >
-                Register
-              </button>
+            {error && <p className="text-sm text-red-400 text-center">{error}</p>}
 
-              <button
-                type="button"
-                onClick={() => router.push("/login")}
-                className="py-3 px-4 font-semibold rounded-lg bg-gradient-to-br from-gray-800 to-gray-800 text-white hover:from-gray-700 hover:to-gray-700 focus:ring-2 shadow-md transition-all"
-              >
-                Already have an account?
-              </button>
-            </form>
-          </div>
+            <button
+              type="submit"
+              className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 rounded-md font-semibold text-white transition"
+            >
+              Kayıt Ol
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push("/login")}
+              className="w-full py-3 bg-[#1f1f30] hover:bg-[#2c2c3c] border border-gray-600 rounded-md font-medium text-white transition"
+            >
+              Zaten bir hesabınız var mı?
+            </button>
+          </form>
         </div>
       </div>
     </div>
