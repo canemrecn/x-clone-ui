@@ -13,12 +13,12 @@ import Analytics from "@/components/Analytics";
 
 export const metadata = {
   title: "UnderGo",
-  description: "UnderGo KVKK ve GDPR uyumlu sosyal medya platformudur.",
+  description: "UnderGo, dil öğrenimini sosyal medya deneyimiyle birleştiren, KVKK ve GDPR uyumlu yenilikçi bir platformdur. Kullanıcılar, gönderi paylaşırken aynı zamanda yabancı dil pratiği yapabilir, kelime çevirileriyle puan kazanabilir ve dil seviyelerini geliştirebilir. Güvenli, etkileşimli ve kullanıcı odaklı bu sosyal medya uygulamasıyla öğrenmek artık çok daha eğlenceli! UnderGo ile sosyal medya artık sadece paylaşmak değil, aynı zamanda öğrenmektir.",
   icons: { icon: "/icons/logo22.png" },
   other: {
     "privacy-policy": "https://undergo.com/policies/privacy-policy",
     "cookie-policy": "https://undergo.com/cookies-policy",
-    "data-protection": "KVKK uyumlu veri işleme politikası uygulanmaktadır.",
+    "data-protection": "UnderGo, dil öğrenimini sosyal medya deneyimiyle birleştiren, KVKK ve GDPR uyumlu yenilikçi bir platformdur. Kullanıcılar, gönderi paylaşırken aynı zamanda yabancı dil pratiği yapabilir, kelime çevirileriyle puan kazanabilir ve dil seviyelerini geliştirebilir. Güvenli, etkileşimli ve kullanıcı odaklı bu sosyal medya uygulamasıyla öğrenmek artık çok daha eğlenceli! UnderGo ile sosyal medya artık sadece paylaşmak değil, aynı zamanda öğrenmektir.",
   },
 };
 
