@@ -170,11 +170,12 @@ export default function Comments({ postId }: CommentsProps) {
 
   const renderComment = (c: CommentData, level = 0) => {
     const isOwner = auth?.user?.id === c.user_id;
+    const indent = Math.min(level * 16, 48);
     return (
       <div
         key={c.id}
-        style={{ marginLeft: level === 0 ? 0 : Math.min(level * 16, 48) }}
-className="rounded-xl p-4 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg mb-4 w-full"
+        style={{ marginLeft: `${indent}px` }}
+        className="rounded-xl p-4 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg mb-4 w-full"
 
       >
         <div className="flex gap-4">
