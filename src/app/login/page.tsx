@@ -9,22 +9,20 @@ Arayüz, mobil ve masaüstü için duyarlıdır ve sade, karanlık tema ile tasa
 
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext"; // useAuth burada doğru şekilde kullanılmalı
+import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 
 export default function Login() {
-  const auth = useAuth();  // useAuth ile AuthContext'e erişim
+  const auth = useAuth();
   const [user, setUser] = useState({ email: "", password: "" });
   const router = useRouter();
 
   const handleLogin = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      console.log("Gelen Login Bilgileri:", user);
-
       if (auth?.login) {
         await auth.login({ email: user.email, password: user.password });
-        router.push("/"); // Giriş başarılıysa anasayfaya yönlendir
+        router.push("/");
       } else {
         console.error("❌ AuthContext içinde `login` fonksiyonu bulunamadı!");
       }
@@ -33,85 +31,65 @@ export default function Login() {
   );
 
   return (
-    <div className="flex min-h-screen overflow-hidden bg-gradient-to-br from-gray-800 to-gray-700 relative text-white">
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-800/80 blur-[120px] rounded-3xl"></div>
-
-      {/* Sol Taraf: yalnızca md ve üzeri ekranlarda göster */}
-      <div className="w-1/2 hidden md:flex items-center justify-center relative z-10">
-        <Image
-          src="/icons/logo22.png"
-          alt="Left column background"
-          width={300}
-          height={300}
-          className="object-contain drop-shadow-xl"
-        />
-      </div>
-
-      {/* Sağ Taraf: mobilde tam genişlik, md ve üzeri ekranlarda yarı genişlik */}
-      <div className="w-full md:w-1/2 flex flex-col items-center justify-center relative z-10">
-
-
-        {/* Form Konteyneri */}
-        <div className="relative p-10 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-800 border border-gray-300 shadow-lg before:absolute before:inset-0 before:bg-gradient-to-br before:from-gray-800 before:to-gray-800/30 before:blur-3xl before:rounded-2xl">
-          <div className="p-6 md:p-10 relative z-10">
-            <form onSubmit={handleLogin} className="flex flex-col gap-6">
-              <h1 className="text-center text-2xl font-bold">Login</h1>
-
-              {/* GIF veya Başlık */}
-              <div className="flex justify-center">
-                <h1 className="text-lg font-semibold">UNDERGO</h1>
-              </div>
-
-              {/* Email Input */}
-              <input
-                type="email"
-                placeholder="Email"
-                className="p-3 rounded-lg bg-gradient-to-br from-gray-800 to-gray-800/50 placeholder-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 shadow-md"
-                onChange={(e) =>
-                  setUser((prev) => ({ ...prev, email: e.target.value }))
-                }
-                required
-              />
-
-              {/* Password Input */}
-              <input
-                type="password"
-                placeholder="Password"
-                className="p-3 rounded-lg bg-gradient-to-br from-gray-800 to-gray-800/50 placeholder-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 shadow-md"
-                onChange={(e) =>
-                  setUser((prev) => ({ ...prev, password: e.target.value }))
-                }
-                required
-              />
-
-              {/* Login Button */}
-              <button
-                type="submit"
-                className="py-3 px-4 font-semibold rounded-lg bg-gradient-to-br from-gray-800 to-gray-700 text-white hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 shadow-lg transition-all"
-              >
-                Login
-              </button>
-
-              {/* Şifremi Unuttum Linki */}
-              <button
-                type="button"
-                onClick={() => router.push("/forgot-password")}
-                className="text-sm text-white hover:underline"
-              >
-                Şifremi Unuttum?
-              </button>
-
-              {/* Go to Register */}
-              <button
-                type="button"
-                onClick={() => router.push("/register")}
-                className="py-3 px-4 font-semibold rounded-lg bg-gradient-to-br from-gray-800 to-gray-800 text-white hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 shadow-lg transition-all"
-              >
-                Don't have an account?
-              </button>
-            </form>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#1e1e2f] via-[#25253a] to-[#2f2f45] flex items-center justify-center text-white">
+      <div className="w-full max-w-md px-8 py-10 bg-[#2c2c3e] rounded-2xl shadow-2xl relative border border-gray-700">
+        <div className="flex flex-col items-center gap-4">
+          <Image
+            src="/icons/logo22.png"
+            alt="Undergo Logo"
+            width={80}
+            height={80}
+            className="rounded-full shadow"
+          />
+          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+            UNDERGO
+          </h1>
         </div>
+
+        <form onSubmit={handleLogin} className="mt-8 flex flex-col gap-5">
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full px-4 py-3 bg-[#1f1f30] text-white placeholder-gray-400 border border-gray-600 rounded-md focus:ring-2 focus:ring-purple-600 outline-none transition"
+            onChange={(e) =>
+              setUser((prev) => ({ ...prev, email: e.target.value }))
+            }
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full px-4 py-3 bg-[#1f1f30] text-white placeholder-gray-400 border border-gray-600 rounded-md focus:ring-2 focus:ring-purple-600 outline-none transition"
+            onChange={(e) =>
+              setUser((prev) => ({ ...prev, password: e.target.value }))
+            }
+            required
+          />
+
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-semibold py-3 rounded-md shadow-lg transition"
+          >
+            Giriş Yap
+          </button>
+
+          <button
+            type="button"
+            onClick={() => router.push("/forgot-password")}
+            className="text-sm text-purple-300 hover:text-purple-400 hover:underline transition text-center"
+          >
+            Şifremi Unuttum?
+          </button>
+
+          <button
+            type="button"
+            onClick={() => router.push("/register")}
+            className="w-full bg-[#1f1f30] hover:bg-[#282840] text-white font-medium py-3 rounded-md transition border border-gray-600"
+          >
+            Hesabın yok mu? Kayıt Ol
+          </button>
+        </form>
       </div>
     </div>
   );
