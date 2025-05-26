@@ -239,28 +239,39 @@ export default function Comments({ postId }: CommentsProps) {
 
   return (
     <div className="mt-4 p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg shadow-md border border-gray-600">
-      <form onSubmit={handleSubmit} className="flex items-center gap-4 mb-6">
-        <Image
-          src={auth?.user?.profile_image || "/icons/pp.png"}
-          alt="Avatar"
-          width={40}
-          height={40}
-          className="rounded-full border border-gray-500"
-        />
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="flex-1 bg-gray-900 text-white placeholder:text-gray-500 px-3 py-2 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
-          placeholder={auth?.user ? `@${auth.user.username}, yorum yap...` : "Yorum yazmak için giriş yap"}
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg transition disabled:opacity-50"
-        >
-          Gönder
-        </button>
-      </form>
+      <form
+  onSubmit={handleSubmit}
+  className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6"
+>
+  <div className="flex items-center gap-3">
+    <Image
+      src={auth?.user?.profile_image || "/icons/pp.png"}
+      alt="Avatar"
+      width={40}
+      height={40}
+      className="rounded-full border border-gray-500"
+    />
+    <input
+      type="text"
+      value={text}
+      onChange={(e) => setText(e.target.value)}
+      className="flex-1 w-full bg-gray-900 text-white placeholder:text-gray-500 px-3 py-2 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
+      placeholder={
+        auth?.user
+          ? `@${auth.user.username}, yorum yap...`
+          : "Yorum yazmak için giriş yap"
+      }
+    />
+  </div>
+
+  <button
+    type="submit"
+    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg transition disabled:opacity-50"
+  >
+    Gönder
+  </button>
+</form>
+
 
       {loading ? (
         <p className="text-gray-300">Yükleniyor...</p>
