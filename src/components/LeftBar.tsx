@@ -117,12 +117,12 @@ export default function LeftBar() {
           <Search />
         </div>
         {auth?.user && (
-          <div className="p-1 relative" onClick={() => setShowUserOptions((prev) => !prev)}>
+          <div className="p-1 relative right-0" onClick={() => setShowUserOptions((prev) => !prev)}>
             <Image
               src={auth.user.profile_image || "/icons/pp.png"}
               alt="Profile"
-              width={24}
-              height={24}
+              width={34}
+              height={34}
               className="rounded-full"
             />
             {showUserOptions && (
