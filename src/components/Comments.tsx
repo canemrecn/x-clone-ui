@@ -173,8 +173,9 @@ export default function Comments({ postId }: CommentsProps) {
     return (
       <div
         key={c.id}
-        className="rounded-xl p-4 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg mb-4"
-        style={{ marginLeft: level * 24 }}
+        style={{ marginLeft: level === 0 ? 0 : Math.min(level * 16, 48) }}
+className="rounded-xl p-4 bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 shadow-lg mb-4 w-full"
+
       >
         <div className="flex gap-4">
           <Link href={`/${c.username}`}>
