@@ -5,50 +5,47 @@ adresine gönderen POST /api/report endpoint’ini tanımlar. Gelen postId ve re
 ardından nodemailer kullanılarak şikayet içeriği reportEmail adresine e-posta olarak iletilir. 
 E-posta gönderimi için Gmail servis bilgileri ortam değişkenlerinden alınır.
 */
-// src/app/api/reports/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
 
 export async function POST(req: NextRequest) {
   try {
-    const { postId, reason } = await req.json();
+    const body = await req.json();
+    const { postId, reason } = body;
 
     if (!postId || !reason) {
       return NextResponse.json(
-        { error: "postId ve reason zorunludur." },
+        { error: "postId ve reason alanları zorunludur." },
         { status: 400 }
       );
     }
 
-    const trimmedPostId = postId.toString().trim();
-    const trimmedReason = reason.toString().trim();
-
-    if (!trimmedPostId || !trimmedReason) {
-      return NextResponse.json(
-        { error: "postId ve reason boş bırakılamaz." },
-        { status: 400 }
-      );
+    const cookieStore =await cookies();
+    const token = cookieStore.get("token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Token eksik" }, { status: 401 });
     }
 
-    // Post gerçekten var mı diye kontrol et (isteğe bağlı ama önerilir)
-    const result: any = await db.query(
-      `SELECT posts.*, users.username, users.full_name, posts.media_url, posts.media_type 
-       FROM posts 
-       LEFT JOIN users ON users.id = posts.user_id 
-       WHERE posts.id = ?`,
-      [trimmedPostId]
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error("JWT_SECRET tanımsız");
+
+    const decoded = jwt.verify(token, secret) as { id: number; role: string };
+    const userId = decoded.id;
+
+    // Veritabanına kayıt
+    await db.query(
+      `INSERT INTO reports (post_id, user_id, reason, created_at)
+       VALUES (?, ?, ?, NOW())`,
+      [postId, userId, reason]
     );
 
-    const post = result[0]?.[0];
-    return NextResponse.json(
-      { message: "Şikayet kaydedildi." },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "Şikayet kaydedildi" }, { status: 200 });
   } catch (err: any) {
-    console.error("Report POST error:", err);
+    console.error("POST /api/reports error:", err);
     return NextResponse.json(
-      { error: err.message || "Sunucu hatası" },
+      { error: "Sunucu hatası", message: err.message },
       { status: 500 }
     );
   }

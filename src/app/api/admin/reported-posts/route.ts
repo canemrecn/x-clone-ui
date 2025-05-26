@@ -1,4 +1,4 @@
-// src/app/api/reported-posts/route.ts
+// src/app/api/admin/reported-posts/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
