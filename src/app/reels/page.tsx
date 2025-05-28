@@ -13,11 +13,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import UsersList from "@/app/direct-messages/UsersList";
 
+// 🔄 Verileri getiren fetch fonksiyonu
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
 
 export default function ReelsPage() {
-  const { data } = useSWR<{ posts: any[] }>("/api/posts?isReel=true", fetcher, {
+  // 🔁 Güncellenmiş endpoint
+  const { data } = useSWR<{ posts: any[] }>("/api/posts/reels", fetcher, {
     revalidateOnFocus: false,
   });
 
@@ -37,9 +39,7 @@ export default function ReelsPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleResize = () => {
-      setScreenHeight(window.innerHeight);
-    };
+    const handleResize = () => setScreenHeight(window.innerHeight);
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -125,17 +125,15 @@ export default function ReelsPage() {
                 const video = e.currentTarget;
                 video.paused ? video.play() : video.pause();
               }}
-              onDoubleClick={() => handleLike(item.id)} // ✅ çift tıklama ile beğeni
+              onDoubleClick={() => handleLike(item.id)}
             />
 
-            {/* ❤️ Beğeni efekti */}
             {index === currentIndex && likeEffect && (
               <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
                 <div className="text-white text-6xl animate-ping font-bold select-none">❤️</div>
               </div>
             )}
 
-            {/* Sağdaki butonlar */}
             {index === currentIndex && (
               <div className="absolute bottom-14 right-4 z-40 flex flex-col gap-4 items-center">
                 <button
@@ -159,7 +157,6 @@ export default function ReelsPage() {
               </div>
             )}
 
-            {/* Kullanıcı bilgisi */}
             {index === currentIndex && (
               <div className="absolute bottom-16 left-4 text-white z-40 max-w-sm">
                 <div className="flex items-center gap-2 mb-2">
@@ -178,7 +175,6 @@ export default function ReelsPage() {
               </div>
             )}
 
-            {/* Alt açıklama ve ilerleme çubuğu */}
             {index === currentIndex && duration > 0 && (
               <div className="absolute bottom-1 left-0 w-full px-4 z-50">
                 <p className="text-sm break-words text-white mb-1">
@@ -196,7 +192,6 @@ export default function ReelsPage() {
         ))}
       </div>
 
-      {/* DM gönderme modalı */}
       {showSendModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
           <div className="bg-black p-4 rounded shadow-lg w-full max-w-md">
