@@ -347,7 +347,6 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
           <img src={buddyPhoto} alt="Buddy Photo" className="w-9 h-9 rounded-full object-cover ring-2 ring-purple-600" />
           <div className="flex items-center gap-1">
             <h2 className="font-bold text-base">{buddyInfo?.username || `Buddy ID: ${buddyId}`}</h2>
-            <span className={`w-3 h-3 rounded-full ${buddyInfo?.isOnline ? "bg-green-500" : "bg-gray-500"}`} title={buddyInfo?.isOnline ? "Çevrimiçi" : "Çevrimdışı"} />
           </div>
         </div>
         <div className="w-8 h-8" />
