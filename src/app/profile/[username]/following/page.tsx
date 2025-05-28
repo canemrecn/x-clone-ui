@@ -8,10 +8,9 @@ import useSWR from "swr";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 
-// ✅ fetcher fonksiyonu artık credentials: "include" içeriyor
 const fetcher = (url: string) =>
   fetch(url, {
-    credentials: "include", // HttpOnly cookie’yi dahil eder
+    credentials: "include",
   }).then((res) => {
     if (!res.ok) {
       throw new Error(`Error fetching following: ${res.status}`);
@@ -50,30 +49,30 @@ export default function FollowingPage() {
   const following = data?.following ?? [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-700 text-white p-6">
-      <h1 className="text-3xl font-extrabold text-center bg-gradient-to-r from-gray-800 to-gray-800 p-4 rounded-lg shadow-md mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#1f1f2e] via-[#1a1a40] to-[#0f3460] text-white p-6">
+      <h1 className="text-4xl font-extrabold text-center bg-gradient-to-r from-[#4b6cb7] to-[#182848] text-transparent bg-clip-text mb-10 tracking-wide">
         {username}'s Following
       </h1>
       {following.length === 0 ? (
         <p className="text-center text-lg">No following found.</p>
       ) : (
-        <ul className="space-y-4 max-w-full sm:max-w-2xl mx-auto">
+        <ul className="space-y-6 max-w-3xl mx-auto">
           {following.map((user) => (
             <li
               key={user.id}
-              className="flex items-center gap-4 p-4 bg-gradient-to-br from-gray-800 to-gray-800 rounded shadow-md hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition-all"
+              className="flex items-center gap-4 p-5 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg transition-transform hover:scale-[1.02] hover:shadow-xl"
             >
-              <div className="w-12 h-12 rounded-full overflow-hidden">
+              <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-inner">
                 <Image
                   src={user.profile_image || "/icons/pp.png"}
                   alt={user.username}
-                  width={48}
-                  height={48}
+                  width={56}
+                  height={56}
                 />
               </div>
               <div>
-                <p className="font-bold text-white">{user.full_name}</p>
-                <p className="text-sm text-white">@{user.username}</p>
+                <p className="text-lg font-semibold">{user.full_name}</p>
+                <p className="text-sm text-gray-300">@{user.username}</p>
               </div>
             </li>
           ))}
