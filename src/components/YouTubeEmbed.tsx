@@ -14,49 +14,36 @@ export default function YouTubeEmbed({ url }: YouTubeEmbedProps) {
   const getYouTubeId = (youtubeUrl: string) => {
     try {
       const urlObj = new URL(youtubeUrl);
-      if (urlObj.hostname === "youtu.be") {
-        return urlObj.pathname.slice(1);
-      } else if (urlObj.hostname.includes("youtube.com")) {
-        return urlObj.searchParams.get("v");
-      }
-      return null;
-    } catch {
+      if (urlObj.hostname === "youtu.be") return urlObj.pathname.slice(1);
+      if (urlObj.hostname.includes("youtube.com")) return urlObj.searchParams.get("v");
+    } catch (err) {
       return null;
     }
   };
 
   const videoId = getYouTubeId(url);
+  const thumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
   if (!videoId) {
     return <p className="text-red-500 text-sm">Geçersiz YouTube bağlantısı</p>;
   }
 
   return (
-    <div className="w-full aspect-video mt-3 rounded-lg overflow-hidden shadow-md">
-      <iframe
-        src={`https://www.youtube.com/embed/${videoId}`}
-        title="YouTube video player"
-        className="w-full h-full"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowFullScreen
-        sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
-        onError={() => {
-          window.open(`https://www.youtube.com/watch?v=${videoId}`, "_blank");
-        }}
-      ></iframe>
-
-      {/* Alternatif bağlantı */}
-      <p className="text-center text-sm text-gray-400 mt-2">
-        Video çalışmıyorsa{" "}
-        <a
-          href={`https://www.youtube.com/watch?v=${videoId}`}
-          target="_blank"
-          className="text-blue-400 underline"
-        >
-          YouTube'da izleyin
-        </a>
-        .
-      </p>
+    <div className="relative w-full aspect-video group cursor-pointer">
+      <img
+        src={thumbnail}
+        alt="YouTube video preview"
+        className="w-full h-full object-cover rounded-lg shadow-md"
+      />
+      <a
+        href={watchUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white font-semibold text-sm md:text-lg hover:bg-opacity-70 transition"
+      >
+        ▶ YouTube'da İzle
+      </a>
     </div>
   );
 }
