@@ -64,10 +64,7 @@ export default function Post({ postData }: PostProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          word,
-          targetLang: savedLang,
-        }),
+        body: JSON.stringify({ word, targetLang: savedLang }),
       });
 
       const data = await res.json();
@@ -88,10 +85,7 @@ export default function Post({ postData }: PostProps) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({
-            postId: postData.id,
-            word: `${word}_${index}`,
-          }),
+          body: JSON.stringify({ postId: postData.id, word: `${word}_${index}` }),
         });
 
         setTranslatedWords((prev) => ({ ...prev, [index]: true }));
@@ -118,9 +112,7 @@ export default function Post({ postData }: PostProps) {
     try {
       const res = await fetch("/api/admin/delete-post", {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ postId: postData.id }),
       });
@@ -150,20 +142,16 @@ export default function Post({ postData }: PostProps) {
     try {
       const res = await fetch("/api/reports", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          post_id: postData.id, // 🔧 ÖNEMLİ: postId değil post_id olmalı
+          post_id: postData.id,
           reason: "Uygunsuz içerik",
         }),
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Şikayet başarısız.");
-      }
+      if (!res.ok) throw new Error(data.error || "Şikayet başarısız.");
 
       alert("Gönderi şikayet edildi.");
     } catch (err: any) {
@@ -172,7 +160,11 @@ export default function Post({ postData }: PostProps) {
     }
   };
 
-  const isYouTubeLink = postData.media_url?.includes("youtube.com") ?? false;
+  // ✅ YouTube ID'yi `content` içinde yakalayalım
+  const youTubeMatch = postData.content.match(
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/
+  );
+  const youTubeId = youTubeMatch?.[1];
   const isOwner = auth?.user?.id === postData.user_id;
 
   return (
@@ -194,20 +186,20 @@ export default function Post({ postData }: PostProps) {
           <div className="flex justify-between items-center">
             <span className="text-base font-semibold text-gray-200">@{postData.username}</span>
             <div className="relative">
-              <button onClick={() => setShowOptions(!showOptions)} className="px-3 py-1 text-gray-300 hover:text-orange-400 transition-all text-xl">⋯</button>
+              <button onClick={() => setShowOptions(!showOptions)} className="px-3 py-1 text-gray-300 hover:text-orange-400 text-xl">⋯</button>
               {showOptions && (
                 <div className="absolute right-0 top-full mt-2 bg-gray-900 border border-gray-700 rounded-lg shadow-md w-36 text-sm z-50">
                   {isOwner ? (
                     <button
                       onClick={handleDelete}
-                      className="block w-full text-left px-4 py-2 hover:bg-red-600 hover:text-white transition-all text-red-400"
+                      className="block w-full text-left px-4 py-2 hover:bg-red-600 hover:text-white text-red-400"
                     >
-                      Delete
+                      Sil
                     </button>
                   ) : (
                     <button
                       onClick={handleReport}
-                      className="block w-full text-left px-4 py-2 hover:bg-yellow-500 hover:text-black transition-all text-yellow-400"
+                      className="block w-full text-left px-4 py-2 hover:bg-yellow-500 hover:text-black text-yellow-400"
                     >
                       Şikayet Et
                     </button>
@@ -246,7 +238,7 @@ export default function Post({ postData }: PostProps) {
                       <>
                         <input
                           type="text"
-                          className="w-full text-black px-2 py-1 rounded-md mb-2 border border-gray-300 focus:outline-none"
+                          className="w-full text-black px-2 py-1 rounded-md mb-2 border border-gray-300"
                           placeholder="Çeviriyi yaz..."
                           value={userInput}
                           onChange={(e) => setUserInput(e.target.value)}
@@ -263,11 +255,14 @@ export default function Post({ postData }: PostProps) {
             ))}
           </div>
 
-          {postData.media_url && (
+          {/* 📺 YouTube varsa içerikte göster */}
+          {youTubeId ? (
+            <div className="mt-4">
+              <YouTubeEmbed url={`https://www.youtube.com/watch?v=${youTubeId}`} />
+            </div>
+          ) : postData.media_url ? (
             <div className="mt-4 max-w-full">
-              {isYouTubeLink ? (
-                <YouTubeEmbed url={postData.media_url} />
-              ) : postData.media_type === "video" ? (
+              {postData.media_type === "video" ? (
                 <video controls className="w-full max-h-[400px] rounded-lg object-contain shadow-lg">
                   <source src={postData.media_url} type="video/mp4" />
                 </video>
@@ -281,7 +276,7 @@ export default function Post({ postData }: PostProps) {
                 />
               )}
             </div>
-          )}
+          ) : null}
 
           {postData.lang && (
             <div className="flex items-center gap-2 text-xs text-gray-300 italic mt-2">

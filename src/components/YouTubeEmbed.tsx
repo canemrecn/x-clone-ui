@@ -11,15 +11,23 @@ interface YouTubeEmbedProps {
 }
 
 export default function YouTubeEmbed({ url }: YouTubeEmbedProps) {
-  // YouTube video ID'sini linkten ayıkla
   const getYouTubeId = (youtubeUrl: string) => {
     try {
       const urlObj = new URL(youtubeUrl);
+
       if (urlObj.hostname === "youtu.be") {
         return urlObj.pathname.slice(1);
-      } else if (urlObj.hostname.includes("youtube.com")) {
-        return urlObj.searchParams.get("v");
       }
+
+      if (urlObj.hostname.includes("youtube.com")) {
+        const vParam = urlObj.searchParams.get("v");
+        if (vParam) return vParam;
+
+        // Destek: /embed/ID gibi yollar için
+        const match = urlObj.pathname.match(/\/embed\/([a-zA-Z0-9_-]{11})/);
+        if (match) return match[1];
+      }
+
       return null;
     } catch (error) {
       return null;
@@ -28,16 +36,22 @@ export default function YouTubeEmbed({ url }: YouTubeEmbedProps) {
 
   const videoId = getYouTubeId(url);
 
-  if (!videoId) return <div className="text-red-400">Geçersiz YouTube bağlantısı</div>;
+  if (!videoId) {
+    return (
+      <div className="text-red-400 text-sm italic mt-2">
+        ⚠️ Geçersiz YouTube bağlantısı
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full aspect-video">
+    <div className="w-full aspect-video mt-3 rounded-lg overflow-hidden shadow-lg">
       <iframe
         src={`https://www.youtube.com/embed/${videoId}`}
         title="YouTube video player"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        className="w-full h-full"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
-        className="w-full h-full rounded-lg"
       ></iframe>
     </div>
   );
