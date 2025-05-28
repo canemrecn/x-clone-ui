@@ -5,6 +5,7 @@ bağlantısı değilse hata mesajı gösterir, aksi takdirde responsive (duyarl�
 "use client";
 
 import React from "react";
+import Image from "next/image";
 
 interface YouTubeEmbedProps {
   url: string;
@@ -22,7 +23,6 @@ export default function YouTubeEmbed({ url }: YouTubeEmbedProps) {
   };
 
   const videoId = getYouTubeId(url);
-  const thumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
   const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
   if (!videoId) {
@@ -30,20 +30,26 @@ export default function YouTubeEmbed({ url }: YouTubeEmbedProps) {
   }
 
   return (
-    <div className="relative w-full aspect-video group cursor-pointer">
-      <img
-        src={thumbnail}
-        alt="YouTube video preview"
-        className="w-full h-full object-cover rounded-lg shadow-md"
-      />
+    <div className="relative w-full aspect-video group cursor-pointer rounded-xl overflow-hidden border border-gray-700 shadow-md">
       <a
         href={watchUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white font-semibold text-sm md:text-lg hover:bg-opacity-70 transition"
+        className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 hover:bg-opacity-70 transition"
       >
-        ▶ YouTube'da İzle
+        <Image
+          src="/icons/youtube.png"
+          alt="YouTube'da izle"
+          width={60}
+          height={60}
+          className="opacity-90 hover:opacity-100 transition"
+        />
       </a>
+      <img
+        src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+        alt="YouTube video preview"
+        className="w-full h-full object-cover"
+      />
     </div>
   );
 }
