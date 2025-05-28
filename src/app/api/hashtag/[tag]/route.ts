@@ -1,10 +1,9 @@
-// src/app/api/hashtag/[tag]/route.ts
-import { NextRequest, NextResponse } from "next/server";
+// app/api/hashtag/[tag]/route.ts
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-// context'in tipini "any" yap → tüm sorun çözülür.
-export async function GET(req: NextRequest, context: any) {
-  const tag = context.params.tag;
+export async function GET(_: Request, { params }: { params: { tag: string } }) {
+  const { tag } = params;
 
   try {
     const [rows] = await db.execute(
@@ -20,7 +19,7 @@ export async function GET(req: NextRequest, context: any) {
 
     return NextResponse.json({ posts: rows });
   } catch (error) {
-    console.error("Hashtag gönderileri çekilemedi:", error);
+    console.error("Hashtag postları alınamadı:", error);
     return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
   }
 }
