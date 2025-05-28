@@ -267,8 +267,8 @@ export default function Post({ postData }: PostProps) {
         </div>
       )}
     </span>
-))}
-
+))}  {/* ✅ <div> kapanışı eksikti */}
+</div>
 
           {/* 📺 YouTube varsa içerikte göster */}
           {youTubeId ? (
