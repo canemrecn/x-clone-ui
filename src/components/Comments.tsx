@@ -276,8 +276,9 @@ export default function Comments({ postId }: CommentsProps) {
             </p>
 
             <div className="mt-2 text-xs text-gray-400">
-              {new Date(c.created_at).toLocaleString()}
-            </div>
+  {new Date(c.created_at).toLocaleString()}
+  <span className="ml-2 text-gray-500">ID: {c.id}</span>
+</div>
 
             <div className="flex gap-4 text-xs mt-2">
               <button onClick={() => handleReply(c.id)} className="text-yellow-300 hover:underline">Yanıtla</button>
