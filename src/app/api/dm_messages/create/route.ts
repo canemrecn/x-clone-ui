@@ -17,14 +17,13 @@ import { cookies } from "next/headers";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { message, receiverId } = body;
+    const { message, receiverId, replyTo } = body; // replyTo'yu da al
 
     if (!receiverId) {
       return NextResponse.json({ error: "Receiver ID is required" }, { status: 400 });
     }
 
-    // ✅ Token artık cookie'den alınacak
-    const cookieStore =await cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
     const secret = process.env.JWT_SECRET;
     if (!token || !secret) {
@@ -38,11 +37,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Message is empty" }, { status: 400 });
     }
 
+    // INSERT sorgusunu replyTo dahil ederek güncelle
     const insertQuery = `
-      INSERT INTO dm_messages (senderId, receiverId, message)
-      VALUES (?, ?, ?)
+      INSERT INTO dm_messages (senderId, receiverId, message, replyTo)
+      VALUES (?, ?, ?, ?)
     `;
-    const [result] = await db.query(insertQuery, [senderId, receiverId, message]);
+    const [result] = await db.query(insertQuery, [
+      senderId,
+      receiverId,
+      message,
+      replyTo || null, // replyTo değeri varsa ekle, yoksa null
+    ]);
 
     const insertedId = (result as any).insertId;
     const [rows] = await db.query<RowDataPacket[]>(
