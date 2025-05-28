@@ -15,11 +15,8 @@ interface RequestContext {
   };
 }
 
-export async function DELETE(
-  req: NextRequest,
-  context: RequestContext
-) {
-  const { postId, commentId } = context.params;
+export async function DELETE(req: NextRequest, { params }: any) {
+  const { postId, commentId } = params;
 
   try {
     const cookieStore =await cookies();
