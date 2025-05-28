@@ -214,60 +214,77 @@ export default function Post({ postData }: PostProps) {
           </Link>
 
           <div className="flex flex-wrap text-gray-100 leading-relaxed tracking-wide">
-            {postData.content
+           {postData.content
   .split(" ")
   .filter(
     (word) =>
       !word.includes("youtube.com") &&
       !word.includes("youtu.be")
   )
-  .map((word, index) => (
-    <span
-      key={index}
-      className="relative group cursor-pointer mx-1 inline-block"
-      onMouseEnter={() => translateWordWithInput(word, index)}
-      onMouseLeave={() => {
-        setActiveWordIndex(null);
-        setUserInput("");
-        setFeedback(null);
-      }}
-    >
-      {word}
-      {activeWordIndex === index && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs p-3 rounded-xl shadow-xl w-64 min-h-[130px] z-50 flex flex-col justify-start border border-gray-700">
-          <div className="mb-3 w-full h-20 bg-gradient-to-r from-orange-500 to-pink-500 text-center text-[11px] flex items-center justify-center rounded-md font-semibold shadow-inner">
-            🔥 UnderGo ile İngilizce öğren, puan kazan, seviye atla!
-          </div>
+  .map((word, index) => {
+    const isHashtag = word.startsWith("#");
+    const hashtag = word.replace(/[^#\wğüşıöçĞÜŞİÖÇ]/gi, ""); // yalnızca harf ve sayılar (türkçe dahil)
 
-          {translatedWords[index] ? (
-            <div className="text-center text-green-400 text-sm font-medium">
-              ✅ Bu kelimeyi zaten çevirdiniz.
+    return (
+      <span
+        key={index}
+        className="relative group cursor-pointer mx-1 inline-block"
+        onMouseEnter={() => {
+          if (!isHashtag) translateWordWithInput(word, index);
+        }}
+        onMouseLeave={() => {
+          setActiveWordIndex(null);
+          setUserInput("");
+          setFeedback(null);
+        }}
+      >
+        {isHashtag ? (
+          <Link
+            href={`/hashtag/${encodeURIComponent(hashtag.slice(1))}`}
+            className="text-blue-400 hover:underline"
+          >
+            {word}
+          </Link>
+        ) : (
+          word
+        )}
+
+        {!isHashtag && activeWordIndex === index && (
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs p-3 rounded-xl shadow-xl w-64 min-h-[130px] z-50 flex flex-col justify-start border border-gray-700">
+            <div className="mb-3 w-full h-20 bg-gradient-to-r from-orange-500 to-pink-500 text-center text-[11px] flex items-center justify-center rounded-md font-semibold shadow-inner">
+              🔥 UnderGo ile İngilizce öğren, puan kazan, seviye atla!
             </div>
-          ) : correctTranslation ? (
-            <>
-              <input
-                type="text"
-                className="w-full text-black px-2 py-1 rounded-md mb-2 border border-gray-300"
-                placeholder="Çeviriyi yaz..."
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                onKeyDown={(e) =>
-                  e.key === "Enter" && checkTranslation(word, index)
-                }
-              />
-              {feedback && (
-                <div className="text-center text-sm">{feedback}</div>
-              )}
-            </>
-          ) : (
-            <div className="text-center text-sm text-gray-400">
-              Yükleniyor...
-            </div>
-          )}
-        </div>
-      )}
-    </span>
-))}  {/* ✅ <div> kapanışı eksikti */}
+
+            {translatedWords[index] ? (
+              <div className="text-center text-green-400 text-sm font-medium">
+                ✅ Bu kelimeyi zaten çevirdiniz.
+              </div>
+            ) : correctTranslation ? (
+              <>
+                <input
+                  type="text"
+                  className="w-full text-black px-2 py-1 rounded-md mb-2 border border-gray-300"
+                  placeholder="Çeviriyi yaz..."
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && checkTranslation(word, index)
+                  }
+                />
+                {feedback && (
+                  <div className="text-center text-sm">{feedback}</div>
+                )}
+              </>
+            ) : (
+              <div className="text-center text-sm text-gray-400">
+                Yükleniyor...
+              </div>
+            )}
+          </div>
+        )}
+      </span>
+    );
+  })} {/* ✅ <div> kapanışı eksikti */}
 </div>
 
           {/* 📺 YouTube varsa içerikte göster */}
