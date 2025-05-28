@@ -33,21 +33,23 @@ export default function RightBar() {
       <Arrangement />
       <Notes />
 
-      <div className="mt-6 px-4 py-3 text-sm text-white border-t border-gray-700">
-        <h3 className="font-semibold mb-2 text-lg text-gray-300">🔥 Popüler Etiketler</h3>
-        <ul className="space-y-1">
-          {hashtags.map((tag) => (
-            <li key={tag.tag}>
-              <Link
-                href={`/hashtag/${encodeURIComponent(tag.tag)}`}
-                className="text-blue-400 hover:underline"
-              >
-                #{tag.tag} ({tag.count})
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <div className="mt-6 px-4 py-4 rounded-lg bg-gradient-to-br from-gray-800 to-gray-900 shadow-inner border border-gray-700 mx-4">
+  <h3 className="font-semibold text-white text-lg mb-3 flex items-center gap-2">
+    <span>🔥</span> Popüler Etiketler
+  </h3>
+  <div className="flex flex-wrap gap-2">
+    {hashtags.map((tag) => (
+      <Link
+        key={tag.tag}
+        href={`/hashtag/${encodeURIComponent(tag.tag)}`}
+        className="bg-gray-700 hover:bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm px-3 py-1 rounded-full transition duration-200 shadow hover:scale-105"
+      >
+        #{tag.tag} <span className="text-gray-300">({tag.count})</span>
+      </Link>
+    ))}
+  </div>
+</div>
+
     </div>
   );
 }
