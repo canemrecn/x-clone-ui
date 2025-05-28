@@ -84,7 +84,7 @@ export default function UsersList({ onSelectBuddy, onClose }: UsersListProps) {
       <div className="flex items-center justify-between px-4 py-4 border-b border-gray-700 bg-[#2b2b3b]">
         <div className="flex items-center gap-2">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push('/')}
             className="text-white text-2xl font-bold hover:text-pink-500"
           >
             ←
