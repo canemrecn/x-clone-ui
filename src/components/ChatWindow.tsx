@@ -191,52 +191,61 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
   };
 
   // Handle sending messages
-  async function handleSend() {
-    if (!auth?.user) {
-      alert("Lütfen giriş yapın.");
-      return;
-    }
-    try {
-      if (selectedMediaBase64 && selectedMediaType) {
-        const res = await fetch("/api/dm_messages/createMedia", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            receiverId: buddyId,
-            attachmentBase64: selectedMediaBase64,
-            attachmentType: selectedMediaType,
-          }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setMessages((prev) => [...prev, data.newMessage]);
-        }
-        setSelectedMediaBase64(null);
-        setSelectedMediaType(null);
-      }
-      if (newMessage.trim()) {
-        const textRes = await fetch("/api/dm_messages/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            replyTo: replyInfo?.id || null,
-            receiverId: buddyId,
-            message: newMessage,
-          }),
-        });
-        if (textRes.ok) {
-          const textData = await textRes.json();
-          setMessages((prev) => [...prev, textData.newMessage]);
-        }
-        setNewMessage("");
-        setReplyInfo(null)
-      }
-    } catch (err) {
-      console.error("Mesaj gönderilirken hata:", err);
-    }
+  // Handle sending messages
+async function handleSend() {
+  if (!auth?.user) {
+    alert("Lütfen giriş yapın.");
+    return;
   }
+
+  try {
+    // Eğer medya varsa önce medya mesajı gönder
+    if (selectedMediaBase64 && selectedMediaType) {
+      const res = await fetch("/api/dm_messages/createMedia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          receiverId: buddyId,
+          attachmentBase64: selectedMediaBase64,
+          attachmentType: selectedMediaType,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMessages((prev) => [...prev, data.newMessage]);
+      }
+      setSelectedMediaBase64(null);
+      setSelectedMediaType(null);
+    }
+
+    // Eğer metin mesajı varsa gönder
+    if (newMessage.trim()) {
+      const textRes = await fetch("/api/dm_messages/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          replyTo: replyInfo?.id || null,
+          receiverId: buddyId,
+          message: newMessage,
+        }),
+      });
+
+      if (textRes.ok) {
+        const textData = await textRes.json();
+        setMessages((prev) => [...prev, textData.newMessage]);
+        setNewMessage("");         // mesaj input temizle
+        setReplyInfo(null);        // yalnızca başarılıysa yanıt kutusunu temizle
+      } else {
+        console.warn("Mesaj gönderilemedi:", await textRes.text());
+      }
+    }
+  } catch (err) {
+    console.error("Mesaj gönderilirken hata:", err);
+  }
+}
+
 
   // Handle media file input
   function handleMediaClick() {
@@ -356,11 +365,11 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
                 <div className="flex items-start gap-3">
                   <img src={senderPhoto} alt="Sender Photo" className="w-7 h-7 rounded-full object-cover" />
                   <div className="flex flex-col">
-                    {(msg as any).replyTo && (
-                      <div className="text-xs p-2 mb-1 rounded bg-gray-600 text-gray-200">
-                        Yanıtlanan: {messages.find((m) => m.id === (msg as any).replyTo)?.message || "(silinmiş mesaj)"}
-                      </div>
-                    )}
+                   {(msg as any).replyTo && (
+  <div className="text-xs p-2 mb-1 rounded bg-gray-600 text-gray-200">
+    Yanıtlanan: {messages.find((m) => m.id === (msg as any).replyTo)?.message || "(silinmiş mesaj)"}
+  </div>
+)}
 
                     {msg.message && (
                       <div className="break-words whitespace-pre-wrap w-full leading-relaxed">
@@ -408,7 +417,8 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
       </div>
 
       {/* Bottom Bar: Input + Media + Send */}
-      <div className={`${isMobile ? "fixed left-0 right-0 bottom-0 z-50" : ""} flex gap-3 px-4 py-3 bg-[#1f1f30] border-t border-gray-700`}>
+      <div className={`${isMobile ? "fixed left-0 right-0 bottom-0 z-50" : ""} flex gap-3 px-4 py-3 bg-[#1f1f30] border-t border-gray-700 relative`}>
+
         <button
           onClick={handleMediaClick}
           className="bg-gray-700 hover:bg-purple-600 transition text-white px-2 py-1 rounded-lg flex items-center justify-center"
@@ -424,11 +434,11 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
           <video src={selectedMediaBase64} className="w-10 h-10 object-cover rounded" muted />
         )}
         {replyInfo && (
-          <div className="text-xs text-gray-300 bg-gray-800 px-3 py-1 rounded-t-md flex justify-between items-center">
-            <span>Yanıtla: {replyInfo.message.slice(0, 50)}</span>
-            <button onClick={() => setReplyInfo(null)} className="ml-2 text-red-400 hover:underline">İptal</button>
-          </div>
-        )}
+  <div className="absolute bottom-20 left-4 right-4 text-xs text-gray-300 bg-gray-800 px-3 py-2 rounded-md flex justify-between items-center z-10">
+    <span className="truncate max-w-[85%]">Yanıtla: {replyInfo.message.slice(0, 50)}</span>
+    <button onClick={() => setReplyInfo(null)} className="ml-2 text-red-400 hover:underline">İptal</button>
+  </div>
+)}
 
         <input
           id="chatInput"
