@@ -101,10 +101,10 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
 
 
   useEffect(() => {
-  if (scrollRef.current) {
-    scrollRef.current.scrollIntoView({ behavior: "smooth" });
-  }
-}, [messages]);
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
 
   // Fetch buddy data from API
@@ -331,8 +331,8 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
 
   // Sadece kullanıcı en alttaysa scroll
   useEffect(() => {
-  scrollToBottom();
-}, [messages]);
+    scrollToBottom();
+  }, [messages]);
 
 
 
@@ -354,10 +354,10 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
 
       {/* Message Area */}
       <div
-  className="flex-1 overflow-y-auto px-4 py-5"
-  ref={messagesContainerRef}
-  style={{ marginTop: `${mobileOffset}px`, marginBottom: `${mobileOffset}px` }}
->
+        className="flex-1 overflow-y-auto px-4 py-5"
+        ref={messagesContainerRef}
+        style={{ marginTop: `${mobileOffset}px`, marginBottom: `${mobileOffset}px` }}
+      >
 
         <div className="flex flex-col justify-end gap-4">
           {messages.map((msg) => {
@@ -378,9 +378,10 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
                 className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm shadow-md transition-all duration-300 ${isMe ? "bg-gradient-to-br from-indigo-600 to-purple-700 self-end text-right" : "bg-gradient-to-br from-gray-700 to-gray-800 self-start text-left"
                   }`}
               >
-                <div className="flex items-start gap-3">
+                <div className={`flex items-start gap-3 ${isMe ? "flex-row-reverse text-right" : ""}`}>
                   <img src={senderPhoto} alt="Sender Photo" className="w-7 h-7 rounded-full object-cover" />
                   <div className="flex flex-col">
+
                     {(msg as any).replyTo && (
                       <div className="text-xs p-2 mb-1 rounded bg-gray-600 text-gray-200">
                         Yanıtlanan: {messages.find((m) => m.id === (msg as any).replyTo)?.message || "(silinmiş mesaj)"}
