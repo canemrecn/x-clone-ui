@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Post from "@/components/Post";
 import { PostData } from "@/components/Post";
 
-type PageProps = {
+type Props = {
   params: { tag: string };
 };
 
@@ -19,7 +19,7 @@ async function fetchPostsByHashtag(tag: string): Promise<PostData[]> {
   return data.posts;
 }
 
-export default async function HashtagPage(props: PageProps) {
+export default async function HashtagPage(props: Props) {
   const tag = decodeURIComponent(props.params.tag);
   const posts = await fetchPostsByHashtag(tag);
 
