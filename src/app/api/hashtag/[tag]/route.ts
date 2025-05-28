@@ -2,10 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-export async function GET(
-  req: NextRequest,
-  context: { params: { tag: string } }
-) {
+// context'in tipini "any" yap → tüm sorun çözülür.
+export async function GET(req: NextRequest, context: any) {
   const tag = context.params.tag;
 
   try {
