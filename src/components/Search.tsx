@@ -11,7 +11,8 @@ import Link from "next/link";
 
 export default function Search() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [userResults, setUserResults] = useState<any[]>([]);
+  const [tagResults, setTagResults] = useState<any[]>([]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -19,26 +20,39 @@ export default function Search() {
 
   useEffect(() => {
     if (!query.trim()) {
-      setResults([]);
+      setUserResults([]);
+      setTagResults([]);
       return;
     }
 
     const timer = setTimeout(() => {
-      fetch(`/api/search?query=${encodeURIComponent(query)}`, {
-        credentials: "include", // Ensuring cookies are sent for authentication
-      })
+      const isHashtag = query.trim().startsWith("#");
+      const cleanQuery = isHashtag ? query.trim().slice(1) : query.trim();
+
+      const endpoint = isHashtag
+        ? `/api/search-tags?query=${encodeURIComponent(cleanQuery)}`
+        : `/api/search?query=${encodeURIComponent(cleanQuery)}`;
+
+      fetch(endpoint, { credentials: "include" })
         .then((res) => {
           if (!res.ok) throw new Error(`Error: ${res.status}`);
           return res.json();
         })
         .then((data) => {
-          setResults(data.results || []);
+          if (isHashtag) {
+            setTagResults(data.tags || []);
+            setUserResults([]);
+          } else {
+            setUserResults(data.results || []);
+            setTagResults([]);
+          }
         })
         .catch((err) => {
           console.error("Search error:", err);
-          setResults([]);
+          setUserResults([]);
+          setTagResults([]);
         });
-    }, 300); // Debounce time
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [query]);
@@ -63,15 +77,25 @@ export default function Search() {
       </div>
 
       {/* Dropdown for results */}
-      {results.length > 0 && (
+      {(userResults.length > 0 || tagResults.length > 0) && (
         <div className="absolute top-full mt-2 left-0 w-full bg-gradient-to-br from-gray-800 to-gray-700 border border-gray-300 rounded-md p-2 z-50 shadow-lg max-h-[300px] overflow-y-auto">
-          {results.map((r) => (
+          {userResults.map((r) => (
             <Link
               key={r.id}
               href={`/${r.username}`}
               className="block p-2 rounded hover:bg-gradient-to-br hover:from-gray-700 hover:to-gray-600 transition text-white"
             >
               {r.full_name} (@{r.username})
+            </Link>
+          ))}
+
+          {tagResults.map((tag: { tag: string; count: number }) => (
+            <Link
+              key={tag.tag}
+              href={`/hashtag/${encodeURIComponent(tag.tag)}`}
+              className="block p-2 rounded hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 transition text-white"
+            >
+              #{tag.tag} ({tag.count})
             </Link>
           ))}
         </div>
