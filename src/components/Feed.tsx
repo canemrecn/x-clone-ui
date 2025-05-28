@@ -24,12 +24,14 @@ export default function Feed({ posts, lang }: FeedProps) {
     if (!posts) {
       (async function fetchPosts() {
         try {
-          let url = "/api/posts";
+          let url = "/api/feed"; // ✅ Burada güncelleme yaptık
           if (lang) {
             url += `?lang=${lang}`;
           }
+
           const res = await fetch(url, { credentials: "include" });
           if (!res.ok) throw new Error("Gönderiler alınamadı");
+
           const data = await res.json();
           setLocalPosts(data.posts || []);
         } catch (error) {
@@ -68,11 +70,11 @@ export default function Feed({ posts, lang }: FeedProps) {
   });
 
   return (
-    <div className="">
+    <div>
       <div className="mb-4">
-        <Share/>
+        <Share />
       </div>
-      
+
       {finalPosts.map((post) => (
         <Post key={post.id} postData={post} />
       ))}
