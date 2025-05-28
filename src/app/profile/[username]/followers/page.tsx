@@ -54,7 +54,7 @@ export default function FollowersPage() {
   const followers = data?.followers ?? [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white p-6 pt-24 pb-20">
+    <div className="max-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white p-6 pt-24 pb-20">
       <h1 className="text-4xl font-extrabold text-center bg-gradient-to-r from-[#4b6cb7] to-[#182848] text-transparent bg-clip-text mb-10 tracking-wide">
         {username}'s Followers
       </h1>
