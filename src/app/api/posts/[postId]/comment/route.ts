@@ -19,7 +19,7 @@ const spamWords = ["salak", "aptal", "bok", "nefret", "iğrenç", "öldür"];
 
 export async function GET(
   req: NextRequest,
-  context: any // ✅ Type hatası buradan kaynaklıydı
+  context: any
 ) {
   try {
     const postId = context?.params?.postId;
@@ -33,7 +33,7 @@ export async function GET(
              c.parent_comment_id, u.username, u.profile_image
       FROM comments c
       LEFT JOIN users u ON c.user_id = u.id
-      WHERE c.post_id = ?
+      WHERE c.post_id = ? AND c.is_deleted = 0
       ORDER BY c.created_at ASC
     `, [numericPostId]);
 
