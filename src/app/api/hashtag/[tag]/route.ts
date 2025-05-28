@@ -4,9 +4,9 @@ import { db } from "@/lib/db";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { tag: string } }
+  context: { params: { tag: string } }
 ) {
-  const { tag } = params;
+  const tag = context.params.tag;
 
   try {
     const [rows] = await db.execute(
@@ -23,9 +23,6 @@ export async function GET(
     return NextResponse.json({ posts: rows });
   } catch (error) {
     console.error("Hashtag gönderileri çekilemedi:", error);
-    return NextResponse.json(
-      { error: "Sunucu hatası" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
   }
 }
