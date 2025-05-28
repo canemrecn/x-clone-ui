@@ -1,7 +1,16 @@
 // src/app/api/feed/route.ts
+
 import { NextResponse } from "next/server";
 import { getUserFromCookies } from "@/lib/auth";
 import { db } from "@/lib/db";
+
+// 🔀 Diziyi karıştırmak için yardımcı fonksiyon
+function shuffleArray<T>(array: T[]): T[] {
+  return array
+    .map((value) => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+}
 
 export async function GET() {
   const user = await getUserFromCookies();
@@ -10,6 +19,7 @@ export async function GET() {
   const userId = user.id;
 
   try {
+    // 🟢 Takip edilen kişilerin gönderileri (%50)
     const [followingRows] = await db.execute(
       `SELECT p.*, u.username, u.full_name, u.profile_image
        FROM posts p
@@ -21,6 +31,7 @@ export async function GET() {
       [userId]
     );
 
+    // 🔵 En popüler gönderiler (%40)
     const [popularRows] = await db.execute(
       `SELECT p.*, u.username, u.full_name, u.profile_image,
         (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) +
@@ -31,6 +42,7 @@ export async function GET() {
        LIMIT 40`
     );
 
+    // 🟡 Rastgele gönderiler (%10)
     const [randomRows] = await db.execute(
       `SELECT p.*, u.username, u.full_name, u.profile_image
        FROM posts p
@@ -39,16 +51,21 @@ export async function GET() {
        LIMIT 10`
     );
 
-    const followingPosts = followingRows as any[];
-    const popularPosts = popularRows as any[];
-    const randomPosts = randomRows as any[];
+    // 🎯 Türleri belirle
+    const followingPosts = shuffleArray(followingRows as any[]);
+    const popularPosts = shuffleArray(popularRows as any[]);
+    const randomPosts = shuffleArray(randomRows as any[]);
 
+    // 🧩 Tüm gönderileri birleştir ve ID’ye göre benzersizleştir
     const merged = [...followingPosts, ...popularPosts, ...randomPosts];
     const uniquePosts = Array.from(
       new Map(merged.map((p) => [p.id, p])).values()
     );
 
-    return NextResponse.json({ posts: uniquePosts });
+    // 🔄 Karıştır (her yenilemede sıra farklı olsun)
+    const shuffledPosts = shuffleArray(uniquePosts);
+
+    return NextResponse.json({ posts: shuffledPosts });
   } catch (error) {
     console.error("Feed API error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
