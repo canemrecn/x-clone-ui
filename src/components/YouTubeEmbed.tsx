@@ -40,16 +40,11 @@ export default function YouTubeEmbed({ url }: YouTubeEmbedProps) {
         <Image
           src="/icons/youtube.png"
           alt="YouTube'da izle"
-          width={60}
-          height={60}
+          width={200}
+          height={200}
           className="opacity-90 hover:opacity-100 transition"
         />
       </a>
-      <img
-        src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
-        alt="YouTube video preview"
-        className="w-full h-full object-cover"
-      />
     </div>
   );
 }
