@@ -14,7 +14,7 @@ export async function DELETE(
   const { postId, commentId } = context.params;
 
   try {
-    const cookieStore =await cookies(); // await GEREK YOK
+    const cookieStore =await cookies(); // await yok
     const token = cookieStore.get("token")?.value;
 
     if (!token) {
@@ -24,7 +24,6 @@ export async function DELETE(
     const decoded = verify(token, process.env.JWT_SECRET!) as JwtPayload;
     const userId = decoded.id;
 
-    // Yorumu getir
     const [rows] = await db.query<RowDataPacket[]>(
       `SELECT * FROM comments WHERE id = ? AND post_id = ? AND is_deleted = 0`,
       [commentId, postId]
@@ -40,7 +39,6 @@ export async function DELETE(
       return NextResponse.json({ message: "Bu yorumu silmeye yetkiniz yok." }, { status: 403 });
     }
 
-    // Yorumu sil (soft delete)
     await db.query(`UPDATE comments SET is_deleted = 1 WHERE id = ?`, [commentId]);
 
     return NextResponse.json({ message: "Yorum başarıyla silindi." }, { status: 200 });
