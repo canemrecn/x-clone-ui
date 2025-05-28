@@ -7,14 +7,22 @@ import type { JwtPayload } from "jsonwebtoken";
 import { db } from "@/lib/db";
 import { RowDataPacket } from "mysql2";
 
+// ✅ Type'ı RequestContext olarak belirt
+interface RequestContext {
+  params: {
+    postId: string;
+    commentId: string;
+  };
+}
+
 export async function DELETE(
   req: NextRequest,
-  context: { params: { postId: string; commentId: string } }
+  context: RequestContext
 ) {
   const { postId, commentId } = context.params;
 
   try {
-    const cookieStore =await cookies(); // await yok
+    const cookieStore =await cookies();
     const token = cookieStore.get("token")?.value;
 
     if (!token) {
