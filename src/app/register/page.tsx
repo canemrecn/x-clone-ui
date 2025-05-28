@@ -80,8 +80,9 @@ export default function Register() {
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center p-6">
-      <h1>Doğrulama kodunu girerken hata yaşarsanız lütfen emrecancnzytnl@gmail.com adresine mail yollayarak iletişime geçin</h1>
+      
         <div className="w-full max-w-xl p-8 bg-[#2b2b3b] rounded-2xl border border-gray-700 shadow-2xl">
+          <p>Doğrulama kodunu girerken hata yaşarsanız lütfen emrecancnzytnl@gmail.com adresine mail yollayarak iletişime geçin</p>
           <h2 className="text-center text-3xl font-extrabold text-white mb-2">Kayıt Ol</h2>
           <p className="text-center mb-6 text-gray-400">Dil öğrenenler için sosyal medya platformu</p>
 
