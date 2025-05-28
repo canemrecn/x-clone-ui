@@ -33,6 +33,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center text-white pt-24 pb-20">
       <div className="w-full max-w-md px-8 py-10 bg-[#2c2c3e] rounded-2xl shadow-2xl relative border border-gray-700">
+        <h1>Doğrulama kodunu girerken hata yaşarsanız lütfen emrecancnzytnl@gmail.com adresine mail yollayarak iletişime geçin</h1>
         <div className="flex flex-col items-center gap-4">
           <Image
             src="/icons/logo22.png"
