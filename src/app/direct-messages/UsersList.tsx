@@ -36,10 +36,7 @@ export default function UsersList({ onSelectBuddy, onClose }: UsersListProps) {
 
     async function fetchBuddies() {
       try {
-        const res = await fetch("/api/users", {
-          credentials: "include",
-        });
-
+        const res = await fetch("/api/users", { credentials: "include" });
         if (res.ok) {
           const data = await res.json();
           setBuddyList(data.users || []);
@@ -60,9 +57,7 @@ export default function UsersList({ onSelectBuddy, onClose }: UsersListProps) {
       await fetch("/api/dm_messages/markRead", {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fromUserId: buddyId }),
       });
     } catch (err) {
@@ -85,48 +80,55 @@ export default function UsersList({ onSelectBuddy, onClose }: UsersListProps) {
   }
 
   return (
-    <div className="flex flex-col w-full h-full px-4 pt-6 pb-4 bg-gradient-to-br from-[#1e1e2f] to-[#2a2a3f] text-white rounded-l-xl shadow-lg">
-      <div className="flex items-center justify-between mb-6 px-1">
+    <div className="flex flex-col w-full h-full bg-[#1f1f2d] text-white overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-4 border-b border-gray-700 bg-[#2b2b3b]">
         <div className="flex items-center gap-2">
-          <span
+          <button
             onClick={() => router.back()}
-            className="text-white text-xl font-bold cursor-pointer hover:text-pink-500 -ml-1"
+            className="text-white text-2xl font-bold hover:text-pink-500"
           >
             ←
-          </span>
-          <h2 className="text-lg font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500">
+          </button>
+          <h1 className="text-lg font-bold bg-gradient-to-r from-orange-400 to-pink-500 bg-clip-text text-transparent">
             Mesajlar
-          </h2>
+          </h1>
         </div>
         {onClose && (
-          <button onClick={onClose} className="text-sm text-gray-400 hover:text-red-500 font-bold">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-red-500 text-lg font-bold"
+          >
             ✕
           </button>
         )}
       </div>
 
-      <div className="flex flex-col gap-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent pr-1">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
         {buddyList.map((buddy) => (
           <button
             key={buddy.id}
             onClick={() => handleSelectBuddy(buddy.id)}
-            className="flex items-center gap-3 px-4 py-3 bg-gray-800 rounded-lg hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 transition-all duration-300 group shadow-sm"
+            className="w-full flex items-center gap-3 p-3 bg-[#2c2c3e] rounded-xl hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 transition"
           >
             <div className="relative">
               <img
                 src={buddy.profile_image || "/icons/pp.png"}
                 alt={buddy.username}
-                className="w-10 h-10 rounded-full object-cover border-2 border-gray-700 group-hover:border-white"
+                className="w-10 h-10 rounded-full object-cover border-2 border-gray-600"
               />
               {buddy.hasNewMessage && (
-                <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-gray-900 animate-pulse" />
+                <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-[#2c2c3e] animate-pulse" />
               )}
             </div>
-            <span className="font-medium group-hover:text-white tracking-wide">
-              {buddy.username}
-            </span>
+            <div className="flex-1 text-left">
+              <p className="font-medium text-white truncate">{buddy.username}</p>
+            </div>
           </button>
         ))}
+
+        {buddyList.length === 0 && (
+          <p className="text-center text-sm text-gray-400">Mesajlaşmak için bir kullanıcı bulunamadı.</p>
+        )}
       </div>
     </div>
   );
