@@ -14,22 +14,13 @@ export default function YouTubeEmbed({ url }: YouTubeEmbedProps) {
   const getYouTubeId = (youtubeUrl: string) => {
     try {
       const urlObj = new URL(youtubeUrl);
-
       if (urlObj.hostname === "youtu.be") {
         return urlObj.pathname.slice(1);
+      } else if (urlObj.hostname.includes("youtube.com")) {
+        return urlObj.searchParams.get("v");
       }
-
-      if (urlObj.hostname.includes("youtube.com")) {
-        const vParam = urlObj.searchParams.get("v");
-        if (vParam) return vParam;
-
-        // Destek: /embed/ID gibi yollar için
-        const match = urlObj.pathname.match(/\/embed\/([a-zA-Z0-9_-]{11})/);
-        if (match) return match[1];
-      }
-
       return null;
-    } catch (error) {
+    } catch {
       return null;
     }
   };
@@ -37,22 +28,35 @@ export default function YouTubeEmbed({ url }: YouTubeEmbedProps) {
   const videoId = getYouTubeId(url);
 
   if (!videoId) {
-    return (
-      <div className="text-red-400 text-sm italic mt-2">
-        ⚠️ Geçersiz YouTube bağlantısı
-      </div>
-    );
+    return <p className="text-red-500 text-sm">Geçersiz YouTube bağlantısı</p>;
   }
 
   return (
-    <div className="w-full aspect-video mt-3 rounded-lg overflow-hidden shadow-lg">
+    <div className="w-full aspect-video mt-3 rounded-lg overflow-hidden shadow-md">
       <iframe
         src={`https://www.youtube.com/embed/${videoId}`}
         title="YouTube video player"
         className="w-full h-full"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowFullScreen
+        sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
+        onError={() => {
+          window.open(`https://www.youtube.com/watch?v=${videoId}`, "_blank");
+        }}
       ></iframe>
+
+      {/* Alternatif bağlantı */}
+      <p className="text-center text-sm text-gray-400 mt-2">
+        Video çalışmıyorsa{" "}
+        <a
+          href={`https://www.youtube.com/watch?v=${videoId}`}
+          target="_blank"
+          className="text-blue-400 underline"
+        >
+          YouTube'da izleyin
+        </a>
+        .
+      </p>
     </div>
   );
 }
