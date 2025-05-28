@@ -87,16 +87,17 @@ export default function UsersList({ onSelectBuddy, onClose }: UsersListProps) {
   return (
     <div className="flex flex-col w-full h-full px-4 pt-6 pb-4 bg-gradient-to-br from-[#1e1e2f] to-[#2a2a3f] text-white rounded-l-xl shadow-lg">
       <div className="flex items-center justify-between mb-6 px-1">
-        <h2 className="text-xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500 flex items-center gap-2">
-          <img src="/icons/messages.png" alt="icon" className="w-5 h-5" />
-          Mesajlar
-        </h2>
-        {onClose && (
-          <button onClick={onClose} className="text-sm text-gray-400 hover:text-red-500 font-bold">
-            ✕
-          </button>
-        )}
-      </div>
+  <h2 className="text-xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500 flex items-center gap-2">
+    <img src="/icons/messages.png" alt="icon" className="w-5 h-5" />
+    Mesajlar
+  </h2>
+  {onClose && (
+    <button onClick={onClose} className="text-sm text-gray-400 hover:text-red-500 font-bold">
+      ✕
+    </button>
+  )}
+</div>
+
 
       <div className="flex flex-col gap-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent pr-1">
         {buddyList.map((buddy) => (
