@@ -28,7 +28,7 @@ export default async function HashtagPage(props: any) {
   }
 
   return (
-    <div className="p-4">
+    <div className="p-4 pt-24 pb-20">
       <h1 className="text-2xl font-bold text-white mb-6">#{tag} etiketiyle paylaşılanlar</h1>
       <div className="space-y-6">
         {posts.map((post) => (
