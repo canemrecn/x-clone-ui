@@ -97,6 +97,15 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
   const [translatedWord, setTranslatedWord] = useState<string | null>(null);
   const [loadingTranslation, setLoadingTranslation] = useState<boolean>(false);
   const [replyInfo, setReplyInfo] = useState<{ id: number; message: string } | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+
+  useEffect(() => {
+  if (scrollRef.current) {
+    scrollRef.current.scrollIntoView({ behavior: "smooth" });
+  }
+}, [messages]);
+
 
   // Fetch buddy data from API
   useEffect(() => {
@@ -117,6 +126,8 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
     }
     fetchBuddyData();
   }, [buddyId, auth?.user]);
+
+
 
   // Fetch messages from API
   useEffect(() => {
@@ -320,8 +331,9 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
 
   // Sadece kullanıcı en alttaysa scroll
   useEffect(() => {
-    if (isUserNearBottom()) scrollToBottom();
-  }, [messages]);
+  scrollToBottom();
+}, [messages]);
+
 
 
   return (
@@ -342,7 +354,12 @@ export default function ChatWindow({ buddyId, onClose }: ChatWindowProps) {
       </div>
 
       {/* Message Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-5" style={{ marginTop: `${mobileOffset}px`, marginBottom: `${mobileOffset}px` }}>
+      <div
+  className="flex-1 overflow-y-auto px-4 py-5"
+  ref={messagesContainerRef}
+  style={{ marginTop: `${mobileOffset}px`, marginBottom: `${mobileOffset}px` }}
+>
+
         <div className="flex flex-col justify-end gap-4">
           {messages.map((msg) => {
             const isMe = msg.senderId === auth?.user?.id;
