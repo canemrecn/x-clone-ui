@@ -1,4 +1,5 @@
 // src/app/api/admin/deleted-users/export/route.ts
+// src/app/api/admin/deleted-users/export/route.ts
 
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
@@ -9,11 +10,10 @@ import PDFDocument from "pdfkit";
 import { Parser } from "json2csv";
 import fs from "fs";
 import path from "path";
-import { PassThrough } from "stream";
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
+    const cookieStore =await cookies(); // ❗ async değil
     const token = cookieStore.get("token")?.value;
 
     if (!token) {
@@ -23,9 +23,15 @@ export async function GET(req: Request) {
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new Error("JWT_SECRET is not defined");
 
-    const decoded = jwt.verify(token, secret) as { id: number; role: string };
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, secret) as { id: number; role: string };
+    } catch {
+      return NextResponse.json({ message: "Geçersiz token" }, { status: 403 });
+    }
+
     if (decoded.role !== "admin") {
-      return NextResponse.json({ message: "Unauthorized - Admin Only" }, { status: 401 });
+      return NextResponse.json({ message: "Yetkisiz erişim – yalnızca admin" }, { status: 401 });
     }
 
     const url = new URL(req.url);
@@ -46,8 +52,16 @@ export async function GET(req: Request) {
 
     // ✅ CSV formatı
     if (format === "csv") {
+      if (!rows.length) {
+        return new Response("Silinen kullanıcı bulunamadı.", {
+          status: 200,
+          headers: { "Content-Type": "text/plain" },
+        });
+      }
+
       const parser = new Parser();
       const csv = parser.parse(rows);
+
       return new Response(csv, {
         status: 200,
         headers: {
@@ -63,25 +77,32 @@ export async function GET(req: Request) {
 
       if (!fs.existsSync(fontPath)) {
         return NextResponse.json({
-          message: "Font file not found: public/fonts/Roboto-Regular.ttf",
+          message: "Font dosyası bulunamadı: public/fonts/Roboto-Regular.ttf",
         }, { status: 500 });
       }
 
-      const buffers: Buffer[] = []; // ✅ Eksik olan bu satır!
-      const doc = new PDFDocument({ font: fontPath });
+      const buffers: Buffer[] = [];
+      const doc = new PDFDocument();
+
+      doc.registerFont("Roboto", fontPath);
+      doc.font("Roboto");
 
       doc.on("data", (chunk) => buffers.push(chunk));
       doc.on("end", () => null);
 
       doc.fontSize(20).text("Silinen Hesaplar", { align: "center" }).moveDown();
 
-      rows.forEach((user, index) => {
-        doc.fontSize(12).text(`${index + 1}. ${user.full_name || "-"} (@${user.username || "-"})`);
-        doc.text(`E-posta: ${user.email || "-"}`);
-        doc.text(`Sebep: ${user.reason || "Belirtilmemiş"}`);
-        doc.text(`Tarih: ${new Date(user.deleted_at).toLocaleString()}`);
-        doc.moveDown();
-      });
+      if (!rows.length) {
+        doc.fontSize(12).text("Hiç silinen kullanıcı yok.");
+      } else {
+        rows.forEach((user, index) => {
+          doc.fontSize(12).text(`${index + 1}. ${user.full_name || "-"} (@${user.username || "-"})`);
+          doc.text(`E-posta: ${user.email || "-"}`);
+          doc.text(`Sebep: ${user.reason || "Belirtilmemiş"}`);
+          doc.text(`Tarih: ${new Date(user.deleted_at).toLocaleString("tr-TR")}`);
+          doc.moveDown();
+        });
+      }
 
       doc.end();
 
@@ -98,9 +119,13 @@ export async function GET(req: Request) {
       });
     }
 
-    return NextResponse.json({ message: "Unsupported format" }, { status: 400 });
+    return NextResponse.json({ message: "Geçersiz format" }, { status: 400 });
+
   } catch (err: any) {
     console.error("Export error:", err);
-    return NextResponse.json({ message: "Sunucu hatası", error: err.message }, { status: 500 });
+    return NextResponse.json({
+      message: "Sunucu hatası",
+      error: err.message,
+    }, { status: 500 });
   }
 }

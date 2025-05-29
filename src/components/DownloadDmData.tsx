@@ -4,7 +4,12 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
-export default function DownloadDmData() {
+interface DownloadDmDataProps {
+  otherUserId: number;
+  targetDate: string;
+}
+
+export default function DownloadDmData({ otherUserId, targetDate }: DownloadDmDataProps) {
   const auth = useAuth();
   const [loading, setLoading] = useState(false);
 
@@ -13,8 +18,6 @@ export default function DownloadDmData() {
 
     try {
       const userId = auth?.user?.id;
-      const otherUserId = 14;
-      const targetDate = "2025-04-19";
 
       if (!userId) {
         alert("Kullanıcı oturumu bulunamadı.");
@@ -25,31 +28,31 @@ export default function DownloadDmData() {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          otherUserId,
-          targetDate,
-        }),
+        body: JSON.stringify({ userId, otherUserId, targetDate }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const url = window.URL.createObjectURL(blob);
+        const fileName = `dm_messages_${userId}_${otherUserId}_${targetDate}.json`;
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
 
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `dm_messages_${userId}_${otherUserId}_${targetDate}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
       } else {
         alert(data.error || "Veriler alınamadı.");
       }
     } catch (err) {
+      console.error("İndirme hatası:", err);
       alert("Veriler indirilemedi.");
-      console.error(err);
     } finally {
       setLoading(false);
     }

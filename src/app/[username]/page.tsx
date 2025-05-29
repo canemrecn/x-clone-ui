@@ -98,15 +98,21 @@ export default function UserPage() {
 
   const [targetLanguage, setTargetLanguage] = useState("tr");
   useEffect(() => {
+  if (typeof window !== "undefined") {
     const savedLang = localStorage.getItem("targetLanguage");
     if (savedLang) setTargetLanguage(savedLang);
-  }, []);
+  }
+}, []);
 
-  const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const newLang = e.target.value;
-    setTargetLanguage(newLang);
+const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
+  const newLang = e.target.value;
+  setTargetLanguage(newLang);
+
+  if (typeof window !== "undefined") {
     localStorage.setItem("targetLanguage", newLang);
-  };
+  }
+};
+
 
   const profileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);

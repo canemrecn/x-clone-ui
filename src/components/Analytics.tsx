@@ -7,9 +7,12 @@ export default function Analytics() {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
+  if (typeof window !== "undefined") {
     const consent = localStorage.getItem("analyticsConsent");
     if (consent === "true") setEnabled(true);
-  }, []);
+  }
+}, []);
+
 
   if (!enabled) return null;
 

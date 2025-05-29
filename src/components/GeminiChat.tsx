@@ -14,11 +14,17 @@ import { useAuth } from "@/context/AuthContext";
 
 // Çeviri fonksiyonu
 const translateWord = async (word: string): Promise<string> => {
-  const targetLang = localStorage.getItem("targetLanguage") || "tr";
+  let targetLang = "tr";
+
+  if (typeof window !== "undefined") {
+    const saved = localStorage.getItem("targetLanguage");
+    if (saved) targetLang = saved;
+  }
+
   try {
     const res = await fetch('/api/translate', {
       method: 'POST',
-      credentials: 'include', // ⚠️ bu önemli!
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ word, targetLang })
     });
@@ -29,6 +35,7 @@ const translateWord = async (word: string): Promise<string> => {
     return word;
   }
 };
+
 
 const HoverTranslateWord: React.FC<{ word: string }> = ({ word }) => {
   const [translation, setTranslation] = useState<string | null>(null);

@@ -13,17 +13,19 @@ export default function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    function handleResize() {
+  function handleResize() {
+    if (typeof window !== "undefined") {
       setIsMobile(window.innerWidth < 768);
     }
-    // Sayfa ilk açıldığında da kontrol edelim
-    handleResize();
+  }
 
+  if (typeof window !== "undefined") {
+    handleResize();
     window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+    return () => window.removeEventListener("resize", handleResize);
+  }
+}, []);
+
 
   return isMobile;
 }

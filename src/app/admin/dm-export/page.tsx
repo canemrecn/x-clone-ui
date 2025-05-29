@@ -34,6 +34,11 @@ export default function AdminDmExportPage() {
         return;
       }
 
+      if (typeof window === "undefined" || typeof document === "undefined") {
+        setMessage("Bu özellik tarayıcıda çalıştırılmalıdır.");
+        return;
+      }
+
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -41,6 +46,7 @@ export default function AdminDmExportPage() {
       a.download = `dm_${userId1}_${userId2}_${targetDate}.json`;
       a.click();
       URL.revokeObjectURL(url);
+
       setMessage("✅ JSON dosyası indirildi.");
     } catch (error) {
       console.error("İndirme hatası:", error);

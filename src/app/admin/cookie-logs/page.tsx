@@ -1,4 +1,5 @@
 // ✅ src/app/admin/cookie-logs/page.tsx
+// ✅ src/app/admin/cookie-logs/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -53,57 +54,69 @@ export default function CookieLogsPage() {
   };
 
   const downloadAsJSON = () => {
-    const jsonStr = JSON.stringify(filteredLogs, null, 2);
-    const blob = new Blob([jsonStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "cookie_logs.json";
-    a.click();
-    URL.revokeObjectURL(url);
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+
+    try {
+      const jsonStr = JSON.stringify(filteredLogs, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "cookie_logs.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("JSON indirme hatası:", error);
+    }
   };
 
   const downloadAsCSV = () => {
-    const csvRows = [
-      [
-        "ID",
-        "Kullanıcı",
-        "Onay Türü",
-        "Analytics",
-        "Marketing",
-        "IP",
-        "Tarayıcı",
-        "Tarih",
-      ],
-      ...filteredLogs.map((log) => [
-        log.user_id ?? "Anonim",
-        log.user_id
-          ? `${log.full_name || "-"} (@${log.username || "-"})`
-          : "Anonim",
-        log.consent_type,
-        log.analytics ? "✔" : "—",
-        log.marketing ? "✔" : "—",
-        log.ip_address,
-        log.user_agent.replace(/\s+/g, " ").slice(0, 80),
-        new Date(log.created_at).toLocaleString(),
-      ]),
-    ];
+    if (typeof window === "undefined" || typeof document === "undefined") return;
 
-    const csvContent = csvRows
-      .map((row) =>
-        row
-          .map((cell) => `"${(cell ?? "").toString().replace(/"/g, '""')}"`)
-          .join(",")
-      )
-      .join("\n");
+    try {
+      const csvRows = [
+        [
+          "ID",
+          "Kullanıcı",
+          "Onay Türü",
+          "Analytics",
+          "Marketing",
+          "IP",
+          "Tarayıcı",
+          "Tarih",
+        ],
+        ...filteredLogs.map((log) => [
+          log.user_id ?? "Anonim",
+          log.user_id
+            ? `${log.full_name || "-"} (@${log.username || "-"})`
+            : "Anonim",
+          log.consent_type,
+          log.analytics ? "✔" : "—",
+          log.marketing ? "✔" : "—",
+          log.ip_address,
+          log.user_agent.replace(/\s+/g, " ").slice(0, 80),
+          new Date(log.created_at).toLocaleString(),
+        ]),
+      ];
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "cookie_logs.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+      const csvContent = csvRows
+        .map((row) =>
+          row
+            .map((cell) => `"${(cell ?? "").toString().replace(/"/g, '""')}"`)
+            .join(",")
+        )
+        .join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "cookie_logs.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("CSV indirme hatası:", err);
+    }
   };
 
   return (

@@ -47,7 +47,13 @@ export default function Post({ postData }: PostProps) {
     setFeedback(null);
 
     try {
-      const savedLang = localStorage.getItem("targetLanguage") || "tr";
+      let savedLang = "tr";
+
+if (typeof window !== "undefined") {
+  const lang = localStorage.getItem("targetLanguage");
+  if (lang) savedLang = lang;
+}
+
 
       const resCheck = await fetch(
         `/api/check-translation?postId=${postData.id}&word=${encodeURIComponent(`${word}_${index}`)}`,
