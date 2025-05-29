@@ -14,27 +14,48 @@ async function fetchPostsByHashtag(tag: string): Promise<PostData[]> {
   return data.posts;
 }
 
+async function fetchTopHashtags(): Promise<{ tag: string; count: number }[]> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/hashtag-popular`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.topHashtags;
+}
+
 export default async function HashtagPage(props: any) {
   const tag = decodeURIComponent(props.params.tag);
   const posts = await fetchPostsByHashtag(tag);
-
-  if (!posts || posts.length === 0) {
-    return (
-      <div className="text-center text-gray-300 p-8">
-        <h1 className="text-2xl font-bold mb-4">#{tag}</h1>
-        <p>Bu etikete ait gönderi bulunamadı.</p>
-      </div>
-    );
-  }
+  const topTags = await fetchTopHashtags();
 
   return (
     <div className="p-4 pt-24 pb-20">
       <h1 className="text-2xl font-bold text-white mb-6">#{tag} etiketiyle paylaşılanlar</h1>
-      <div className="space-y-6">
-        {posts.map((post) => (
-          <Post key={post.id} postData={post} />
-        ))}
+
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold text-gray-300 mb-2">🔝 En Popüler Etiketler</h2>
+        <div className="flex flex-wrap gap-2">
+          {topTags.map((item) => (
+            <span
+              key={item.tag}
+              className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm"
+            >
+              #{item.tag} ({item.count})
+            </span>
+          ))}
+        </div>
       </div>
+
+      {posts.length === 0 ? (
+        <p className="text-gray-400">Bu etikete ait gönderi bulunamadı.</p>
+      ) : (
+        <div className="space-y-6">
+          {posts.map((post: PostData) => (
+            <Post key={post.id} postData={post} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -33,8 +33,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="text-[#FFFFFF]">
         <AuthProvider>
           <LayoutWrapper>
-            {children}
             <CookieBanner />
+            {children}           
             <Analytics />
           </LayoutWrapper>
         </AuthProvider>
