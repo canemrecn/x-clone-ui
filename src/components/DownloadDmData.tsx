@@ -1,17 +1,15 @@
 // src/components/DownloadDmData.tsx
+// src/components/DownloadDmData.tsx
 "use client";
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
-interface DownloadDmDataProps {
-  otherUserId: number;
-  targetDate: string;
-}
-
-export default function DownloadDmData({ otherUserId, targetDate }: DownloadDmDataProps) {
+export default function DownloadDmData() {
   const auth = useAuth();
   const [loading, setLoading] = useState(false);
+  const [otherUserId, setOtherUserId] = useState("");
+  const [targetDate, setTargetDate] = useState("");
 
   const handleDownload = async () => {
     setLoading(true);
@@ -19,8 +17,8 @@ export default function DownloadDmData({ otherUserId, targetDate }: DownloadDmDa
     try {
       const userId = auth?.user?.id;
 
-      if (!userId) {
-        alert("Kullanıcı oturumu bulunamadı.");
+      if (!userId || !otherUserId || !targetDate) {
+        alert("Lütfen tüm alanları doldurun.");
         return;
       }
 
@@ -28,7 +26,11 @@ export default function DownloadDmData({ otherUserId, targetDate }: DownloadDmDa
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, otherUserId, targetDate }),
+        body: JSON.stringify({
+          userId,
+          otherUserId: Number(otherUserId),
+          targetDate,
+        }),
       });
 
       const data = await res.json();
@@ -59,11 +61,32 @@ export default function DownloadDmData({ otherUserId, targetDate }: DownloadDmDa
   };
 
   return (
-    <div className="p-4">
+    <div className="p-6 space-y-4 bg-gray-900 rounded-lg shadow-lg max-w-md mx-auto">
+      <div>
+        <label className="block mb-1 text-sm font-medium text-white">Diğer Kullanıcı ID</label>
+        <input
+          type="number"
+          value={otherUserId}
+          onChange={(e) => setOtherUserId(e.target.value)}
+          className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-600"
+          placeholder="örn. 14"
+        />
+      </div>
+
+      <div>
+        <label className="block mb-1 text-sm font-medium text-white">Tarih</label>
+        <input
+          type="date"
+          value={targetDate}
+          onChange={(e) => setTargetDate(e.target.value)}
+          className="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-600"
+        />
+      </div>
+
       <button
         onClick={handleDownload}
         disabled={loading}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
       >
         {loading ? "Hazırlanıyor..." : "Mesajları İndir"}
       </button>
