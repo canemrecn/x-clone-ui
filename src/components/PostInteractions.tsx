@@ -12,7 +12,7 @@ kullanıcı seçilerek gönderi paylaşılabilir. Her işlemde kimlik doğrulama
 kullanıcı etkileşimi sağlanır. Ayrıca, modal açılarak kullanıcı seçimiyle gönderme işlemi yapılır.*/
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import UsersList from "@/app/direct-messages/UsersList";
 
@@ -30,12 +30,33 @@ const PostInteractions: React.FC<PostInteractionsProps> = React.memo(
     const [isLiked, setIsLiked] = useState(false);
     const [showSendModal, setShowSendModal] = useState(false);
 
+    // ✅ Beğeni ve yorum sayısını anlık çek
+    useEffect(() => {
+      async function fetchCounts() {
+        try {
+          const res = await fetch(`/api/posts/${postId}/counts`, {
+            credentials: "include",
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setLikeCount(data.likes);
+            setCommentCount(data.comments);
+            setIsLiked(data.isLiked);
+          }
+        } catch (err) {
+          console.error("Beğeni/Yorum bilgileri alınamadı:", err);
+        }
+      }
+
+      fetchCounts();
+    }, [postId]);
+
     const handleLike = useCallback(async () => {
       try {
         const res = await fetch(`/api/posts/${postId}/like`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include", // HttpOnly cookie gönderimi
+          credentials: "include",
         });
         if (res.ok) {
           const data = await res.json();
