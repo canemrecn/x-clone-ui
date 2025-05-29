@@ -31,7 +31,8 @@ export default function Homepage() {
     <div className="pt-24 pb-20 px-4">
       <div className="max-w-4xl mx-auto mb-6 text-center bg-gray-800 rounded-xl p-4 shadow-lg border border-gray-700">
         <h1 className="text-md md:text-lg font-semibold tracking-wide text-gray-300">
-          PROJE GELİŞTİRME AŞAMASINDADIR VE TÜM TELİF HAKLARI SAKLIDIR
+          <p>Tüm Telif Hakları Saklıdır</p>
+          <p>Bu uygulama şu anda demo aşamasındadır ve test amaçlı olarak erişime açıktır. Yayınlanma süreci tamamlanana kadar yalnızca değerlendirme ve geliştirme amaçlı kullanılabilir. Uygulamanın mevcut durumuna ilişkin herhangi bir hukuki, ticari veya kullanıcı bazlı sorumluluk kabul edilmemektedir. Kullanıcı siteye kayıt olarak bu şartı kabul etmiş sayılır</p>
         </h1>
       </div>
       <Feed />

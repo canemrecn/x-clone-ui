@@ -82,6 +82,7 @@ export default function Register() {
       <div className="w-full md:w-1/2 flex items-center justify-center p-6">
       
         <div className="w-full max-w-xl p-8 bg-[#2b2b3b] rounded-2xl border border-gray-700 shadow-2xl">
+          <p>Bu uygulama şu anda demo aşamasındadır ve test amaçlı olarak erişime açıktır. Yayınlanma süreci tamamlanana kadar yalnızca değerlendirme ve geliştirme amaçlı kullanılabilir. Uygulamanın mevcut durumuna ilişkin herhangi bir hukuki, ticari veya kullanıcı bazlı sorumluluk kabul edilmemektedir. Kullanıcı siteye kayıt olarak bu şartı kabul etmiş sayılır</p>
           <p>Doğrulama kodunu girerken hata yaşarsanız lütfen emrecancnzytnl@gmail.com adresine mail yollayarak iletişime geçin</p>
           <h2 className="text-center text-3xl font-extrabold text-white mb-2">Kayıt Ol</h2>
           <p className="text-center mb-6 text-gray-400">Dil öğrenenler için sosyal medya platformu</p>
