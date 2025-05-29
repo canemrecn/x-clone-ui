@@ -1,28 +1,26 @@
+// src/app/api/posts/[postId]/counts/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import jwt from "jsonwebtoken";
 import { RowDataPacket } from "mysql2/promise";
 
-export async function GET(req: NextRequest, context: { params: { postId: string } }) {
+export async function GET(req: NextRequest, context: any) {
   try {
     const postId = parseInt(context.params.postId, 10);
     if (isNaN(postId)) {
       return NextResponse.json({ message: "Invalid post ID" }, { status: 400 });
     }
 
-    // Beğeni sayısını al
     const [[{ likeCount }]] = await db.query<RowDataPacket[]>(
       `SELECT COUNT(*) AS likeCount FROM likes WHERE post_id = ?`,
       [postId]
     );
 
-    // Yorum sayısını al
     const [[{ commentCount }]] = await db.query<RowDataPacket[]>(
       `SELECT COUNT(*) AS commentCount FROM comments WHERE post_id = ? AND is_deleted = 0`,
       [postId]
     );
 
-    // Kullanıcının beğenip beğenmediğini al
     const cookieHeader = req.headers.get("cookie") || "";
     const tokenMatch = cookieHeader.match(/token=([^;]+)/);
     const token = tokenMatch?.[1];
@@ -41,7 +39,7 @@ export async function GET(req: NextRequest, context: { params: { postId: string 
 
     return NextResponse.json({ likes: likeCount, comments: commentCount, isLiked });
   } catch (err: any) {
-    console.error("Like/comment sayıları alınamadı:", err);
+    console.error("Like/comment sayısı alınamadı:", err);
     return NextResponse.json({ message: "Server error", error: err.message }, { status: 500 });
   }
 }
