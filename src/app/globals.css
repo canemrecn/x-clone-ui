@@ -4,7 +4,6 @@ sınıflarını içeri aktarır, mesaj kutuları gibi animasyonlu geçişler iç
 (message-appear, message-enter, message-exit vb.), gövdeye siyah arka plan ve açık metin rengi 
 atar, sayfa taşmalarını engeller, yazı tipini belirler ve .fade-in sınıfıyla basit bir görünme 
 animasyonu uygular. Ayrıca anaglif 3D gözlükler için 3D efekt sınıfı (.anaglyph-effect) eklenmiştir.*/
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -58,13 +57,13 @@ html {
   }
 }
 
-/* 🎯 3D Gözlük Efekti */
+/* 🎯 Güçlü 3D Gözlük Efekti (Kırmızı-Mavi Gözlük İçin) */
 .anaglyph-effect * {
-  text-shadow: 1.2px 0 red, -1.2px 0 cyan !important;
+  text-shadow: 3.5px 0 red, -3.5px 0 cyan !important;
 }
 
 .anaglyph-effect img,
 .anaglyph-effect video {
-  filter: contrast(1.2) saturate(1.4) drop-shadow(2px 0 red) drop-shadow(-2px 0 cyan) !important;
+  filter: contrast(1.6) saturate(1.7) drop-shadow(5px 0 red) drop-shadow(-5px 0 cyan) !important;
   mix-blend-mode: screen;
 }
