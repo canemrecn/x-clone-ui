@@ -44,7 +44,7 @@ export default function RightBar() {
         href={`/hashtag/${encodeURIComponent(tag.tag)}`}
         className="bg-gray-700 hover:bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm px-3 py-1 rounded-full transition duration-200 shadow hover:scale-105"
       >
-        #{tag.tag} <span className="text-gray-300">({tag.count})</span>
+        #{tag.tag}
       </Link>
     ))}
   </div>
