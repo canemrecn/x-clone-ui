@@ -3,10 +3,12 @@
 sınıflarını içeri aktarır, mesaj kutuları gibi animasyonlu geçişler için özel sınıflar tanımlar 
 (message-appear, message-enter, message-exit vb.), gövdeye siyah arka plan ve açık metin rengi 
 atar, sayfa taşmalarını engeller, yazı tipini belirler ve .fade-in sınıfıyla basit bir görünme 
-animasyonu uygular.*/
+animasyonu uygular. Ayrıca anaglif 3D gözlükler için 3D efekt sınıfı (.anaglyph-effect) eklenmiştir.*/
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer components {
   .message-appear {
     @apply opacity-0 translate-y-5;
@@ -27,6 +29,7 @@ animasyonu uygular.*/
     @apply opacity-0 transition-opacity duration-300 ease-in-out;
   }
 }
+
 body {
   color: #ededed;
   background: url('/general/bg.png') no-repeat center center fixed;
@@ -41,6 +44,27 @@ html {
   width: 100%;
   overflow-x: hidden;
 }
+
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 🎯 3D Gözlük Efekti */
+.anaglyph-effect * {
+  text-shadow: 1.2px 0 red, -1.2px 0 cyan !important;
+}
+
+.anaglyph-effect img,
+.anaglyph-effect video {
+  filter: contrast(1.2) saturate(1.4) drop-shadow(2px 0 red) drop-shadow(-2px 0 cyan) !important;
+  mix-blend-mode: screen;
 }
