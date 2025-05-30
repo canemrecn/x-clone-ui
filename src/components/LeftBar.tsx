@@ -12,7 +12,7 @@ HTTP-only cookie uyumludur; logout işlemi dahil fetch çağrıları context iç
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import GeminiChat from "./GeminiChat";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -32,7 +32,7 @@ export default function LeftBar() {
   const router = useRouter();
   const [showUserOptions, setShowUserOptions] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [showLanguages, setShowLanguages] = useState(false);
+  const [enabled3D, setEnabled3D] = useState(false);
   const isMobile = useIsMobile();
 
   const handleLogout = async () => {
@@ -53,6 +53,17 @@ export default function LeftBar() {
       setIsChatOpen(true);
     }
   };
+
+  // 3D Toggle Efekti
+  useEffect(() => {
+    if (enabled3D) {
+      document.body.classList.add("anaglyph-effect");
+      document.body.classList.add("anaglyph-overlay");
+    } else {
+      document.body.classList.remove("anaglyph-effect");
+      document.body.classList.remove("anaglyph-overlay");
+    }
+  }, [enabled3D]);
 
   return (
     <>
@@ -76,9 +87,9 @@ export default function LeftBar() {
         </div>
       </div>
 
-      {/* MASAÜSTÜ: Sol Alt Profil */}
+      {/* MASAÜSTÜ: Sol Alt Profil + 3D Butonu */}
       {auth?.user && (
-        <div className="hidden lg:flex fixed bottom-4 left-4 z-[1050] items-center gap-4">
+        <div className="hidden lg:flex fixed bottom-4 left-4 z-[1050] flex-col items-center gap-3">
           <div className="relative">
             <Image
               src={auth.user.profile_image || "/icons/pp.png"}
@@ -105,17 +116,38 @@ export default function LeftBar() {
               </div>
             )}
           </div>
+
+          {/* 3D BUTONU */}
+          <button
+            onClick={() => setEnabled3D((prev) => !prev)}
+            className="text-xs mt-1 px-3 py-1 border rounded-md bg-black/70 text-white border-white hover:bg-black"
+          >
+            {enabled3D ? "3D KAPAT" : "3D AÇ"}
+          </button>
         </div>
       )}
 
       {/* MOBİL: Üst Navbar */}
       <div className="lg:hidden fixed top-0 left-0 w-full bg-gray-900 shadow-md border-b border-gray-700 flex items-center px-4 py-3 z-[1000]">
+        {/* 3D BUTONU */}
+        <button
+          onClick={() => setEnabled3D((prev) => !prev)}
+          className="text-[10px] px-2 py-1 border rounded-md bg-black/70 text-white border-white mr-2"
+        >
+          {enabled3D ? "3D KAPAT" : "3D AÇ"}
+        </button>
+
+        {/* DM İCON */}
         <Link href="/direct-messages" className="p-2">
           <Image src="/icons/send2.png" alt="DM" width={24} height={24} />
         </Link>
+
+        {/* SEARCH */}
         <div className="flex-1 mx-1 max-w-[300px]">
           <Search />
         </div>
+
+        {/* PROFİL */}
         {auth?.user && (
           <div className="p-1 relative right-0" onClick={() => setShowUserOptions((prev) => !prev)}>
             <Image
