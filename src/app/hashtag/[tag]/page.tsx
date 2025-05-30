@@ -32,21 +32,6 @@ export default async function HashtagPage(props: any) {
   return (
     <div className="p-4 pt-24 pb-20">
       <h1 className="text-2xl font-bold text-white mb-6">#{tag} etiketiyle paylaşılanlar</h1>
-
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-gray-300 mb-2">🔝 En Popüler Etiketler</h2>
-        <div className="flex flex-wrap gap-2">
-          {topTags.map((item) => (
-            <span
-              key={item.tag}
-              className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm"
-            >
-              #{item.tag} ({item.count})
-            </span>
-          ))}
-        </div>
-      </div>
-
       {posts.length === 0 ? (
         <p className="text-gray-400">Bu etikete ait gönderi bulunamadı.</p>
       ) : (
