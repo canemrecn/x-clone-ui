@@ -1,10 +1,9 @@
 /* src/app/globals.css */
-/*Bu dosya, projeye global CSS stillerini tanımlar; Tailwind CSS’in temel, bileşen ve yardımcı
-sınıflarını içeri aktarır, mesaj kutuları gibi animasyonlu geçişler için özel sınıflar tanımlar
-(message-appear, message-enter, message-exit vb.), gövdeye siyah arka plan ve açık metin rengi
-atar, sayfa taşmalarını engeller, yazı tipini belirler ve .fade-in sınıfıyla basit bir görünme
-animasyonu uygular. Ayrıca anaglif 3D gözlükler için shadow + overlay efektlerini içerir.*/
-
+/*Bu dosya, projeye global CSS stillerini tanımlar; Tailwind CSS’in temel, bileşen ve yardımcı 
+sınıflarını içeri aktarır, mesaj kutuları gibi animasyonlu geçişler için özel sınıflar tanımlar 
+(message-appear, message-enter, message-exit vb.), gövdeye siyah arka plan ve açık metin rengi 
+atar, sayfa taşmalarını engeller, yazı tipini belirler ve .fade-in sınıfıyla basit bir görünme 
+animasyonu uygular. Ayrıca anaglif 3D gözlükler için 3D efekt sınıfı (.anaglyph-effect) eklenmiştir.*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -58,7 +57,7 @@ html {
   }
 }
 
-/* 🎯 Güçlü 3D Gözlük Shadow Efekti */
+/* 🎯 Güçlü 3D Gözlük Efekti (Kırmızı-Mavi Gözlük İçin) */
 .anaglyph-effect * {
   text-shadow: 3.5px 0 red, -3.5px 0 cyan !important;
 }
@@ -66,28 +65,5 @@ html {
 .anaglyph-effect img,
 .anaglyph-effect video {
   filter: contrast(1.6) saturate(1.7) drop-shadow(5px 0 red) drop-shadow(-5px 0 cyan) !important;
-  mix-blend-mode: screen;
-}
-
-/* 🟥🟦 Overlay Filtre ile 3D yanılsama (gözlüksüz hissiyat için) */
-.anaglyph-overlay::before,
-.anaglyph-overlay::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 9998;
-}
-
-.anaglyph-overlay::before {
-  background: rgba(255, 0, 0, 0.06); /* kırmızı filtre */
-  mix-blend-mode: screen;
-}
-
-.anaglyph-overlay::after {
-  background: rgba(0, 255, 255, 0.06); /* mavi/cyan filtre */
   mix-blend-mode: screen;
 }
