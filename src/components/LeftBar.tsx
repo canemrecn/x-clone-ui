@@ -87,7 +87,7 @@ export default function LeftBar() {
         </div>
       </div>
 
-      {/* MASAÜSTÜ: Sol Alt Profil + 3D Butonu */}
+      {/* MASAÜSTÜ: Sol Alt Profil + 3D İKONU */}
       {auth?.user && (
         <div className="hidden lg:flex fixed bottom-4 left-4 z-[1050] flex-col items-center gap-3">
           <div className="relative">
@@ -117,24 +117,28 @@ export default function LeftBar() {
             )}
           </div>
 
-          {/* 3D BUTONU */}
-          <button
-            onClick={() => setEnabled3D((prev) => !prev)}
-            className="text-xs mt-1 px-3 py-1 border rounded-md bg-black/70 text-white border-white hover:bg-black"
-          >
-            {enabled3D ? "3D KAPAT" : "3D AÇ"}
+          {/* 3D İKONU */}
+          <button onClick={() => setEnabled3D((prev) => !prev)} className="hover:scale-110 transition-transform duration-200">
+            <Image
+              src={`/icons/${enabled3D ? "3d1.png" : "3d2.png"}`}
+              alt="3D Toggle"
+              width={28}
+              height={28}
+            />
           </button>
         </div>
       )}
 
       {/* MOBİL: Üst Navbar */}
       <div className="lg:hidden fixed top-0 left-0 w-full bg-gray-900 shadow-md border-b border-gray-700 flex items-center px-4 py-3 z-[1000]">
-        {/* 3D BUTONU */}
-        <button
-          onClick={() => setEnabled3D((prev) => !prev)}
-          className="text-[10px] px-2 py-1 border rounded-md bg-black/70 text-white border-white mr-2"
-        >
-          {enabled3D ? "3D KAPAT" : "3D AÇ"}
+        {/* 3D İKONU */}
+        <button onClick={() => setEnabled3D((prev) => !prev)} className="mr-2">
+          <Image
+            src={`/icons/${enabled3D ? "3d1.png" : "3d2.png"}`}
+            alt="3D Toggle"
+            width={24}
+            height={24}
+          />
         </button>
 
         {/* DM İCON */}
