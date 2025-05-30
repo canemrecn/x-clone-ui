@@ -59,11 +59,11 @@ html {
 
 /* 🎯 Güçlü 3D Gözlük Efekti (Kırmızı-Mavi Gözlük İçin) */
 .anaglyph-effect * {
-  text-shadow: 3.5px 0 red, -3.5px 0 cyan !important;
+  text-shadow: 6.5px 0 red, -6.5px 0 cyan !important;
 }
 
 .anaglyph-effect img,
 .anaglyph-effect video {
-  filter: contrast(1.6) saturate(1.7) drop-shadow(5px 0 red) drop-shadow(-5px 0 cyan) !important;
+  filter: contrast(1.6) saturate(1.7) drop-shadow(8px 0 red) drop-shadow(-8px 0 cyan) !important;
   mix-blend-mode: screen;
 }
