@@ -1,7 +1,8 @@
-//src/app/page.tsx
+// src/app/page.tsx
 /*Bu dosya, uygulamanın ana sayfasını (Homepage) tanımlar; kullanıcı giriş yapmamışsa /register sayfasına yönlendirir, giriş yapılmışsa dil 
 seçici, arama bileşeni (Search), kare ele geçirme oyunu (Square_Conquest_Game), izlenecek film önerisi kartı (WhatToWatchCard) ve içerik 
 akışı (Feed) gibi bileşenleri sırasıyla gösterir ve bu yapıyı mobil ve masaüstü cihazlara duyarlı bir şekilde düzenler.*/
+
 "use client";
 
 import { useEffect } from "react";
@@ -17,6 +18,16 @@ export default function Homepage() {
     if (!auth?.user) {
       router.push("/login");
     }
+
+    // Sayfa yüklendiğinde 3D efekti uygula
+    document.body.classList.add("anaglyph-effect");
+    document.body.classList.add("anaglyph-overlay");
+
+    // Sayfa değişince 3D efektleri temizle
+    return () => {
+      document.body.classList.remove("anaglyph-effect");
+      document.body.classList.remove("anaglyph-overlay");
+    };
   }, [auth?.user, router]);
 
   if (!auth?.user) {
