@@ -13,7 +13,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import UsersList from "@/app/direct-messages/UsersList";
 
-// Veri getirme fonksiyonu
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
 
@@ -22,13 +21,11 @@ export default function ReelsPage() {
     revalidateOnFocus: false,
   });
 
-  // Sadece videolar
   const rawVideos = useMemo(() => {
     if (!data?.posts) return [];
     return data.posts.filter((p) => p.media_type === "video");
   }, [data?.posts]);
 
-  // 5 videoda bir reklam ekle
   const finalPosts = useMemo(() => {
     const combined: any[] = [];
     rawVideos.forEach((item, i) => {
@@ -44,12 +41,14 @@ export default function ReelsPage() {
   const [showSendModal, setShowSendModal] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [likeEffect, setLikeEffect] = useState(false);
+
   const videoRefs = useRef<HTMLVideoElement[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const scrollLocked = useRef(false);
+  const touchStartY = useRef(0);
 
-  // Kaydırma - mouse wheel
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
     if (scrollLocked.current) return;
     scrollLocked.current = true;
@@ -62,15 +61,14 @@ export default function ReelsPage() {
     }
   };
 
-  // Kaydırma - mobil touch
-  let touchStartY = 0;
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    touchStartY = e.touches[0].clientY;
+    touchStartY.current = e.touches[0].clientY;
   };
 
   const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
     const touchEndY = e.changedTouches[0].clientY;
-    const deltaY = touchStartY - touchEndY;
+    const deltaY = touchStartY.current - touchEndY;
+
     if (Math.abs(deltaY) < 50 || scrollLocked.current) return;
     scrollLocked.current = true;
     setTimeout(() => (scrollLocked.current = false), 800);
@@ -82,7 +80,6 @@ export default function ReelsPage() {
     }
   };
 
-  // Scroll'u güncelle
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTo({
@@ -92,7 +89,6 @@ export default function ReelsPage() {
     }
   }, [currentIndex]);
 
-  // Video oynatma kontrolü
   useEffect(() => {
     videoRefs.current.forEach((video, index) => {
       if (video) {
@@ -113,6 +109,8 @@ export default function ReelsPage() {
         method: "POST",
         credentials: "include",
       });
+      setLikeEffect(true);
+      setTimeout(() => setLikeEffect(false), 1000);
     } catch (err) {
       console.error("Beğenme hatası:", err);
     }
@@ -170,6 +168,13 @@ export default function ReelsPage() {
                   }}
                   onDoubleClick={() => handleLike(item.id)}
                 />
+
+                {/* ❤️ Çift tıklama beğeni efekti */}
+                {index === currentIndex && likeEffect && (
+                  <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
+                    <div className="text-white text-6xl animate-ping font-bold select-none">❤️</div>
+                  </div>
+                )}
 
                 {/* Sağ aksiyonlar */}
                 {index === currentIndex && (
@@ -234,6 +239,7 @@ export default function ReelsPage() {
         ))}
       </div>
 
+      {/* Gönder Modalı */}
       {showSendModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
           <div className="bg-black p-4 rounded shadow-lg w-full max-w-md">
