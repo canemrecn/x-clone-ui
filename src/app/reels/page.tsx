@@ -13,52 +13,64 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import UsersList from "@/app/direct-messages/UsersList";
 
-// 🔄 Verileri getiren fetch fonksiyonu
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
 
 export default function ReelsPage() {
-  // 🔁 Güncellenmiş endpoint
   const { data } = useSWR<{ posts: any[] }>("/api/posts/reels", fetcher, {
     revalidateOnFocus: false,
   });
 
-  const finalPosts = useMemo(() => {
+  const rawVideos = useMemo(() => {
     if (!data?.posts) return [];
     return data.posts.filter((p) => p.media_type === "video");
   }, [data?.posts]);
+
+  // ✅ Her 5 videodan sonra reklam ekle
+  const finalPosts = useMemo(() => {
+    const combined: any[] = [];
+    rawVideos.forEach((item, i) => {
+      combined.push(item);
+      if ((i + 1) % 5 === 0) {
+        combined.push({ isAd: true, id: `ad-${i}` });
+      }
+    });
+    return combined;
+  }, [rawVideos]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showSendModal, setShowSendModal] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [screenHeight, setScreenHeight] = useState(800);
-  const [likeEffect, setLikeEffect] = useState(false);
   const videoRefs = useRef<HTMLVideoElement[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
+  // 🔁 Scroll yerine IntersectionObserver kullan (1 video gösterme garantili)
   useEffect(() => {
-  if (typeof window === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const index = Number(entry.target.getAttribute("data-index"));
+          if (entry.isIntersecting) {
+            setCurrentIndex(index);
+          }
+        });
+      },
+      {
+        threshold: 0.9, // En az %90 görünür olduğunda tetiklensin
+      }
+    );
 
-  const handleResize = () => setScreenHeight(window.innerHeight);
-  handleResize();
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-}, []);
+    const elements = document.querySelectorAll(".video-slide");
+    elements.forEach((el) => observer.observe(el));
 
+    return () => {
+      elements.forEach((el) => observer.unobserve(el));
+    };
+  }, [finalPosts]);
 
-
-  const handleScroll = () => {
-    if (!containerRef.current) return;
-    const scrollTop = containerRef.current.scrollTop;
-    const threshold = screenHeight * 0.6;
-    const newIndex = Math.floor((scrollTop + threshold) / screenHeight);
-    if (newIndex !== currentIndex) {
-      setCurrentIndex(newIndex);
-    }
-  };
-
+  // 🔇 Ses kontrolü ve oynatma
   useEffect(() => {
     videoRefs.current.forEach((video, index) => {
       if (video) {
@@ -79,8 +91,6 @@ export default function ReelsPage() {
         method: "POST",
         credentials: "include",
       });
-      setLikeEffect(true);
-      setTimeout(() => setLikeEffect(false), 1000);
     } catch (err) {
       console.error("Beğenme hatası:", err);
     }
@@ -94,108 +104,110 @@ export default function ReelsPage() {
         </button>
       </div>
 
-      <div
-        ref={containerRef}
-        onScroll={handleScroll}
-        className="h-screen w-screen overflow-y-scroll snap-y snap-mandatory bg-black"
-      >
+      <div ref={containerRef} className="h-screen w-screen overflow-y-scroll snap-y snap-mandatory bg-black">
         {finalPosts.map((item, index) => (
           <div
             key={item.id}
-            className="relative w-screen snap-start flex justify-center items-center"
-            style={{ height: `${screenHeight}px` }}
+            data-index={index}
+            className="video-slide snap-start w-screen h-screen flex justify-center items-center relative"
           >
-            <video
-              ref={(el) => {
-                if (el) videoRefs.current[index] = el;
-              }}
-              src={item.media_url}
-              className="absolute inset-0 w-full h-full object-cover"
-              autoPlay={index === currentIndex}
-              muted={index !== currentIndex}
-              loop
-              playsInline
-              onTimeUpdate={
-                index === currentIndex
-                  ? (e) => setProgress(e.currentTarget.currentTime)
-                  : undefined
-              }
-              onLoadedMetadata={
-                index === currentIndex
-                  ? (e) => setDuration(e.currentTarget.duration)
-                  : undefined
-              }
-              onClick={(e) => {
-                const video = e.currentTarget;
-                video.paused ? video.play() : video.pause();
-              }}
-              onDoubleClick={() => handleLike(item.id)}
-            />
-
-            {index === currentIndex && likeEffect && (
-              <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-                <div className="text-white text-6xl animate-ping font-bold select-none">❤️</div>
+            {item.isAd ? (
+              <div className="w-full h-full bg-gray-900 text-white flex items-center justify-center text-2xl">
+                📢 Reklam Alanı - Undergo Sponsorlu İçerik
               </div>
-            )}
+            ) : (
+              <>
+                <video
+                  ref={(el) => {
+                    if (el) videoRefs.current[index] = el;
+                  }}
+                  src={item.media_url}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  autoPlay={index === currentIndex}
+                  muted={index !== currentIndex}
+                  loop
+                  playsInline
+                  onTimeUpdate={
+                    index === currentIndex
+                      ? (e) => setProgress(e.currentTarget.currentTime)
+                      : undefined
+                  }
+                  onLoadedMetadata={
+                    index === currentIndex
+                      ? (e) => setDuration(e.currentTarget.duration)
+                      : undefined
+                  }
+                  onClick={(e) => {
+                    const video = e.currentTarget;
+                    video.paused ? video.play() : video.pause();
+                  }}
+                  onDoubleClick={() => handleLike(item.id)}
+                />
 
-            {index === currentIndex && (
-              <div className="absolute bottom-14 right-4 z-40 flex flex-col gap-4 items-center">
-                <button
-                  onClick={() => setShowSendModal(true)}
-                  className="bg-black/40 p-2 rounded-full"
-                >
-                  <Image src="/icons/gonder.png" alt="Gönder" width={30} height={30} />
-                </button>
-                <button
-                  onClick={() => handleLike(item.id)}
-                  className="bg-black/40 p-2 rounded-full"
-                >
-                  <Image src="/icons/like.png" alt="Like" width={30} height={30} />
-                </button>
-                <button
-                  onClick={() => router.push(`/post/${item.id}`)}
-                  className="bg-black/40 p-2 rounded-full"
-                >
-                  <Image src="/icons/comment.png" alt="Comment" width={30} height={30} />
-                </button>
-              </div>
-            )}
-
-            {index === currentIndex && (
-              <div className="absolute bottom-16 left-4 text-white z-40 max-w-sm">
-                <div className="flex items-center gap-2 mb-2">
-                  <Image
-                    src={item.profile_image || "/icons/pp.png"}
-                    alt="pp"
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                  />
-                  <div>
-                    <p className="font-bold text-sm">@{item.username}</p>
-                    <p className="text-sm">{item.full_name}</p>
+                {/* Sağ düğmeler */}
+                {index === currentIndex && (
+                  <div className="absolute bottom-14 right-4 z-40 flex flex-col gap-4 items-center">
+                    <button
+                      onClick={() => setShowSendModal(true)}
+                      className="bg-black/40 p-2 rounded-full"
+                    >
+                      <Image src="/icons/gonder.png" alt="Gönder" width={30} height={30} />
+                    </button>
+                    <button
+                      onClick={() => handleLike(item.id)}
+                      className="bg-black/40 p-2 rounded-full"
+                    >
+                      <Image src="/icons/like.png" alt="Like" width={30} height={30} />
+                    </button>
+                    <button
+                      onClick={() => router.push(`/post/${item.id}`)}
+                      className="bg-black/40 p-2 rounded-full"
+                    >
+                      <Image src="/icons/comment.png" alt="Comment" width={30} height={30} />
+                    </button>
                   </div>
-                </div>
-              </div>
-            )}
+                )}
 
-            {index === currentIndex && duration > 0 && (
-              <div className="absolute bottom-1 left-0 w-full px-4 z-50">
-                <p className="text-sm break-words text-white mb-1">
-                  {item.content || "Undergo"}
-                </p>
-                <div className="w-full h-1 bg-gray-500">
-                  <div
-                    className="h-1 bg-white"
-                    style={{ width: `${(progress / duration) * 100}%` }}
-                  />
-                </div>
-              </div>
+                {/* Kullanıcı bilgisi */}
+                {index === currentIndex && (
+                  <div className="absolute bottom-16 left-4 text-white z-40 max-w-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Image
+                        src={item.profile_image || "/icons/pp.png"}
+                        alt="pp"
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                      />
+                      <div>
+                        <p className="font-bold text-sm">@{item.username}</p>
+                        <p className="text-sm">{item.full_name}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Açıklama ve ilerleme çubuğu */}
+                {index === currentIndex && duration > 0 && (
+                  <div className="absolute bottom-1 left-0 w-full px-4 z-50">
+                    <p className="text-sm break-words text-white mb-1">
+                      {item.content || "Undergo"}
+                    </p>
+                    <div className="w-full h-1 bg-gray-500">
+                      <div
+                        className="h-1 bg-white"
+                        style={{ width: `${(progress / duration) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         ))}
       </div>
 
+      {/* Gönder modalı */}
       {showSendModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
           <div className="bg-black p-4 rounded shadow-lg w-full max-w-md">
