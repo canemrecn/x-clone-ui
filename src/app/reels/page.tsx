@@ -103,7 +103,7 @@ export default function ReelsPage() {
       setLikeEffect(true);
       setTimeout(() => setLikeEffect(false), 1000);
     } catch (err) {
-      console.error("Be\u011fenme hatas\u0131:", err);
+      console.error("Beğenme hatası:", err);
     }
   };
 
@@ -126,14 +126,12 @@ export default function ReelsPage() {
           <div
             key={item.id}
             className={`absolute inset-0 transition-opacity duration-300 ease-in-out ${
-              index === currentIndex
-                ? "opacity-100 z-30"
-                : "opacity-0 z-0 pointer-events-none"
+              index === currentIndex ? "opacity-100 z-30" : "opacity-0 z-0 pointer-events-none"
             }`}
           >
             {item.isAd ? (
               <div className="w-full h-full bg-gray-900 text-white flex items-center justify-center text-2xl">
-                \ud83d\udce2 Reklam Alan\u0131 - Undergo Sponsorlu \u0130\u00e7erik
+                📢 Reklam Alanı - Undergo Sponsorlu İçerik
               </div>
             ) : (
               <>
@@ -166,9 +164,7 @@ export default function ReelsPage() {
 
                 {index === currentIndex && likeEffect && (
                   <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-                    <div className="text-white text-6xl animate-ping font-bold select-none">
-                      \u2764\ufe0f
-                    </div>
+                    <div className="text-white text-6xl animate-ping font-bold select-none">❤️</div>
                   </div>
                 )}
 
@@ -178,7 +174,7 @@ export default function ReelsPage() {
                       onClick={() => setShowSendModal(true)}
                       className="bg-black/40 p-2 rounded-full"
                     >
-                      <Image src="/icons/gonder.png" alt="G\u00f6nder" width={30} height={30} />
+                      <Image src="/icons/gonder.png" alt="Gönder" width={30} height={30} />
                     </button>
                     <button
                       onClick={() => handleLike(item.id)}
@@ -236,14 +232,14 @@ export default function ReelsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
           <div className="bg-black p-4 rounded shadow-lg w-full max-w-md">
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/icons/gonder.png" alt="G\u00f6nder" width={20} height={20} />
-              <h2 className="text-white text-lg font-bold">G\u00f6nder</h2>
+              <Image src="/icons/gonder.png" alt="Gönder" width={20} height={20} />
+              <h2 className="text-white text-lg font-bold">Gönder</h2>
             </div>
             <UsersList
               onSelectBuddy={async (buddyId) => {
                 const postId = finalPosts[currentIndex]?.id;
                 if (!buddyId || !postId) {
-                  alert("Al\u0131c\u0131 veya g\u00f6nderi ID\u2019si eksik!");
+                  alert("Alıcı veya gönderi ID’si eksik!");
                   return;
                 }
                 try {
@@ -255,14 +251,14 @@ export default function ReelsPage() {
                   });
                   const result = await response.json();
                   if (response.ok) {
-                    alert("G\u00f6nderildi!");
+                    alert("Gönderildi!");
                     setShowSendModal(false);
                   } else {
                     alert(`Hata: ${result.error}`);
                   }
                 } catch (error) {
-                  console.error("DM g\u00f6nderme hatas\u0131:", error);
-                  alert("Sunucu hatas\u0131 olu\u015ftu.");
+                  console.error("DM gönderme hatası:", error);
+                  alert("Sunucu hatası oluştu.");
                 }
               }}
             />
