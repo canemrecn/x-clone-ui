@@ -81,15 +81,6 @@ export default function ReelsPage() {
   };
 
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo({
-        top: currentIndex * window.innerHeight,
-        behavior: "smooth",
-      });
-    }
-  }, [currentIndex]);
-
-  useEffect(() => {
     videoRefs.current.forEach((video, index) => {
       if (video) {
         if (index === currentIndex) {
@@ -112,7 +103,7 @@ export default function ReelsPage() {
       setLikeEffect(true);
       setTimeout(() => setLikeEffect(false), 1000);
     } catch (err) {
-      console.error("Beğenme hatası:", err);
+      console.error("Be\u011fenme hatas\u0131:", err);
     }
   };
 
@@ -129,16 +120,20 @@ export default function ReelsPage() {
         onWheel={handleWheel}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className="h-screen w-screen overflow-hidden"
+        className="relative w-screen h-screen overflow-hidden"
       >
         {finalPosts.map((item, index) => (
           <div
             key={item.id}
-            className="w-screen h-[100vh] flex justify-center items-center relative"
+            className={`absolute inset-0 transition-opacity duration-300 ease-in-out ${
+              index === currentIndex
+                ? "opacity-100 z-30"
+                : "opacity-0 z-0 pointer-events-none"
+            }`}
           >
             {item.isAd ? (
               <div className="w-full h-full bg-gray-900 text-white flex items-center justify-center text-2xl">
-                📢 Reklam Alanı - Undergo Sponsorlu İçerik
+                \ud83d\udce2 Reklam Alan\u0131 - Undergo Sponsorlu \u0130\u00e7erik
               </div>
             ) : (
               <>
@@ -147,7 +142,7 @@ export default function ReelsPage() {
                     if (el) videoRefs.current[index] = el;
                   }}
                   src={item.media_url}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="w-full h-full object-cover"
                   autoPlay={index === currentIndex}
                   muted={index !== currentIndex}
                   loop
@@ -169,21 +164,21 @@ export default function ReelsPage() {
                   onDoubleClick={() => handleLike(item.id)}
                 />
 
-                {/* ❤️ Çift tıklama beğeni efekti */}
                 {index === currentIndex && likeEffect && (
                   <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-                    <div className="text-white text-6xl animate-ping font-bold select-none">❤️</div>
+                    <div className="text-white text-6xl animate-ping font-bold select-none">
+                      \u2764\ufe0f
+                    </div>
                   </div>
                 )}
 
-                {/* Sağ aksiyonlar */}
                 {index === currentIndex && (
                   <div className="absolute bottom-14 right-4 z-40 flex flex-col gap-4 items-center">
                     <button
                       onClick={() => setShowSendModal(true)}
                       className="bg-black/40 p-2 rounded-full"
                     >
-                      <Image src="/icons/gonder.png" alt="Gönder" width={30} height={30} />
+                      <Image src="/icons/gonder.png" alt="G\u00f6nder" width={30} height={30} />
                     </button>
                     <button
                       onClick={() => handleLike(item.id)}
@@ -200,7 +195,6 @@ export default function ReelsPage() {
                   </div>
                 )}
 
-                {/* Kullanıcı bilgisi */}
                 {index === currentIndex && (
                   <div className="absolute bottom-16 left-4 text-white z-40 max-w-sm">
                     <div className="flex items-center gap-2 mb-2">
@@ -219,7 +213,6 @@ export default function ReelsPage() {
                   </div>
                 )}
 
-                {/* Açıklama ve ilerleme */}
                 {index === currentIndex && duration > 0 && (
                   <div className="absolute bottom-1 left-0 w-full px-4 z-50">
                     <p className="text-sm break-words text-white mb-1">
@@ -239,19 +232,18 @@ export default function ReelsPage() {
         ))}
       </div>
 
-      {/* Gönder Modalı */}
       {showSendModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
           <div className="bg-black p-4 rounded shadow-lg w-full max-w-md">
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/icons/gonder.png" alt="Gönder" width={20} height={20} />
-              <h2 className="text-white text-lg font-bold">Gönder</h2>
+              <Image src="/icons/gonder.png" alt="G\u00f6nder" width={20} height={20} />
+              <h2 className="text-white text-lg font-bold">G\u00f6nder</h2>
             </div>
             <UsersList
               onSelectBuddy={async (buddyId) => {
                 const postId = finalPosts[currentIndex]?.id;
                 if (!buddyId || !postId) {
-                  alert("Alıcı veya gönderi ID’si eksik!");
+                  alert("Al\u0131c\u0131 veya g\u00f6nderi ID\u2019si eksik!");
                   return;
                 }
                 try {
@@ -263,14 +255,14 @@ export default function ReelsPage() {
                   });
                   const result = await response.json();
                   if (response.ok) {
-                    alert("Gönderildi!");
+                    alert("G\u00f6nderildi!");
                     setShowSendModal(false);
                   } else {
                     alert(`Hata: ${result.error}`);
                   }
                 } catch (error) {
-                  console.error("DM gönderme hatası:", error);
-                  alert("Sunucu hatası oluştu.");
+                  console.error("DM g\u00f6nderme hatas\u0131:", error);
+                  alert("Sunucu hatas\u0131 olu\u015ftu.");
                 }
               }}
             />
