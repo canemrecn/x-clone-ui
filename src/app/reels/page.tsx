@@ -13,6 +13,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import UsersList from "@/app/direct-messages/UsersList";
 
+// Veri getirme fonksiyonu
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json());
 
@@ -21,12 +22,13 @@ export default function ReelsPage() {
     revalidateOnFocus: false,
   });
 
+  // Sadece videolar
   const rawVideos = useMemo(() => {
     if (!data?.posts) return [];
     return data.posts.filter((p) => p.media_type === "video");
   }, [data?.posts]);
 
-  // ✅ Her 5 videodan sonra reklam ekle
+  // 5 videoda bir reklam ekle
   const finalPosts = useMemo(() => {
     const combined: any[] = [];
     rawVideos.forEach((item, i) => {
@@ -45,32 +47,52 @@ export default function ReelsPage() {
   const videoRefs = useRef<HTMLVideoElement[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const scrollLocked = useRef(false);
 
-  // 🔁 Scroll yerine IntersectionObserver kullan (1 video gösterme garantili)
+  // Kaydırma - mouse wheel
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (scrollLocked.current) return;
+    scrollLocked.current = true;
+    setTimeout(() => (scrollLocked.current = false), 800);
+
+    if (e.deltaY > 0) {
+      setCurrentIndex((prev) => Math.min(prev + 1, finalPosts.length - 1));
+    } else {
+      setCurrentIndex((prev) => Math.max(prev - 1, 0));
+    }
+  };
+
+  // Kaydırma - mobil touch
+  let touchStartY = 0;
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchStartY = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaY = touchStartY - touchEndY;
+    if (Math.abs(deltaY) < 50 || scrollLocked.current) return;
+    scrollLocked.current = true;
+    setTimeout(() => (scrollLocked.current = false), 800);
+
+    if (deltaY > 0) {
+      setCurrentIndex((prev) => Math.min(prev + 1, finalPosts.length - 1));
+    } else {
+      setCurrentIndex((prev) => Math.max(prev - 1, 0));
+    }
+  };
+
+  // Scroll'u güncelle
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const index = Number(entry.target.getAttribute("data-index"));
-          if (entry.isIntersecting) {
-            setCurrentIndex(index);
-          }
-        });
-      },
-      {
-        threshold: 0.9, // En az %90 görünür olduğunda tetiklensin
-      }
-    );
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: currentIndex * window.innerHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [currentIndex]);
 
-    const elements = document.querySelectorAll(".video-slide");
-    elements.forEach((el) => observer.observe(el));
-
-    return () => {
-      elements.forEach((el) => observer.unobserve(el));
-    };
-  }, [finalPosts]);
-
-  // 🔇 Ses kontrolü ve oynatma
+  // Video oynatma kontrolü
   useEffect(() => {
     videoRefs.current.forEach((video, index) => {
       if (video) {
@@ -104,12 +126,17 @@ export default function ReelsPage() {
         </button>
       </div>
 
-      <div ref={containerRef} className="h-screen w-screen overflow-y-scroll snap-y snap-mandatory bg-black">
+      <div
+        ref={containerRef}
+        onWheel={handleWheel}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className="h-screen w-screen overflow-hidden"
+      >
         {finalPosts.map((item, index) => (
           <div
             key={item.id}
-            data-index={index}
-            className="video-slide snap-start w-screen h-screen flex justify-center items-center relative"
+            className="w-screen h-screen flex justify-center items-center relative"
           >
             {item.isAd ? (
               <div className="w-full h-full bg-gray-900 text-white flex items-center justify-center text-2xl">
@@ -144,7 +171,7 @@ export default function ReelsPage() {
                   onDoubleClick={() => handleLike(item.id)}
                 />
 
-                {/* Sağ düğmeler */}
+                {/* Sağ aksiyonlar */}
                 {index === currentIndex && (
                   <div className="absolute bottom-14 right-4 z-40 flex flex-col gap-4 items-center">
                     <button
@@ -187,7 +214,7 @@ export default function ReelsPage() {
                   </div>
                 )}
 
-                {/* Açıklama ve ilerleme çubuğu */}
+                {/* Açıklama ve ilerleme */}
                 {index === currentIndex && duration > 0 && (
                   <div className="absolute bottom-1 left-0 w-full px-4 z-50">
                     <p className="text-sm break-words text-white mb-1">
@@ -207,7 +234,6 @@ export default function ReelsPage() {
         ))}
       </div>
 
-      {/* Gönder modalı */}
       {showSendModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
           <div className="bg-black p-4 rounded shadow-lg w-full max-w-md">
