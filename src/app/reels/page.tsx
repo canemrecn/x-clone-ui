@@ -134,7 +134,7 @@ export default function ReelsPage() {
         {finalPosts.map((item, index) => (
           <div
             key={item.id}
-            className="w-screen h-screen flex justify-center items-center relative"
+            className="w-screen h-[100vh] flex justify-center items-center relative"
           >
             {item.isAd ? (
               <div className="w-full h-full bg-gray-900 text-white flex items-center justify-center text-2xl">
