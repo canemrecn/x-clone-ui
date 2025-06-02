@@ -6,7 +6,7 @@ yükleme ve hata durumları da kullanıcıya bildirilir.*/
 /* src/components/Notes.tsx (Anaglyph 3D destekli versiyon) */
 "use client";
 
-import React, { useState, useEffect, FormEvent, useCallback, useMemo } from "react";
+import React, { useState, useEffect, FormEvent, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 interface Note {
@@ -129,28 +129,6 @@ export default function Notes() {
     return <p className="text-center p-4 text-white">Notlarını görmek için giriş yap.</p>;
   }
 
-  return (
-    <div className="relative">
-      <div
-        className="absolute top-0 left-0 w-full h-full text-red-500 pointer-events-none opacity-60 blur-[0.7px] z-10"
-        style={{ transform: "translateX(3px) rotateY(2deg) scale(1.01)" }}
-      >
-        <NotesContent notes={notes} text={text} setText={setText} error={error} handleAddNote={handleAddNote} handleDelete={handleDelete} />
-      </div>
-      <div
-        className="absolute top-0 left-0 w-full h-full text-cyan-500 pointer-events-none opacity-60 blur-[0.7px] z-10"
-        style={{ transform: "translateX(-3px) rotateY(-2deg) scale(1.01)" }}
-      >
-        <NotesContent notes={notes} text={text} setText={setText} error={error} handleAddNote={handleAddNote} handleDelete={handleDelete} />
-      </div>
-      <div className="relative z-20">
-        <NotesContent notes={notes} text={text} setText={setText} error={error} handleAddNote={handleAddNote} handleDelete={handleDelete} />
-      </div>
-    </div>
-  );
-}
-
-function NotesContent({ notes, text, setText, error, handleAddNote, handleDelete }: any) {
   return (
     <div className="p-5 rounded-2xl border border-gray-700 flex flex-col gap-4 bg-gradient-to-br from-gray-900 to-gray-800 shadow-xl w-full max-w-3xl mx-auto text-white">
       <h1 className="text-2xl font-bold text-center text-white tracking-wide">Notlarım</h1>
