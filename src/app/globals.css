@@ -48,26 +48,26 @@ html {
   animation: fadeIn 0.5s ease-in-out;
 }
 
+/* globals.css SONUNA EKLE */
+.anaglyph-effect {
+  animation: subtleWobble 6s infinite ease-in-out;
+}
+
+.anaglyph-effect *:not(img):not(button):not(svg):not(path) {
+  color: transparent !important;
+  text-shadow: 6px 0 red, -6px 0 cyan;
+  animation: parallaxWobble 3s infinite ease-in-out;
+}
+
 @keyframes subtleWobble {
   0%, 100% { transform: translate(0px, 0px); }
-  50%      { transform: translate(0.5px, 0.5px); }
+  50% { transform: translate(0.6px, 0.6px); }
 }
-
-.anaglyph-effect body {
-  animation: subtleWobble 5s infinite ease-in-out;
-}
-
 
 @keyframes parallaxWobble {
   0%   { transform: translate(0px, 0px); }
-  25%  { transform: translate(0.5px, -0.5px); }
-  50%  { transform: translate(0px, 0.5px); }
-  75%  { transform: translate(-0.5px, -0.5px); }
+  25%  { transform: translate(1px, -1px); }
+  50%  { transform: translate(0px, 1px); }
+  75%  { transform: translate(-1px, -1px); }
   100% { transform: translate(0px, 0px); }
-}
-
-.anaglyph-effect .depth-3d {
-  color: transparent;
-  text-shadow: 4px 0 red, -4px 0 cyan;
-  animation: parallaxWobble 2s infinite ease-in-out;
 }

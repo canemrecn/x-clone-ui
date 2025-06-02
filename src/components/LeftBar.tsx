@@ -54,15 +54,16 @@ export default function LeftBar() {
     }
   };
 
-  // 3D Toggle Efekti
-
   useEffect(() => {
-    if (enabled3D) {
-      document.body.classList.add("anaglyph-effect");
-    } else {
-      document.body.classList.remove("anaglyph-effect");
-    }
-  }, [enabled3D]);
+  if (enabled3D) {
+    document.body.classList.add("anaglyph-effect");
+    document.documentElement.classList.add("anaglyph-effect"); // <html> etiketi için de ekle
+  } else {
+    document.body.classList.remove("anaglyph-effect");
+    document.documentElement.classList.remove("anaglyph-effect");
+  }
+}, [enabled3D]);
+
 
   return (
     <>
