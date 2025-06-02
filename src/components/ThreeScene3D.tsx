@@ -5,7 +5,7 @@ import { useRef, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import { AnaglyphEffect } from "@/lib/AnaglyphEffect"; // yeni yol
+import { AnaglyphEffect } from "three/examples/jsm/effects/AnaglyphEffect.js";
 
 function SceneContent() {
   const ref = useRef<THREE.Mesh>(null!);
