@@ -53,6 +53,17 @@ export default function LeftBar() {
     }
   };
 
+  useEffect(() => {
+  if (enabled3D) {
+    document.body.classList.add("anaglyph-effect");
+    document.documentElement.classList.add("anaglyph-effect");
+  } else {
+    document.body.classList.remove("anaglyph-effect");
+    document.documentElement.classList.remove("anaglyph-effect");
+  }
+}, [enabled3D]);
+
+
   return (
     <>
       {enabled3D && <ThreeDOverlay />}
