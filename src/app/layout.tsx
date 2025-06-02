@@ -12,6 +12,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import CookieBanner from "@/components/CookieBanner";
 import Analytics from "@/components/Analytics";
+import ThreeDOverlay from "@/components/ThreeDOverlay";
 
 export const metadata = {
   title: "UnderGo",
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="text-[#FFFFFF]">
         <AuthProvider>
           <LayoutWrapper>
+             <ThreeDOverlay />
             <CookieBanner />
             {children}
             <Analytics />
