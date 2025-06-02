@@ -30,6 +30,7 @@ const PostInteractions: React.FC<PostInteractionsProps> = React.memo(
     const [isLiked, setIsLiked] = useState(false);
     const [showSendModal, setShowSendModal] = useState(false);
 
+    // ✅ Beğeni ve yorum sayısını anlık çek
     useEffect(() => {
       async function fetchCounts() {
         try {
@@ -116,7 +117,8 @@ const PostInteractions: React.FC<PostInteractionsProps> = React.memo(
     );
 
     return (
-      <div className="flex items-center gap-4 my-2 text-white not-3d">
+      <div className="flex items-center gap-4 my-2 text-white">
+        {/* Yorum Butonu */}
         <div className="flex items-center gap-2 cursor-pointer group" onClick={handleComment}>
           <svg width="20" height="20" viewBox="0 0 24 24">
             <path
@@ -130,6 +132,7 @@ const PostInteractions: React.FC<PostInteractionsProps> = React.memo(
           <span className="group-hover:text-gray-300 text-sm">{commentCount}</span>
         </div>
 
+        {/* Beğeni Butonu */}
         <div className="flex items-center gap-2 cursor-pointer group" onClick={handleLike}>
           <Image
             src="/icons/like.png"
@@ -141,12 +144,14 @@ const PostInteractions: React.FC<PostInteractionsProps> = React.memo(
           <span className="text-sm">{likeCount}</span>
         </div>
 
+        {/* Gönder Butonu */}
         <div className="mt-2">
           <button onClick={() => setShowSendModal(true)}>
             <Image src="/icons/gonder.png" alt="Gönder" width={15} height={15} />
           </button>
         </div>
 
+        {/* Gönder Modalı */}
         {showSendModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
             <div className="bg-gradient-to-br from-gray-800 to-gray-800 p-4 rounded shadow-lg w-full max-w-md">
@@ -155,7 +160,10 @@ const PostInteractions: React.FC<PostInteractionsProps> = React.memo(
                 <h2 className="text-white text-lg font-bold">Gönder</h2>
               </div>
               <UsersList onSelectBuddy={handleSendPost} />
-              <button onClick={() => setShowSendModal(false)} className="mt-4 text-white underline">
+              <button
+                onClick={() => setShowSendModal(false)}
+                className="mt-4 text-white underline"
+              >
                 Kapat
               </button>
             </div>

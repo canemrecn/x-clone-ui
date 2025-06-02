@@ -24,7 +24,7 @@ export default function Feed({ posts, lang }: FeedProps) {
     if (!posts) {
       (async function fetchPosts() {
         try {
-          let url = "/api/feed";
+          let url = "/api/feed"; // ✅ Burada güncelleme yaptık
           if (lang) {
             url += `?lang=${lang}`;
           }
@@ -48,7 +48,7 @@ export default function Feed({ posts, lang }: FeedProps) {
 
   if (loading) {
     return (
-      <p className="text-center text-sm text-gray-400 animate-pulse mt-10 p-4 mb-4 not-3d">
+      <p className="text-center text-sm text-gray-400 animate-pulse mt-10 p-4 mb-4">
         Gönderiler yükleniyor...
       </p>
     );
@@ -56,24 +56,21 @@ export default function Feed({ posts, lang }: FeedProps) {
 
   if (localPosts.length === 0) {
     return (
-      <p className="text-center text-sm text-gray-400 mt-10 p-4 mb-4 not-3d">
+      <p className="text-center text-sm text-gray-400 mt-10 p-4 mb-4">
         Gönderi bulunamadı.
       </p>
     );
   }
 
   const finalPosts = localPosts.map((post) => {
-    if (
-      post.media_url &&
-      (post.media_url.includes("youtube.com") || post.media_url.includes("youtu.be"))
-    ) {
+    if (post.media_url && (post.media_url.includes("youtube.com") || post.media_url.includes("youtu.be"))) {
       return { ...post, isYouTube: true };
     }
     return post;
   });
 
   return (
-    <div className="not-3d">
+    <div>
       <div className="mb-4">
         <Share />
       </div>
