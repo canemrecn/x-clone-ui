@@ -1,12 +1,14 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import { AnaglyphEffect } from "three-stdlib/effects/AnaglyphEffect.js";
-import { extend } from "@react-three/fiber";
 
+// ❗ Hatalı olan three-stdlib import'u kaldırıldı ve doğru şekilde three/examples/jsm yolu kullanıldı
+import { AnaglyphEffect } from "three/examples/jsm/effects/AnaglyphEffect.js";
+
+// extend ile R3F'e tanıttık
 extend({ AnaglyphEffect });
 
 function SceneContent() {
