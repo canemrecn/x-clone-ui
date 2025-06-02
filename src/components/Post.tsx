@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import PostInteractions from "./PostInteractions";
 import { useAuth } from "@/context/AuthContext";
 import YouTubeEmbed from "./YouTubeEmbed";
+import AnaglyphWrapper from "./AnaglyphWrapper";
 
 export interface PostData {
   id: number;
@@ -174,6 +175,7 @@ if (typeof window !== "undefined") {
   const isOwner = auth?.user?.id === postData.user_id;
 
   return (
+    <AnaglyphWrapper>
     <div className="p-5 mb-4 border border-gray-700 w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black shadow-lg rounded-xl text-white relative transition-all">
       {showPointAnim && (
         <div className="absolute top-4 right-4 text-green-400 font-bold text-lg animate-bounce">
@@ -348,5 +350,6 @@ if (typeof window !== "undefined") {
         </div>
       </div>
     </div>
+    </AnaglyphWrapper>
   );
 }
