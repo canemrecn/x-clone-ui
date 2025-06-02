@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>UnderGo</title>
+        <title>.UnderGo.</title>
       </head>
       <body className="text-[#FFFFFF]">
         <AuthProvider>
