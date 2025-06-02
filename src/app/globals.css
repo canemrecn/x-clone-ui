@@ -48,22 +48,25 @@ html {
   animation: fadeIn 0.5s ease-in-out;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+@keyframes stereoFlash {
+  0%, 49% {
+    filter: drop-shadow(7px 0 red);
+    mix-blend-mode: screen;
   }
-  to {
-    opacity: 1;
+  50%, 100% {
+    filter: drop-shadow(-7px 0 cyan);
+    mix-blend-mode: screen;
   }
 }
 
-/* 🎯 Güçlü 3D Gözlük Efekti (Kırmızı-Mavi Gözlük İçin) */
+/* Gözlükle gerçek 3D etkisi için zamanlı geçiş animasyonu */
 .anaglyph-effect * {
-  text-shadow: 6.5px 0 red, -6.5px 0 cyan !important;
+  animation: stereoFlash 0.08s infinite steps(1);
 }
 
 .anaglyph-effect img,
 .anaglyph-effect video {
-  filter: contrast(1.6) saturate(1.7) drop-shadow(8px 0 red) drop-shadow(-8px 0 cyan) !important;
+  animation: stereoFlash 0.08s infinite steps(1);
+  filter: none !important;
   mix-blend-mode: screen;
 }
