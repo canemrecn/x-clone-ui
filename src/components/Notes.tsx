@@ -10,7 +10,8 @@ import { useAuth } from "@/context/AuthContext";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import * as AnaglyphEffectModule from "three-stdlib/effects/AnaglyphEffect.js"; // ✅ Doğru import
+import { AnaglyphEffect } from "three/examples/jsm/effects/AnaglyphEffect.js";
+
 
 interface Note {
   id: number;
@@ -20,10 +21,11 @@ interface Note {
 
 function AnaglyphRenderer() {
   const { gl, size, scene, camera } = useThree();
-  const effectRef = useRef<InstanceType<typeof AnaglyphEffectModule.AnaglyphEffect> | null>(null);
+  const effectRef = useRef<AnaglyphEffect | null>(null);
 
   useEffect(() => {
-    const effect = new AnaglyphEffectModule.AnaglyphEffect(gl); // ✅ Doğru kullanım
+    const effect = new AnaglyphEffect(gl);
+
     effect.setSize(size.width, size.height);
     effectRef.current = effect;
 
