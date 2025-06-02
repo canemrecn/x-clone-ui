@@ -11,19 +11,23 @@ import CookieBanner from "@/components/CookieBanner";
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  if (pathname?.startsWith("/reels") || pathname?.startsWith("/direct-messages") || pathname?.startsWith("/chat-ai")) {
-    return <>{children}</>;
+  // Bu sayfalar sade yapı istiyor (tam ekran)
+  if (
+    pathname?.startsWith("/reels") ||
+    pathname?.startsWith("/direct-messages") ||
+    pathname?.startsWith("/chat-ai") ||
+    pathname === "/notes3d"
+  ) {
+    return <main className="w-full h-screen">{children}</main>;
   }
 
   return (
     <>
-
       <div className="mb-4" />
       <LeftBar />
       <div className="min-h-screen flex">
         <aside className="hidden lg:block lg:w-80" />
         <main className="w-full lg:w-1/2">
- 
           {children}
         </main>
         <aside className="hidden lg:block lg:w-1/1 mt-3 bg-[#000000]">
