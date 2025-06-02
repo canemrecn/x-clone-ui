@@ -1,6 +1,7 @@
 //next.config.ts
 // next.config.ts
 // next.config.ts
+// next.config.ts
 import "./src/app/start-cron";
 import TerserPlugin from "terser-webpack-plugin";
 import type { NextConfig } from "next";
@@ -23,26 +24,15 @@ const securityHeaders = [
       frame-ancestors 'none';
     `.replace(/\s{2,}/g, " ").trim(),
   },
-  {
-    key: "X-Content-Type-Options",
-    value: "nosniff",
-  },
-  {
-    key: "X-Frame-Options",
-    value: "DENY",
-  },
-  {
-    key: "Referrer-Policy",
-    value: "strict-origin-when-cross-origin",
-  },
-  {
-    key: "Permissions-Policy",
-    value: "geolocation=(), microphone=(), camera=()",
-  },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Permissions-Policy", value: "geolocation=(), microphone=(), camera=()" },
 ];
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+
   images: {
     remotePatterns: [
       {
@@ -52,23 +42,23 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
   experimental: {
     serverActions: {
-      bodySizeLimit: "500mb",
+      bodySizeLimit: "500mb", // ✅ Sadece burada geçerli
     },
   },
-  api: {
-    bodyParser: {
-      sizeLimit: "500mb",
-    },
-  },
+
   compiler: {
     removeConsole: true,
   },
+
   productionBrowserSourceMaps: false,
+
   eslint: {
     ignoreDuringBuilds: true,
   },
+
   env: {
     NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY: process.env.IMAGEKIT_PUBLIC_KEY,
     NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT: process.env.IMAGEKIT_URL_ENDPOINT,
@@ -77,10 +67,7 @@ const nextConfig: NextConfig = {
   },
 
   async headers() {
-    if (process.env.NODE_ENV === "development") {
-      return [];
-    }
-
+    if (isDev) return [];
     return [
       {
         source: "/(.*)",
@@ -89,7 +76,7 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  webpack(config: Configuration, { isServer }: { isServer: boolean }) {
+  webpack(config: Configuration, { isServer }) {
     if (!isServer) {
       config.optimization = {
         ...config.optimization,
