@@ -5,7 +5,6 @@ import { useRef, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import { AnaglyphEffect } from "three/examples/jsm/effects/AnaglyphEffect.js";
 
 function SceneContent() {
   const ref = useRef<THREE.Mesh>(null!);
@@ -23,27 +22,6 @@ function SceneContent() {
   );
 }
 
-function AnaglyphRenderer() {
-  const { gl, size, scene, camera } = useThree();
-  const perspectiveCamera = camera as THREE.PerspectiveCamera;
-  const effectRef = useRef<AnaglyphEffect | null>(null);
-
-  useEffect(() => {
-    const effect = new AnaglyphEffect(gl);
-    effect.setSize(size.width, size.height);
-    const originalRender = gl.render;
-
-    gl.render = () => effect.render(scene, perspectiveCamera);
-    effectRef.current = effect;
-
-    return () => {
-      gl.render = originalRender;
-    };
-  }, [gl, size, scene, perspectiveCamera]);
-
-  return null;
-}
-
 
 export default function ThreeScene3D() {
   return (
@@ -53,7 +31,6 @@ export default function ThreeScene3D() {
         <pointLight position={[5, 5, 5]} />
         <SceneContent />
         <OrbitControls />
-        <AnaglyphRenderer />
       </Canvas>
     </div>
   );

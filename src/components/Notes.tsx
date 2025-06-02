@@ -10,34 +10,11 @@ import { useAuth } from "@/context/AuthContext";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import { AnaglyphEffect } from "three/examples/jsm/effects/AnaglyphEffect.js";
-
 
 interface Note {
   id: number;
   text: string;
   created_at: string;
-}
-
-function AnaglyphRenderer() {
-  const { gl, size, scene, camera } = useThree();
-  const effectRef = useRef<AnaglyphEffect | null>(null);
-
-  useEffect(() => {
-    const effect = new AnaglyphEffect(gl);
-
-    effect.setSize(size.width, size.height);
-    effectRef.current = effect;
-
-    const originalRender = gl.render;
-    gl.render = () => effect.render(scene, camera);
-
-    return () => {
-      gl.render = originalRender;
-    };
-  }, [gl, size, scene, camera]);
-
-  return null;
 }
 
 function SpinningCube() {

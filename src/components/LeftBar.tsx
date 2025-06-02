@@ -55,18 +55,13 @@ export default function LeftBar() {
 
   useEffect(() => {
   if (enabled3D) {
-    document.body.classList.add("anaglyph-effect");
-    document.documentElement.classList.add("anaglyph-effect");
   } else {
-    document.body.classList.remove("anaglyph-effect");
-    document.documentElement.classList.remove("anaglyph-effect");
   }
 }, [enabled3D]);
 
 
   return (
     <>
-      {enabled3D && <ThreeDOverlay />}
       
       {/* MASAÜSTÜ: Sidebar */}
       <div className="hidden lg:flex flex-col fixed top-0 left-0 w-20 h-screen bg-gradient-to-b from-gray-800 via-gray-900 to-black shadow-xl items-center pt-6 pb-6 z-[1000] rounded-tr-2xl rounded-br-2xl">
