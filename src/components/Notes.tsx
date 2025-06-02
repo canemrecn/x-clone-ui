@@ -3,16 +3,54 @@
 kullanıcıdan token alarak /api/notes endpoint’inden notları çeker, yeni not ekleme formuyla notları sunucuya gönderir, eklenen 
 notu anlık olarak listeye ekler ve her not için silme butonu sağlar (ancak sunucudan silme işlemi yapılmaz); tüm işlemler boyunca 
 yükleme ve hata durumları da kullanıcıya bildirilir.*/
-/* src/components/Notes.tsx (Anaglyph 3D destekli versiyon) */
 "use client";
 
-import React, { useState, useEffect, FormEvent, useCallback } from "react";
+import React, { useState, useEffect, FormEvent, useCallback, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { Canvas, useThree, useFrame } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import * as THREE from "three";
+import * as AnaglyphEffectModule from "three-stdlib/effects/AnaglyphEffect.js"; // ✅ Doğru import
 
 interface Note {
   id: number;
   text: string;
   created_at: string;
+}
+
+function AnaglyphRenderer() {
+  const { gl, size, scene, camera } = useThree();
+  const effectRef = useRef<InstanceType<typeof AnaglyphEffectModule.AnaglyphEffect> | null>(null);
+
+  useEffect(() => {
+    const effect = new AnaglyphEffectModule.AnaglyphEffect(gl); // ✅ Doğru kullanım
+    effect.setSize(size.width, size.height);
+    effectRef.current = effect;
+
+    const originalRender = gl.render;
+    gl.render = () => effect.render(scene, camera);
+
+    return () => {
+      gl.render = originalRender;
+    };
+  }, [gl, size, scene, camera]);
+
+  return null;
+}
+
+function SpinningCube() {
+  const meshRef = useRef<THREE.Mesh>(null!);
+  useFrame(() => {
+    meshRef.current.rotation.x += 0.01;
+    meshRef.current.rotation.y += 0.01;
+  });
+
+  return (
+    <mesh ref={meshRef} position={[0, 0, 0]}>
+      <boxGeometry args={[1.5, 1.5, 1.5]} />
+      <meshStandardMaterial color="#F9911C" />
+    </mesh>
+  );
 }
 
 export default function Notes() {
@@ -121,18 +159,25 @@ export default function Notes() {
     }
   };
 
-  if (loading) {
-    return <p className="text-center p-4 text-white">Notlar yükleniyor...</p>;
-  }
-
-  if (!auth?.user) {
-    return <p className="text-center p-4 text-white">Notlarını görmek için giriş yap.</p>;
-  }
+  if (loading) return <p className="text-center p-4 text-white">Notlar yükleniyor...</p>;
+  if (!auth?.user) return <p className="text-center p-4 text-white">Notlarını görmek için giriş yap.</p>;
 
   return (
     <div className="p-5 rounded-2xl border border-gray-700 flex flex-col gap-4 bg-gradient-to-br from-gray-900 to-gray-800 shadow-xl w-full max-w-3xl mx-auto text-white">
       <h1 className="text-2xl font-bold text-center text-white tracking-wide">Notlarım</h1>
 
+      {/* 🎯 3D Efektli Alan */}
+      <div className="rounded-xl overflow-hidden border border-gray-600 shadow-lg">
+        <Canvas camera={{ position: [3, 3, 5] }} style={{ height: 300 }}>
+          <ambientLight intensity={0.5} />
+          <pointLight position={[5, 5, 5]} />
+          <SpinningCube />
+          <OrbitControls />
+          <AnaglyphRenderer />
+        </Canvas>
+      </div>
+
+      {/* Not Ekleme Formu */}
       <form onSubmit={handleAddNote} className="flex gap-3">
         <input
           type="text"
@@ -140,7 +185,7 @@ export default function Notes() {
           placeholder="Yeni not ekle... (Max 45 karakter)"
           className="flex-1 p-3 rounded-lg border border-gray-600 bg-gray-900 text-white placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-orange-500 transition"
           value={text}
-          onChange={(e: any) => setText(e.target.value)}
+          onChange={(e) => setText(e.target.value)}
           disabled={notes.length >= 2}
         />
         <button
@@ -161,7 +206,7 @@ export default function Notes() {
       {notes.length === 0 ? (
         <p className="text-center text-gray-300">Henüz not yok.</p>
       ) : (
-        notes.map((note: any) => (
+        notes.map((note) => (
           <div
             key={note.id}
             className="p-4 rounded-xl border border-gray-600 bg-gradient-to-br from-gray-800 to-gray-700 relative shadow-lg hover:ring-2 hover:ring-orange-500 transition-all"
