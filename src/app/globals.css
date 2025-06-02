@@ -51,6 +51,6 @@ html {
 .anaglyph-effect .depth-3d {
   color: transparent;
   text-shadow: 
-    1px 0 red, 
-    -1px 0 cyan;
+    4px 0 red,
+   -4px 0 cyan;
 }
