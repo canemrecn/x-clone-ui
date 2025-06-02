@@ -10,12 +10,21 @@ HTTP-only cookie uyumludur; logout işlemi dahil fetch çağrıları context iç
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import GeminiChat from "./GeminiChat";
 import useIsMobile from "@/hooks/useIsMobile";
 import Search from "./Search";
-import ThreeDOverlay from "./ThreeDOverlay";
+import dynamic from "next/dynamic";
+
+// 💡 3D sahneyi dinamik olarak import et (ilk başta yüklenmesin)
+
+
+const ThreeScene3D = dynamic(() =>
+  import("./ThreeScene3D").then((mod) => mod.default),
+  { ssr: false }
+);
+
 
 const menuList = [
   { id: 1, name: "Homepage", link: "/", icon: "home1.png" },
@@ -53,16 +62,11 @@ export default function LeftBar() {
     }
   };
 
-  useEffect(() => {
-  if (enabled3D) {
-  } else {
-  }
-}, [enabled3D]);
-
-
   return (
     <>
-      
+      {/* ✅ 3D aktifse göster */}
+      {enabled3D && <ThreeScene3D />}
+
       {/* MASAÜSTÜ: Sidebar */}
       <div className="hidden lg:flex flex-col fixed top-0 left-0 w-20 h-screen bg-gradient-to-b from-gray-800 via-gray-900 to-black shadow-xl items-center pt-6 pb-6 z-[1000] rounded-tr-2xl rounded-br-2xl">
         <Image src="/icons/logo22.png" alt="Logo" width={40} height={40} className="mb-6" />
