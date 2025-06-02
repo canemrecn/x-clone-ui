@@ -131,11 +131,17 @@ export default function Notes() {
 
   return (
     <div className="relative">
-      <div className="absolute top-0 left-0 w-full h-full text-red-500 pointer-events-none opacity-70 blur-[0.6px] translate-x-[2px] z-10">
-        <NotesContent notes={notes} text={text} setText={setText} error={error} handleAddNote={handleAddNote} handleDelete={handleDelete} anaglyphSide="left" />
+      <div
+        className="absolute top-0 left-0 w-full h-full text-red-500 pointer-events-none opacity-60 blur-[0.7px] z-10"
+        style={{ transform: "translateX(3px) rotateY(2deg) scale(1.01)" }}
+      >
+        <NotesContent notes={notes} text={text} setText={setText} error={error} handleAddNote={handleAddNote} handleDelete={handleDelete} />
       </div>
-      <div className="absolute top-0 left-0 w-full h-full text-cyan-500 pointer-events-none opacity-70 blur-[0.6px] -translate-x-[2px] z-10">
-        <NotesContent notes={notes} text={text} setText={setText} error={error} handleAddNote={handleAddNote} handleDelete={handleDelete} anaglyphSide="right" />
+      <div
+        className="absolute top-0 left-0 w-full h-full text-cyan-500 pointer-events-none opacity-60 blur-[0.7px] z-10"
+        style={{ transform: "translateX(-3px) rotateY(-2deg) scale(1.01)" }}
+      >
+        <NotesContent notes={notes} text={text} setText={setText} error={error} handleAddNote={handleAddNote} handleDelete={handleDelete} />
       </div>
       <div className="relative z-20">
         <NotesContent notes={notes} text={text} setText={setText} error={error} handleAddNote={handleAddNote} handleDelete={handleDelete} />
