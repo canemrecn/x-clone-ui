@@ -1,15 +1,11 @@
+// src/components/ThreeScene3D.tsx
 "use client";
 
 import { useRef, useEffect } from "react";
-import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-
-// ❗ Hatalı olan three-stdlib import'u kaldırıldı ve doğru şekilde three/examples/jsm yolu kullanıldı
-import { AnaglyphEffect } from "three/examples/jsm/effects/AnaglyphEffect.js";
-
-// extend ile R3F'e tanıttık
-extend({ AnaglyphEffect });
+import { AnaglyphEffect } from "@/lib/AnaglyphEffect"; // yeni yol
 
 function SceneContent() {
   const ref = useRef<THREE.Mesh>(null!);
@@ -29,6 +25,7 @@ function SceneContent() {
 
 function AnaglyphRenderer() {
   const { gl, size, scene, camera } = useThree();
+  const perspectiveCamera = camera as THREE.PerspectiveCamera;
   const effectRef = useRef<AnaglyphEffect | null>(null);
 
   useEffect(() => {
@@ -36,16 +33,17 @@ function AnaglyphRenderer() {
     effect.setSize(size.width, size.height);
     const originalRender = gl.render;
 
-    gl.render = () => effect.render(scene, camera);
+    gl.render = () => effect.render(scene, perspectiveCamera);
     effectRef.current = effect;
 
     return () => {
       gl.render = originalRender;
     };
-  }, [gl, size, scene, camera]);
+  }, [gl, size, scene, perspectiveCamera]);
 
   return null;
 }
+
 
 export default function ThreeScene3D() {
   return (
