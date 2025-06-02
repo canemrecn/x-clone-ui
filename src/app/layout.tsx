@@ -4,6 +4,7 @@ globals.css ile stilleri içe aktarır, kullanıcı kimliği doğrulaması için
 sağ menü (RightBar), masaüstü mesaj paneli (DesktopMessages), üst reklam (AdBar) ve sabit bir alt sol reklam (AdPlaceholder) 
 gibi bileşenleri yerleştirir, ortadaki ana içerik alanında children ve varsa modal'i görüntüler, böylece tüm sayfalar için 
 ortak bir düzen ve kullanıcı arayüzü sağlar. Ayrıca tüm sayfaya .anaglyph-effect sınıfı uygulanarak 3D gözlüklerle uyumlu hale getirilmiştir.*/
+// src/app/layout.tsx
 
 import React from "react";
 import "./globals.css";
@@ -14,15 +15,8 @@ import Analytics from "@/components/Analytics";
 
 export const metadata = {
   title: "UnderGo",
-  description:
-    "UnderGo, dil öğrenimini sosyal medya deneyimiyle birleştiren, KVKK ve GDPR uyumlu yenilikçi bir platformdur. Kullanıcılar, gönderi paylaşırken aynı zamanda yabancı dil pratiği yapabilir, kelime çevirileriyle puan kazanabilir ve dil seviyelerini geliştirebilir. Güvenli, etkileşimli ve kullanıcı odaklı bu sosyal medya uygulamasıyla öğrenmek artık çok daha eğlenceli! UnderGo ile sosyal medya artık sadece paylaşmak değil, aynı zamanda öğrenmektir.",
+  description: "UnderGo, dil öğrenimini sosyal medya deneyimiyle birleştiren bir platformdur.",
   icons: { icon: "/icons/logo22.png" },
-  other: {
-    "privacy-policy": "https://undergo.com/policies/privacy-policy",
-    "cookie-policy": "https://undergo.com/cookies-policy",
-    "data-protection":
-      "UnderGo, dil öğrenimini sosyal medya deneyimiyle birleştiren, KVKK ve GDPR uyumlu yenilikçi bir platformdur. Kullanıcılar, gönderi paylaşırken aynı zamanda yabancı dil pratiği yapabilir, kelime çevirileriyle puan kazanabilir ve dil seviyelerini geliştirebilir. Güvenli, etkileşimli ve kullanıcı odaklı bu sosyal medya uygulamasıyla öğrenmek artık çok daha eğlenceli! UnderGo ile sosyal medya artık sadece paylaşmak değil, aynı zamanda öğrenmektir.",
-  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -33,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>UnderGo</title>
       </head>
-      <body className="text-[#FFFFFF] anaglyph-effect">
+      <body className="text-[#FFFFFF]">
         <AuthProvider>
           <LayoutWrapper>
             <CookieBanner />

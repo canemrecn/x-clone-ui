@@ -55,13 +55,12 @@ export default function LeftBar() {
   };
 
   // 3D Toggle Efekti
+
   useEffect(() => {
     if (enabled3D) {
       document.body.classList.add("anaglyph-effect");
-      document.body.classList.add("anaglyph-overlay");
     } else {
       document.body.classList.remove("anaglyph-effect");
-      document.body.classList.remove("anaglyph-overlay");
     }
   }, [enabled3D]);
 
@@ -118,14 +117,14 @@ export default function LeftBar() {
           </div>
 
           {/* 3D İKONU */}
-          <button onClick={() => setEnabled3D((prev) => !prev)} className="hover:scale-110 transition-transform duration-200">
-            <Image
-              src={`/icons/${enabled3D ? "3d1.png" : "3d2.png"}`}
-              alt="3D Toggle"
-              width={28}
-              height={28}
-            />
-          </button>
+          <button onClick={() => setEnabled3D(prev => !prev)} className="hover:scale-110 transition-transform duration-200">
+        <Image
+          src={`/icons/${enabled3D ? "3d1.png" : "3d2.png"}`}
+          alt="3D Toggle"
+          width={28}
+          height={28}
+        />
+      </button>
         </div>
       )}
 
