@@ -28,28 +28,27 @@ export default function RightBar() {
   }, []);
 
   return (
-    <div className="hidden lg:flex flex-col fixed top-0 right-0 w-94 justify-between z-50">
+    <div className="hidden lg:flex flex-col fixed top-0 right-0 w-94 justify-between z-50 not-3d">
       <Search />
       <Arrangement />
       <Notes />
 
       <div className="mt-6 px-4 py-4 rounded-lg bg-gradient-to-br from-gray-800 to-gray-900 shadow-inner border border-gray-700 mx-4">
-  <h3 className="font-semibold text-white text-lg mb-3 flex items-center gap-2">
-    <span>🔥</span> Popüler Etiketler
-  </h3>
-  <div className="flex flex-wrap gap-2">
-    {hashtags.map((tag) => (
-      <Link
-        key={tag.tag}
-        href={`/hashtag/${encodeURIComponent(tag.tag)}`}
-        className="bg-gray-700 hover:bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm px-3 py-1 rounded-full transition duration-200 shadow hover:scale-105"
-      >
-        #{tag.tag}
-      </Link>
-    ))}
-  </div>
-</div>
-
+        <h3 className="font-semibold text-white text-lg mb-3 flex items-center gap-2">
+          <span>🔥</span> Popüler Etiketler
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {hashtags.map((tag) => (
+            <Link
+              key={tag.tag}
+              href={`/hashtag/${encodeURIComponent(tag.tag)}`}
+              className="bg-gray-700 hover:bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm px-3 py-1 rounded-full transition duration-200 shadow hover:scale-105"
+            >
+              #{tag.tag}
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

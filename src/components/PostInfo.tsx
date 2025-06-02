@@ -13,7 +13,7 @@ import Image from "next/image";
 
 const PostInfo = React.memo(function PostInfo() {
   return (
-    <div className="cursor-pointer w-10 h-10 relative bg-gradient-to-br from-gray-800 to-gray-800 rounded-full shadow-md hover:scale-110 transition">
+    <div className="cursor-pointer w-10 h-10 relative bg-gradient-to-br from-gray-800 to-gray-800 rounded-full shadow-md hover:scale-110 transition not-3d">
       <Image
         src="https://ik.imagekit.io/n6qnlu3rx/tr:q-20,bl-6/icons/infoMore.svg"
         alt="Info More"

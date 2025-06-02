@@ -71,3 +71,31 @@ html {
   75%  { transform: translate(-1px, -1px); }
   100% { transform: translate(0px, 0px); }
 }
+
+.anaglyph-effect *:not(img):not(button):not(svg):not(path) {
+  position: relative;
+  color: transparent !important;
+  text-shadow: 8px 0 red, -8px 0 cyan;
+  animation: parallaxDepth 4s infinite ease-in-out;
+  will-change: transform, text-shadow;
+}
+
+.anaglyph-effect img, 
+.anaglyph-effect video {
+  filter: drop-shadow(4px 0 red) drop-shadow(-4px 0 cyan);
+}
+
+@keyframes parallaxDepth {
+  0%   { transform: translate(0px, 0px); }
+  20%  { transform: translate(1.5px, -1.5px); }
+  50%  { transform: translate(0.5px, 1.5px); }
+  80%  { transform: translate(-1.5px, -0.5px); }
+  100% { transform: translate(0px, 0px); }
+}
+
+/* globals.css */
+.anaglyph-effect .not-3d {
+  text-shadow: none !important;
+  color: inherit !important;
+  animation: none !important;
+}
