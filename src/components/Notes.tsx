@@ -168,17 +168,6 @@ export default function Notes() {
     <div className="p-5 rounded-2xl border border-gray-700 flex flex-col gap-4 bg-gradient-to-br from-gray-900 to-gray-800 shadow-xl w-full max-w-3xl mx-auto text-white">
       <h1 className="text-2xl font-bold text-center text-white tracking-wide">Notlarım</h1>
 
-      {/* 🎯 3D Efektli Alan */}
-      <div className="rounded-xl overflow-hidden border border-gray-600 shadow-lg">
-        <Canvas camera={{ position: [3, 3, 5] }} style={{ height: 300 }}>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[5, 5, 5]} />
-          <SpinningCube />
-          <OrbitControls />
-          <AnaglyphRenderer />
-        </Canvas>
-      </div>
-
       {/* Not Ekleme Formu */}
       <form onSubmit={handleAddNote} className="flex gap-3">
         <input
