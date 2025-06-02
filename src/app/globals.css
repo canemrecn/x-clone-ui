@@ -48,3 +48,9 @@ html {
   animation: fadeIn 0.5s ease-in-out;
 }
 
+.anaglyph-effect .depth-3d {
+  color: transparent;
+  text-shadow: 
+    1px 0 red, 
+    -1px 0 cyan;
+}
