@@ -6,8 +6,8 @@ import AdBar from "@/components/Ad-Bar";
 import LeftBar from "@/components/LeftBar";
 import RightBar from "@/components/RightBar";
 import DesktopMessages from "@/components/DesktopMessages";
-import CookieBanner from "@/components/CookieBanner";
 import { useState, useEffect } from "react";
+import FrameOverlay from "./FrameOverlay";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -21,6 +21,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     }
   }, [enabled3D]);
 
+  // Reels, DM ve Chat sayfalarında efekt olmamalı
   if (
     pathname?.startsWith("/reels") ||
     pathname?.startsWith("/direct-messages") ||
@@ -31,6 +32,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   return (
     <>
+      {enabled3D && <FrameOverlay />}
       <div className="mb-4" />
       <LeftBar enabled3D={enabled3D} setEnabled3D={setEnabled3D} />
       <div className="min-h-screen flex">

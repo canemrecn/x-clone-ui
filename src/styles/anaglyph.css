@@ -1,40 +1,52 @@
+/* src/styles/anaglyph.css */
+
+/* Genel 3D efekt */
+.anaglyph {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+/* Ana içerikte zoom + z-derinlik */
 .anaglyph main,
 .anaglyph .main-content,
 .anaglyph .feed-content,
 .anaglyph .content-box {
-  animation: zoomInOut 10s infinite ease-in-out;
-  perspective: 1000px;
+  animation: zoomInOut 8s infinite ease-in-out;
   transform-style: preserve-3d;
+  z-index: 0;
 }
 
-/* ✨ YAZILARDA DERİNLİK ARTIRILDI */
+/* Yazılar için 3D efekt */
 .anaglyph main *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
   text-shadow: 3px 0 red, -3px 0 cyan;
-  animation: textZoom 10s infinite ease-in-out;
+  animation: textZoom 8s infinite ease-in-out;
   will-change: transform, text-shadow;
 }
 
-/* ✨ GÖRSELLERDE DERİNLİK ARTIRILDI */
+/* Görseller */
 .anaglyph main img,
 .anaglyph main video {
   filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
-  animation: zoomInOut 10s infinite ease-in-out;
+  animation: zoomInOut 8s infinite ease-in-out;
 }
 
-/* 🌀 Ana içerikte hafif yakınlaşma ve uzaklaşma */
+/* Zoom hareketi */
 @keyframes zoomInOut {
   0%, 100% {
     transform: scale(1) translateZ(0);
   }
   50% {
-    transform: scale(1.04) translateZ(10px);
+    transform: scale(1.015) translateZ(15px); /* 🔥 Derinlik artırıldı ama büyüme azaldı */
   }
 }
 
-/* 🌀 Yazılar ekran dışına fırlıyormuş gibi */
+/* Yazılar ekran dışına taşacak gibi */
 @keyframes textZoom {
-  0%   { transform: scale(1) translateZ(0); }
-  50%  { transform: scale(1.03) translateZ(6px); }
-  100% { transform: scale(1) translateZ(0); }
+  0%, 100% {
+    transform: scale(1) translateZ(0);
+  }
+  50% {
+    transform: scale(1.02) translateZ(8px); /* Hafif öne çıkma */
+  }
 }
