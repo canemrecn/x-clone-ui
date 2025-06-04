@@ -166,7 +166,7 @@ export default function Post({ postData, visiblePostId, enabled3D }: PostProps) 
 
   return (
     <AnaglyphWrapper isVisible={postData.id === visiblePostId}>
-      <div className="p-5 mb-4 border border-gray-700 w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black shadow-lg rounded-xl text-white relative transition-all">
+      <div className="p-5 mb-4 border border-gray-700 w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black shadow-lg rounded-xl text-white relative transition-all overflow-visible">
         {showPointAnim && (
           <div className="absolute top-4 right-4 text-green-400 font-bold text-lg animate-bounce">+1 Puan!</div>
         )}

@@ -1,7 +1,6 @@
 .anaglyph-active-post {
   perspective: 1500px;
   transform-style: preserve-3d;
-  overflow-x: hidden;
 }
 
 /* Yazılara daha derin 3D efekt */
