@@ -9,15 +9,13 @@ import { useState, useEffect } from "react";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-
-  const getInitial3D = () => {
+  const [enabled3D, setEnabled3D] = useState<boolean>(() => {
+    // Sayfa açıldığında localStorage'dan varsayılanı oku
     if (typeof window !== "undefined") {
       return localStorage.getItem("enable3D") === "true";
     }
     return false;
-  };
-
-  const [enabled3D, setEnabled3D] = useState(getInitial3D);
+  });
 
   useEffect(() => {
     if (enabled3D) {
