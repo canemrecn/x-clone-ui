@@ -1,37 +1,39 @@
-/* Ortadaki post’a 3D perspektif */
 .anaglyph-active-post {
-  perspective: 1800px;
+  perspective: 2200px; /* 🔥 Daha fazla derinlik */
   transform-style: preserve-3d;
 }
 
-/* Yazıların gölge ayrımı ve yaklaşma */
+/* Yazılara 3D efekt + kalınlık + büyüklük */
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
-  text-shadow: 10px 0 red, -10px 0 cyan; /* 🔴 Gölgeyi açtık */
+  text-shadow: 14px 0 red, -14px 0 cyan; /* 🔥 Daha büyük gölge */
   animation: textZoom 6s infinite ease-in-out;
   will-change: transform, text-shadow;
+  font-weight: 900;         /* Kalın yazı */
+  font-size: 1.25rem !important; /* Büyük yazı (yaklaşık Tailwind'de text-lg) */
+  line-height: 1.75rem !important;
 }
 
-/* Görsellerin gölgesi ve yakınlaştırması */
+/* Görsellerde 3D etkisi */
 .anaglyph-active-post img,
 .anaglyph-active-post video {
-  filter: drop-shadow(10px 0 red) drop-shadow(-10px 0 cyan); /* 🔴 Daha sert gölge */
+  filter: drop-shadow(14px 0 red) drop-shadow(-14px 0 cyan); /* 🔥 Derin gölge */
   animation: zoomInOut 6s infinite ease-in-out;
 }
 
-/* Zoom in-out animasyonu */
+/* Yakınlaşma-uzaklaşma efekti */
 @keyframes zoomInOut {
   0%, 100% {
     transform: scale(1) translateZ(0);
   }
   50% {
-    transform: scale(1.15) translateZ(30px); /* 🔥 Ekrana yaklaşma */
+    transform: scale(1.22) translateZ(44px); /* 🚀 En fazla yaklaşma */
   }
 }
 
-/* Yazı animasyonunda derinlik hissi */
+/* Yazılarda dalgalanma + yaklaşma */
 @keyframes textZoom {
   0%   { transform: scale(1) translateZ(0); }
-  50%  { transform: scale(1.1) translateZ(24px); }
+  50%  { transform: scale(1.18) translateZ(40px); }
   100% { transform: scale(1) translateZ(0); }
 }
