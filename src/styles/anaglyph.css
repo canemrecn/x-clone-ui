@@ -1,4 +1,3 @@
-/* Daha zarif bir zoom efekti: içerik ekrana hafifçe yaklaşır */
 .anaglyph main,
 .anaglyph .main-content,
 .anaglyph .feed-content,
@@ -8,34 +7,34 @@
   transform-style: preserve-3d;
 }
 
-/* Yazı efektleri optimize edildi */
+/* ✨ YAZILARDA DERİNLİK ARTIRILDI */
 .anaglyph main *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
-  text-shadow: 1.5px 0 red, -1.5px 0 cyan;
-  animation: textZoom 8s infinite ease-in-out;
+  text-shadow: 3px 0 red, -3px 0 cyan;
+  animation: textZoom 10s infinite ease-in-out;
   will-change: transform, text-shadow;
 }
 
-/* Görseller için 3D efekti */
+/* ✨ GÖRSELLERDE DERİNLİK ARTIRILDI */
 .anaglyph main img,
 .anaglyph main video {
-  filter: drop-shadow(1.5px 0 red) drop-shadow(-1.5px 0 cyan);
+  filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
   animation: zoomInOut 10s infinite ease-in-out;
 }
 
-/* Z eksenine yumuşak yakınlaşma */
+/* 🌀 Ana içerikte hafif yakınlaşma ve uzaklaşma */
 @keyframes zoomInOut {
   0%, 100% {
     transform: scale(1) translateZ(0);
   }
   50% {
-    transform: scale(1.02) translateZ(4px);
+    transform: scale(1.04) translateZ(10px);
   }
 }
 
-/* Yazı yakınlaşması */
+/* 🌀 Yazılar ekran dışına fırlıyormuş gibi */
 @keyframes textZoom {
   0%   { transform: scale(1) translateZ(0); }
-  50%  { transform: scale(1.01) translateZ(2px); }
+  50%  { transform: scale(1.03) translateZ(6px); }
   100% { transform: scale(1) translateZ(0); }
 }
