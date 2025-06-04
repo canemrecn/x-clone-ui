@@ -45,11 +45,6 @@ html {
   overflow-x: hidden;
 }
 
-/* Anaglyph efekti çalıştığında gövdeye uygulanır */
-.anaglyph {
-  overflow-x: hidden;
-}
-
 /* Fade-in örneği */
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
