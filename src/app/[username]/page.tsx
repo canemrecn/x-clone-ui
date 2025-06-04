@@ -382,7 +382,7 @@ const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
             item.isAd ? (
               <AdPlaceholder key={item.id} />
             ) : (
-              <Post key={item.id} postData={item} />
+              <Post key={item.id} postData={item} visiblePostId={item.id} />
             )
           )
         ) : (
