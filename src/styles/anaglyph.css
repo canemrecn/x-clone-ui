@@ -1,30 +1,65 @@
-/* Ana içerik zoom animasyonu sadece 3D mod aktifse uygulanır */
-.anaglyph main,
-.anaglyph .main-content,
-.anaglyph .feed-content,
-.anaglyph .content-box {
-  animation: zoomInOut 10s infinite ease-in-out;
-  perspective: 1000px;
-  transform-style: preserve-3d;
+/* src/app/globals.css */
+/*Bu dosya, projeye global CSS stillerini tanımlar; Tailwind CSS’in temel, bileşen ve yardımcı 
+sınıflarını içeri aktarır, mesaj kutuları gibi animasyonlu geçişler için özel sınıflar tanımlar 
+(message-appear, message-enter, message-exit vb.), gövdeye siyah arka plan ve açık metin rengi 
+atar, sayfa taşmalarını engeller, yazı tipini belirler ve .fade-in sınıfıyla basit bir görünme 
+animasyonu uygular. Ayrıca anaglif 3D gözlükler için 3D efekt sınıfı (.anaglyph-effect) eklenmiştir.*/
+/* src/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .message-appear {
+    @apply opacity-0 translate-y-5;
+  }
+  .message-appear-active {
+    @apply opacity-100 translate-y-0 transition-all duration-300 ease-in-out;
+  }
+  .message-enter {
+    @apply opacity-0 translate-y-5;
+  }
+  .message-enter-active {
+    @apply opacity-100 translate-y-0 transition-all duration-300 ease-in-out;
+  }
+  .message-exit {
+    @apply opacity-100;
+  }
+  .message-exit-active {
+    @apply opacity-0 transition-opacity duration-300 ease-in-out;
+  }
+}
+
+body {
+  color: #ededed;
+  background: url('/general/bg.png') no-repeat center center fixed;
+  background-size: cover;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  width: 100%;
   overflow-x: hidden;
 }
 
-/* Tüm yazıların 3D gölge efekti */
-.anaglyph main *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
-  color: transparent !important;
-  text-shadow: 3px 0 red, -3px 0 cyan;
-  animation: textZoom 10s infinite ease-in-out;
-  will-change: transform, text-shadow;
+html {
+  width: 100%;
+  overflow-x: hidden;
 }
 
-/* Tüm görsellerde 3D gölge efekti */
-.anaglyph main img,
-.anaglyph main video {
-  filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
-  animation: zoomInOut 10s infinite ease-in-out;
+/* Anaglyph efekti çalıştığında gövdeye uygulanır */
+.anaglyph {
+  overflow-x: hidden;
 }
 
-/* 📌 Sadece sayfa ortasındaki gönderiye efekt uygulayan özel sınıf */
+/* Fade-in örneği */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
   text-shadow: 3px 0 red, -3px 0 cyan;
@@ -36,6 +71,7 @@
   filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
   animation: zoomInOut 6s infinite ease-in-out;
 }
+
 
 /* 🌀 Yakınlaşma ve uzaklaşma efekti */
 @keyframes zoomInOut {
