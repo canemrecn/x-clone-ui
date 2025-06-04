@@ -3,12 +3,14 @@
 gönderilerin her 5 tanesinden sonra bir reklam (AdPlaceholder) yerleştirir, YouTube bağlantısı içeren medyalara isYouTube işaretini ekler ve her 
 gönderiyi Post bileşeni ile ekrana render eder; dil filtresi (lang) desteği de vardır.*/
 // src/components/Feed.tsx
+// src/components/Feed.tsx
+// src/components/Feed.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import Post from "./Post";
-import { useAuth } from "@/context/AuthContext";
 import Share from "./Share";
+import { useAuth } from "@/context/AuthContext";
 
 interface FeedProps {
   posts?: any[];
@@ -20,7 +22,6 @@ export default function Feed({ posts, lang }: FeedProps) {
   const [loading, setLoading] = useState(!posts);
   const [visiblePostId, setVisiblePostId] = useState<number | null>(null);
   const postRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
-
   const auth = useAuth();
 
   useEffect(() => {
@@ -28,13 +29,9 @@ export default function Feed({ posts, lang }: FeedProps) {
       (async function fetchPosts() {
         try {
           let url = "/api/feed";
-          if (lang) {
-            url += `?lang=${lang}`;
-          }
-
+          if (lang) url += `?lang=${lang}`;
           const res = await fetch(url, { credentials: "include" });
           if (!res.ok) throw new Error("Gönderiler alınamadı");
-
           const data = await res.json();
           setLocalPosts(data.posts || []);
         } catch (error) {
@@ -52,7 +49,6 @@ export default function Feed({ posts, lang }: FeedProps) {
   useEffect(() => {
     const onScroll = () => {
       const centerY = window.innerHeight / 2;
-
       let closestId: number | null = null;
       let closestDistance = Infinity;
 
@@ -61,7 +57,6 @@ export default function Feed({ posts, lang }: FeedProps) {
           const rect = el.getBoundingClientRect();
           const mid = rect.top + rect.height / 2;
           const distance = Math.abs(centerY - mid);
-
           if (distance < closestDistance) {
             closestDistance = distance;
             closestId = parseInt(id);
@@ -73,8 +68,7 @@ export default function Feed({ posts, lang }: FeedProps) {
     };
 
     window.addEventListener("scroll", onScroll);
-    onScroll(); // İlk render'da kontrol et
-
+    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, [localPosts]);
 
@@ -100,17 +94,15 @@ export default function Feed({ posts, lang }: FeedProps) {
       </div>
 
       {finalPosts.map((post) => (
-  <div
-    key={post.id}
-    ref={(el) => {
-      postRefs.current[post.id] = el;
-    }}
-    className={visiblePostId === post.id ? "anaglyph-active-post" : ""}
-  >
-    <Post postData={post} />
-  </div>
-))}
-
+        <div
+          key={post.id}
+          ref={(el) => {
+            postRefs.current[post.id] = el;
+          }}
+        >
+          <Post postData={post} visiblePostId={visiblePostId} />
+        </div>
+      ))}
     </div>
   );
 }

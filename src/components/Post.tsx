@@ -28,9 +28,12 @@ export interface PostData {
 
 interface PostProps {
   postData: PostData;
+  visiblePostId: number | null;
 }
 
-export default function Post({ postData }: PostProps) {
+
+
+export default function Post({ postData, visiblePostId }: PostProps) {
   const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
   const [correctTranslation, setCorrectTranslation] = useState<string | null>(null);
   const [userInput, setUserInput] = useState<string>("");
@@ -40,6 +43,8 @@ export default function Post({ postData }: PostProps) {
   const [showOptions, setShowOptions] = useState(false);
   const auth = useAuth();
   const router = useRouter();
+
+  const isVisible = visiblePostId === postData.id; // ✅ Derinlik için kontrol
 
   const translateWordWithInput = async (word: string, index: number) => {
     setActiveWordIndex(index);
@@ -175,13 +180,13 @@ if (typeof window !== "undefined") {
   const isOwner = auth?.user?.id === postData.user_id;
 
   return (
-    <AnaglyphWrapper>
-    <div className="p-5 mb-4 border border-gray-700 w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black shadow-lg rounded-xl text-white relative transition-all">
-      {showPointAnim && (
-        <div className="absolute top-4 right-4 text-green-400 font-bold text-lg animate-bounce">
-          +1 Puan!
-        </div>
-      )}
+    <AnaglyphWrapper isActive={isVisible}> {/* ✅ sadece aktif post'a 3D efekti */}
+      <div className="p-5 mb-4 border border-gray-700 w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black shadow-lg rounded-xl text-white relative transition-all">
+        {showPointAnim && (
+          <div className="absolute top-4 right-4 text-green-400 font-bold text-lg animate-bounce">
+            +1 Puan!
+          </div>
+        )}
 
       <div className="flex gap-4">
         <Link href={`/${postData.username}`}>
@@ -349,7 +354,7 @@ if (typeof window !== "undefined") {
           />
         </div>
       </div>
-    </div>
+      </div>
     </AnaglyphWrapper>
   );
 }

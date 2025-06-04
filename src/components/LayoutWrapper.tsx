@@ -1,4 +1,3 @@
-// src/components/LayoutWrapper.tsx
 "use client";
 
 import { usePathname } from "next/navigation";
@@ -13,14 +12,23 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const [enabled3D, setEnabled3D] = useState(false);
 
   useEffect(() => {
+    const stored = localStorage.getItem("enable3D");
+    if (stored === "true") {
+      setEnabled3D(true);
+      document.body.classList.add("anaglyph");
+    }
+  }, []);
+
+  useEffect(() => {
     if (enabled3D) {
       document.body.classList.add("anaglyph");
+      localStorage.setItem("enable3D", "true");
     } else {
       document.body.classList.remove("anaglyph");
+      localStorage.setItem("enable3D", "false");
     }
   }, [enabled3D]);
 
-  // Reels, DM ve Chat sayfalarında efekt olmamalı
   if (
     pathname?.startsWith("/reels") ||
     pathname?.startsWith("/direct-messages") ||
