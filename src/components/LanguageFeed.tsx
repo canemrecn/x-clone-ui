@@ -65,7 +65,8 @@ export default function LanguageFeed({ lang }: LanguageFeedProps) {
   const renderedItems = useMemo(
     () =>
       finalPosts.map((item) =>
-        item.isAd ? <AdPlaceholder key={item.id} /> : <Post key={item.id} postData={item} />
+        item.isAd ? <AdPlaceholder key={item.id} /> : <Post key={item.id} postData={item} visiblePostId={item.id} />
+
       ),
     [finalPosts]
   );
