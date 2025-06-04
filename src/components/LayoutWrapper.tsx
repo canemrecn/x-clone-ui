@@ -1,4 +1,4 @@
-//src/components/LayoutWrapper.tsx
+// src/components/LayoutWrapper.tsx
 "use client";
 
 import { usePathname } from "next/navigation";

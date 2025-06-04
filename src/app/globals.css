@@ -4,6 +4,7 @@ sınıflarını içeri aktarır, mesaj kutuları gibi animasyonlu geçişler iç
 (message-appear, message-enter, message-exit vb.), gövdeye siyah arka plan ve açık metin rengi 
 atar, sayfa taşmalarını engeller, yazı tipini belirler ve .fade-in sınıfıyla basit bir görünme 
 animasyonu uygular. Ayrıca anaglif 3D gözlükler için 3D efekt sınıfı (.anaglyph-effect) eklenmiştir.*/
+/* src/app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -44,6 +45,17 @@ html {
   overflow-x: hidden;
 }
 
+/* Anaglyph efekti uygulandığında sınıf eklenir */
+.anaglyph {
+  overflow-x: hidden;
+}
+
+/* Fade-in örneği */
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
