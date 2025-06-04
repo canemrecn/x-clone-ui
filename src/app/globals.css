@@ -60,22 +60,6 @@ html {
   to { opacity: 1; }
 }
 
-/* ❌ BU BLOĞU ARTIK KULLANMIYORUZ: TÜM POSTLARA 3D VERİYOR
-.anaglyph main *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
-  color: transparent !important;
-  text-shadow: 3px 0 red, -3px 0 cyan;
-  animation: textZoom 10s infinite ease-in-out;
-  will-change: transform, text-shadow;
-}
-
-.anaglyph main img,
-.anaglyph main video {
-  filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
-  animation: zoomInOut 10s infinite ease-in-out;
-}
-*/
-
-/* ✅ SADECE ORTA POSTA 3D VER */
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
   text-shadow: 3px 0 red, -3px 0 cyan;
@@ -87,6 +71,7 @@ html {
   filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
   animation: zoomInOut 6s infinite ease-in-out;
 }
+
 
 /* 🌀 Yakınlaşma ve uzaklaşma efekti */
 @keyframes zoomInOut {
