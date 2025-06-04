@@ -6,7 +6,7 @@
 /* Yazıların gölgesi, kalınlığı ve büyüklüğü */
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
-  text-shadow: 7px 0 red, -7px 0 cyan; /* 🔴 Gölgeler de %50 küçültüldü */
+  text-shadow: 5px 0 red, -5px 0 cyan; /* 🔴 Gölgeler de %50 küçültüldü */
   animation: textZoom 6s infinite ease-in-out;
   will-change: transform, text-shadow;
   font-weight: 900;
@@ -27,12 +27,12 @@
     transform: scale(1) translateZ(0);
   }
   50% {
-    transform: scale(1.11) translateZ(22px); /* 🔵 Önceki 44px → şimdi 22px */
+    transform: scale(1.11) translateZ(16px); /* 🔵 Önceki 44px → şimdi 22px */
   }
 }
 
 @keyframes textZoom {
   0%   { transform: scale(1) translateZ(0); }
-  50%  { transform: scale(1.09) translateZ(20px); } /* 🔵 Önceki 40px → şimdi 20px */
+  50%  { transform: scale(1.09) translateZ(16px); } /* 🔵 Önceki 40px → şimdi 20px */
   100% { transform: scale(1) translateZ(0); }
 }
