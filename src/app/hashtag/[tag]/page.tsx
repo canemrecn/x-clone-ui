@@ -37,7 +37,7 @@ export default async function HashtagPage(props: any) {
       ) : (
         <div className="space-y-6">
           {posts.map((post: PostData) => (
-            <Post key={post.id} postData={post} />
+            <Post key={post.id} postData={post} visiblePostId={post.id} />
           ))}
         </div>
       )}
