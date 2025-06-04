@@ -22,6 +22,19 @@
   animation: zoomInOut 10s infinite ease-in-out;
 }
 
+.anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
+  color: transparent !important;
+  text-shadow: 3px 0 red, -3px 0 cyan;
+  animation: textZoom 6s infinite ease-in-out;
+}
+
+.anaglyph-active-post img,
+.anaglyph-active-post video {
+  filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
+  animation: zoomInOut 6s infinite ease-in-out;
+}
+
+
 /* 🌀 Ana içerikte hafif yakınlaşma ve uzaklaşma */
 @keyframes zoomInOut {
   0%, 100% {

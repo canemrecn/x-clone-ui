@@ -7,7 +7,6 @@ import LeftBar from "@/components/LeftBar";
 import RightBar from "@/components/RightBar";
 import DesktopMessages from "@/components/DesktopMessages";
 import { useState, useEffect } from "react";
-import FrameOverlay from "./FrameOverlay";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -32,7 +31,6 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   return (
     <>
-      {enabled3D && <FrameOverlay />}
       <div className="mb-4" />
       <LeftBar enabled3D={enabled3D} setEnabled3D={setEnabled3D} />
       <div className="min-h-screen flex">
