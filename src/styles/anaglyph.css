@@ -1,12 +1,12 @@
-/* src/styles/anaglyph.css */
-
-/* Ana gövdeye 3D etkisi */
-.anaglyph {
+/* Sayfanın sadece içerik kısmına 3D efekti uygula */
+.anaglyph main,
+.anaglyph .main-content,
+.anaglyph .feed-content,
+.anaglyph .content-box {
   animation: wobble 4s infinite ease-in-out;
 }
 
-/* Yazılar için 3D efekt */
-.anaglyph *:not(img):not(svg):not(button):not(path):not(video):not(canvas) {
+.anaglyph main *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
   text-shadow: 2px 0 red, -2px 0 cyan;
   animation: textWobble 2s infinite ease-in-out;
@@ -14,22 +14,22 @@
 }
 
 /* Görseller için */
-.anaglyph img,
-.anaglyph video {
+.anaglyph main img,
+.anaglyph main video {
   filter: drop-shadow(2px 0 red) drop-shadow(-2px 0 cyan);
 }
 
-/* Wobble hareketi */
+/* Wobble efekt */
 @keyframes wobble {
   0%, 100% { transform: translate(0px, 0px); }
   50% { transform: translate(0.6px, 0.6px); }
 }
 
-/* Yazı dalgalanması */
+/* Yazılar için küçük sarsıntı */
 @keyframes textWobble {
-  0%   { transform: translate(0px, 0px); }
-  25%  { transform: translate(0.4px, -0.4px); }
-  50%  { transform: translate(0px, 0.4px); }
-  75%  { transform: translate(-0.4px, -0.2px); }
+  0% { transform: translate(0px, 0px); }
+  25% { transform: translate(0.4px, -0.4px); }
+  50% { transform: translate(0px, 0.4px); }
+  75% { transform: translate(-0.4px, -0.2px); }
   100% { transform: translate(0px, 0px); }
 }
