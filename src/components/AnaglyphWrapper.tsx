@@ -1,29 +1,28 @@
 // src/components/AnaglyphWrapper.tsx
-// src/components/AnaglyphWrapper.tsx
+"use client";
 
 import React from "react";
+import clsx from "clsx";
 
 interface AnaglyphWrapperProps {
   children: React.ReactNode;
-  postId?: number;
-  activePostId?: number | null;
-  isActive?: boolean; // ✅ EKLENDİ
+  postId: number;
+  activePostId: number | null;
 }
 
-export default function AnaglyphWrapper({ children, postId, activePostId, isActive }: AnaglyphWrapperProps) {
-  const active = isActive ?? (postId === activePostId); // fallback olarak hesaplayabiliriz
+export default function AnaglyphWrapper({
+  children,
+  postId,
+  activePostId,
+}: AnaglyphWrapperProps) {
+  const isActive = postId === activePostId;
 
   return (
     <div
-      className={`relative transition-transform duration-500 ${
-        active
-          ? "transform scale-[1.02] contrast-125"
-          : "grayscale opacity-60 blur-[0.5px] scale-[0.97]"
-      }`}
-      style={{
-        perspective: active ? "1000px" : undefined,
-        transformStyle: active ? "preserve-3d" : undefined,
-      }}
+      className={clsx(
+        "relative transition-transform duration-500",
+        isActive ? "anaglyph-active-post" : ""
+      )}
     >
       {children}
     </div>

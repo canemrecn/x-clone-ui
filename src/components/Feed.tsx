@@ -3,9 +3,6 @@
 gönderilerin her 5 tanesinden sonra bir reklam (AdPlaceholder) yerleştirir, YouTube bağlantısı içeren medyalara isYouTube işaretini ekler ve her 
 gönderiyi Post bileşeni ile ekrana render eder; dil filtresi (lang) desteği de vardır.*/
 // src/components/Feed.tsx
-// src/components/Feed.tsx
-// src/components/Feed.tsx
-// src/components/Feed.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";

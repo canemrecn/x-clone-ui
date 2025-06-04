@@ -20,14 +20,16 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   }, []);
 
   useEffect(() => {
-    if (enabled3D) {
-      document.body.classList.add("anaglyph");
-      localStorage.setItem("enable3D", "true");
-    } else {
-      document.body.classList.remove("anaglyph");
-      localStorage.setItem("enable3D", "false");
-    }
-  }, [enabled3D]);
+  const stored = localStorage.getItem("enable3D");
+  if (stored === "true") {
+    setEnabled3D(true);
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("enable3D", enabled3D ? "true" : "false");
+}, [enabled3D]);
+
 
   if (
     pathname?.startsWith("/reels") ||

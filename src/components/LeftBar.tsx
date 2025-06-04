@@ -39,13 +39,16 @@ export default function LeftBar({ enabled3D, setEnabled3D }: LeftBarProps) {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    const body = document.body;
-    if (enabled3D) {
-      body.classList.add("anaglyph");
-    } else {
-      body.classList.remove("anaglyph");
-    }
-  }, [enabled3D]);
+  const body = document.body;
+  if (enabled3D) {
+    body.classList.add("anaglyph");
+    localStorage.setItem("enable3D", "true");
+  } else {
+    body.classList.remove("anaglyph");
+    localStorage.setItem("enable3D", "false");
+  }
+}, [enabled3D]);
+
 
   const handleLogout = async () => {
     try {
