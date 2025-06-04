@@ -1,3 +1,4 @@
+/* Ana içerik zoom animasyonu sadece 3D mod aktifse uygulanır */
 .anaglyph main,
 .anaglyph .main-content,
 .anaglyph .feed-content,
@@ -5,9 +6,10 @@
   animation: zoomInOut 10s infinite ease-in-out;
   perspective: 1000px;
   transform-style: preserve-3d;
+  overflow-x: hidden;
 }
 
-/* ✨ YAZILARDA DERİNLİK ARTIRILDI */
+/* Tüm yazıların 3D gölge efekti */
 .anaglyph main *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
   text-shadow: 3px 0 red, -3px 0 cyan;
@@ -15,13 +17,14 @@
   will-change: transform, text-shadow;
 }
 
-/* ✨ GÖRSELLERDE DERİNLİK ARTIRILDI */
+/* Tüm görsellerde 3D gölge efekti */
 .anaglyph main img,
 .anaglyph main video {
   filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
   animation: zoomInOut 10s infinite ease-in-out;
 }
 
+/* 📌 Sadece sayfa ortasındaki gönderiye efekt uygulayan özel sınıf */
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
   text-shadow: 3px 0 red, -3px 0 cyan;
@@ -34,20 +37,19 @@
   animation: zoomInOut 6s infinite ease-in-out;
 }
 
-
-/* 🌀 Ana içerikte hafif yakınlaşma ve uzaklaşma */
+/* 🌀 Yakınlaşma ve uzaklaşma efekti */
 @keyframes zoomInOut {
   0%, 100% {
     transform: scale(1) translateZ(0);
   }
   50% {
-    transform: scale(1.04) translateZ(10px);
+    transform: scale(1.03) translateZ(8px);
   }
 }
 
-/* 🌀 Yazılar ekran dışına fırlıyormuş gibi */
+/* 🌀 Yazıların derinlik dalgası */
 @keyframes textZoom {
   0%   { transform: scale(1) translateZ(0); }
-  50%  { transform: scale(1.03) translateZ(6px); }
+  50%  { transform: scale(1.02) translateZ(6px); }
   100% { transform: scale(1) translateZ(0); }
 }

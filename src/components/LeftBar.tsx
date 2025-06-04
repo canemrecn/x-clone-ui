@@ -39,10 +39,11 @@ export default function LeftBar({ enabled3D, setEnabled3D }: LeftBarProps) {
   const isMobile = useIsMobile();
 
   useEffect(() => {
+    const body = document.body;
     if (enabled3D) {
-      document.documentElement.classList.add("three-d-mode");
+      body.classList.add("anaglyph");
     } else {
-      document.documentElement.classList.remove("three-d-mode");
+      body.classList.remove("anaglyph");
     }
   }, [enabled3D]);
 
@@ -101,24 +102,15 @@ export default function LeftBar({ enabled3D, setEnabled3D }: LeftBarProps) {
             />
             {showUserOptions && (
               <div className="absolute bottom-14 left-0 bg-white text-sm text-black rounded-xl shadow-lg p-3 w-32 space-y-1">
-                <button onClick={() => router.push("/profile")} className="block w-full text-left p-1 hover:bg-gray-100">
-                  Profile
-                </button>
-                <button onClick={handleLogout} className="block w-full text-left p-1 text-red-500 hover:bg-gray-100">
-                  Logout
-                </button>
+                <button onClick={() => router.push("/profile")} className="block w-full text-left p-1 hover:bg-gray-100">Profile</button>
+                <button onClick={handleLogout} className="block w-full text-left p-1 text-red-500 hover:bg-gray-100">Logout</button>
               </div>
             )}
           </div>
 
           {/* 3D Toggle Button */}
-          <button onClick={() => setEnabled3D((prev) => !prev)} className="hover:scale-110 transition-transform duration-200">
-            <Image
-              src={`/icons/${enabled3D ? "3d1.png" : "3d2.png"}`}
-              alt="3D Toggle"
-              width={28}
-              height={28}
-            />
+          <button onClick={() => setEnabled3D(prev => !prev)} className="hover:scale-110 transition-transform duration-200">
+            <Image src={`/icons/${enabled3D ? "3d1.png" : "3d2.png"}`} alt="3D Toggle" width={28} height={28} />
           </button>
         </div>
       )}
@@ -128,24 +120,15 @@ export default function LeftBar({ enabled3D, setEnabled3D }: LeftBarProps) {
         <button onClick={() => setEnabled3D((prev) => !prev)} className="mr-2">
           <Image src={`/icons/${enabled3D ? "3d1.png" : "3d2.png"}`} alt="3D Toggle" width={24} height={24} />
         </button>
-
         <Link href="/direct-messages" className="p-2">
           <Image src="/icons/send2.png" alt="DM" width={24} height={24} />
         </Link>
-
         <div className="flex-1 mx-1 max-w-[300px]">
           <Search />
         </div>
-
         {auth?.user && (
           <div className="p-1 relative right-0" onClick={() => setShowUserOptions((prev) => !prev)}>
-            <Image
-              src={auth.user.profile_image || "/icons/pp.png"}
-              alt="Profile"
-              width={34}
-              height={34}
-              className="rounded-full"
-            />
+            <Image src={auth.user.profile_image || "/icons/pp.png"} alt="Profile" width={34} height={34} className="rounded-full" />
             {showUserOptions && (
               <div className="absolute top-10 right-0 bg-white text-black rounded-xl shadow-lg z-[1010]">
                 <button onClick={() => router.push("/profile")} className="p-2 w-full text-left hover:bg-gray-100 rounded">Profile</button>
