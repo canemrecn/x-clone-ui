@@ -1,15 +1,34 @@
-/* 📌 Yalnızca sayfa ortasındaki gönderiye 3D efekt uygula */
-.anaglyph-active-post {
+/* Ana içerik zoom animasyonu sadece 3D mod aktifse uygulanır */
+.anaglyph main,
+.anaglyph .main-content,
+.anaglyph .feed-content,
+.anaglyph .content-box {
+  animation: zoomInOut 10s infinite ease-in-out;
   perspective: 1000px;
   transform-style: preserve-3d;
   overflow-x: hidden;
 }
 
+/* Tüm yazıların 3D gölge efekti */
+.anaglyph main *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
+  color: transparent !important;
+  text-shadow: 3px 0 red, -3px 0 cyan;
+  animation: textZoom 10s infinite ease-in-out;
+  will-change: transform, text-shadow;
+}
+
+/* Tüm görsellerde 3D gölge efekti */
+.anaglyph main img,
+.anaglyph main video {
+  filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
+  animation: zoomInOut 10s infinite ease-in-out;
+}
+
+/* 📌 Sadece sayfa ortasındaki gönderiye efekt uygulayan özel sınıf */
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
   text-shadow: 3px 0 red, -3px 0 cyan;
   animation: textZoom 6s infinite ease-in-out;
-  will-change: transform, text-shadow;
 }
 
 .anaglyph-active-post img,
@@ -33,62 +52,4 @@
   0%   { transform: scale(1) translateZ(0); }
   50%  { transform: scale(1.02) translateZ(6px); }
   100% { transform: scale(1) translateZ(0); }
-}
-
-
-/* src/app/globals.css */
-/*Bu dosya, projeye global CSS stillerini tanımlar... */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer components {
-  .message-appear {
-    @apply opacity-0 translate-y-5;
-  }
-  .message-appear-active {
-    @apply opacity-100 translate-y-0 transition-all duration-300 ease-in-out;
-  }
-  .message-enter {
-    @apply opacity-0 translate-y-5;
-  }
-  .message-enter-active {
-    @apply opacity-100 translate-y-0 transition-all duration-300 ease-in-out;
-  }
-  .message-exit {
-    @apply opacity-100;
-  }
-  .message-exit-active {
-    @apply opacity-0 transition-opacity duration-300 ease-in-out;
-  }
-}
-
-body {
-  color: #ededed;
-  background: url('/general/bg.png') no-repeat center center fixed;
-  background-size: cover;
-  font-family: Arial, Helvetica, sans-serif;
-  margin: 0;
-  width: 100%;
-  overflow-x: hidden;
-}
-
-html {
-  width: 100%;
-  overflow-x: hidden;
-}
-
-/* Anaglyph efekti çalıştığında gövdeye uygulanır */
-.anaglyph {
-  overflow-x: hidden;
-}
-
-/* Fade-in örneği */
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
