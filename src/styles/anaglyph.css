@@ -6,10 +6,10 @@
 /* Yazıların gölgesi, kalınlığı ve büyüklüğü */
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
-  text-shadow: 3px 0 red, -3px 0 cyan; /* 🔴 Gölgeler de %50 küçültüldü */
+  text-shadow: 5px 0 red, -5px 0 cyan; /* 🔴 Gölgeler de %50 küçültüldü */
   animation: textZoom 6s infinite ease-in-out;
   will-change: transform, text-shadow;
-  font-weight: 500;
+  font-weight: 900;
   font-size: 1rem !important;
   line-height: 1rem !important;
 }
