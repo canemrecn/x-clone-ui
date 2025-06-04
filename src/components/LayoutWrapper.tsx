@@ -9,15 +9,13 @@ import { useState, useEffect } from "react";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [enabled3D, setEnabled3D] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("enable3D");
-    if (stored === "true") {
-      setEnabled3D(true);
-      document.body.classList.add("anaglyph");
+  const [enabled3D, setEnabled3D] = useState<boolean>(() => {
+    // Sayfa açıldığında localStorage'dan varsayılanı oku
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("enable3D") === "true";
     }
-  }, []);
+    return false;
+  });
 
   useEffect(() => {
   const stored = localStorage.getItem("enable3D");
