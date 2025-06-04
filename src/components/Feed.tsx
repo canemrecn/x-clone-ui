@@ -5,6 +5,7 @@ gönderiyi Post bileşeni ile ekrana render eder; dil filtresi (lang) desteği d
 // src/components/Feed.tsx
 // src/components/Feed.tsx
 // src/components/Feed.tsx
+// src/components/Feed.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -15,9 +16,10 @@ import { useAuth } from "@/context/AuthContext";
 interface FeedProps {
   posts?: any[];
   lang?: string;
+  enabled3D?: boolean; // ✅ 3D kontrolü için prop
 }
 
-export default function Feed({ posts, lang }: FeedProps) {
+export default function Feed({ posts, lang, enabled3D }: FeedProps) {
   const [localPosts, setLocalPosts] = useState<any[]>(posts || []);
   const [loading, setLoading] = useState(!posts);
   const [visiblePostId, setVisiblePostId] = useState<number | null>(null);
@@ -100,7 +102,8 @@ export default function Feed({ posts, lang }: FeedProps) {
             postRefs.current[post.id] = el;
           }}
         >
-          <Post postData={post} visiblePostId={visiblePostId} />
+          {/* ✅ 3D efekt sadece enable3D aktifse gönderilir */}
+          <Post postData={post} visiblePostId={visiblePostId} enabled3D={enabled3D} />
         </div>
       ))}
     </div>

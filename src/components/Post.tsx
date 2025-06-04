@@ -29,11 +29,12 @@ export interface PostData {
 interface PostProps {
   postData: PostData;
   visiblePostId: number | null;
+  enabled3D?: boolean;
 }
 
 
 
-export default function Post({ postData, visiblePostId }: PostProps) {
+export default function Post({ postData, visiblePostId, enabled3D }: PostProps) {
   const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
   const [correctTranslation, setCorrectTranslation] = useState<string | null>(null);
   const [userInput, setUserInput] = useState<string>("");
@@ -180,8 +181,8 @@ if (typeof window !== "undefined") {
   const isOwner = auth?.user?.id === postData.user_id;
 
   return (
-    <AnaglyphWrapper isActive={isVisible}> {/* ✅ sadece aktif post'a 3D efekti */}
-      <div className="p-5 mb-4 border border-gray-700 w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black shadow-lg rounded-xl text-white relative transition-all">
+    <AnaglyphWrapper isActive={enabled3D && isVisible}> {/* ✅ 3D aktifse ve görünürdeyse uygula */}
+    <div className="p-5 mb-4 border border-gray-700 w-full bg-gradient-to-br from-gray-800 via-gray-900 to-black shadow-lg rounded-xl text-white relative transition-all">
         {showPointAnim && (
           <div className="absolute top-4 right-4 text-green-400 font-bold text-lg animate-bounce">
             +1 Puan!
