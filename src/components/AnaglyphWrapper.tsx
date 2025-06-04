@@ -2,29 +2,23 @@
 "use client";
 
 import React from "react";
-import clsx from "clsx";
+import { useEffect, useState } from "react";
 
 interface AnaglyphWrapperProps {
   children: React.ReactNode;
-  postId: number;
-  activePostId: number | null;
+  isVisible: boolean;
 }
 
-export default function AnaglyphWrapper({
-  children,
-  postId,
-  activePostId,
-}: AnaglyphWrapperProps) {
-  const isActive = postId === activePostId;
+export default function AnaglyphWrapper({ children, isVisible }: AnaglyphWrapperProps) {
+  const [enabled3D, setEnabled3D] = useState(false);
 
-  return (
-    <div
-      className={clsx(
-        "relative transition-transform duration-500",
-        isActive ? "anaglyph-active-post" : ""
-      )}
-    >
-      {children}
-    </div>
-  );
+  useEffect(() => {
+    const stored = localStorage.getItem("enable3D");
+    setEnabled3D(stored === "true");
+  }, []);
+
+  // Sadece 3D açık ve görünür gönderiyse efekt uygula
+  const shouldApplyEffect = enabled3D && isVisible;
+
+  return <div className={shouldApplyEffect ? "anaglyph-active-post" : ""}>{children}</div>;
 }

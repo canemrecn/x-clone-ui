@@ -1,36 +1,19 @@
-/* Ana içerik zoom animasyonu sadece 3D mod aktifse uygulanır */
-.anaglyph main,
-.anaglyph .main-content,
-.anaglyph .feed-content,
-.anaglyph .content-box {
-  animation: zoomInOut 10s infinite ease-in-out;
+/* ✅ Sadece ortadaki gönderi (visible post) için 3D efekt */
+.anaglyph-active-post {
   perspective: 1000px;
   transform-style: preserve-3d;
   overflow-x: hidden;
 }
 
-/* Tüm yazıların 3D gölge efekti */
-.anaglyph main *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
-  color: transparent !important;
-  text-shadow: 3px 0 red, -3px 0 cyan;
-  animation: textZoom 10s infinite ease-in-out;
-  will-change: transform, text-shadow;
-}
-
-/* Tüm görsellerde 3D gölge efekti */
-.anaglyph main img,
-.anaglyph main video {
-  filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
-  animation: zoomInOut 10s infinite ease-in-out;
-}
-
-/* 📌 Sadece sayfa ortasındaki gönderiye efekt uygulayan özel sınıf */
+/* ✅ Ortadaki gönderinin içeriğine yazı 3D efekti */
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
   text-shadow: 3px 0 red, -3px 0 cyan;
   animation: textZoom 6s infinite ease-in-out;
+  will-change: transform, text-shadow;
 }
 
+/* ✅ Ortadaki gönderinin görsellerine 3D efekti */
 .anaglyph-active-post img,
 .anaglyph-active-post video {
   filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
