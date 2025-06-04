@@ -1,0 +1,35 @@
+/* src/styles/anaglyph.css */
+
+/* Ana gövdeye 3D etkisi */
+.anaglyph {
+  animation: wobble 4s infinite ease-in-out;
+}
+
+/* Yazılar için 3D efekt */
+.anaglyph *:not(img):not(svg):not(button):not(path):not(video):not(canvas) {
+  color: transparent !important;
+  text-shadow: 2px 0 red, -2px 0 cyan;
+  animation: textWobble 2s infinite ease-in-out;
+  will-change: transform, text-shadow;
+}
+
+/* Görseller için */
+.anaglyph img,
+.anaglyph video {
+  filter: drop-shadow(2px 0 red) drop-shadow(-2px 0 cyan);
+}
+
+/* Wobble hareketi */
+@keyframes wobble {
+  0%, 100% { transform: translate(0px, 0px); }
+  50% { transform: translate(0.6px, 0.6px); }
+}
+
+/* Yazı dalgalanması */
+@keyframes textWobble {
+  0%   { transform: translate(0px, 0px); }
+  25%  { transform: translate(0.4px, -0.4px); }
+  50%  { transform: translate(0px, 0.4px); }
+  75%  { transform: translate(-0.4px, -0.2px); }
+  100% { transform: translate(0px, 0px); }
+}

@@ -8,11 +8,11 @@ ortak bir düzen ve kullanıcı arayüzü sağlar. Ayrıca tüm sayfaya .anaglyp
 
 import React from "react";
 import "./globals.css";
+import "@/styles/anaglyph.css"; // ✅ 3D CSS
 import { AuthProvider } from "@/context/AuthContext";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import CookieBanner from "@/components/CookieBanner";
 import Analytics from "@/components/Analytics";
-
 
 export const metadata = {
   title: "UnderGo",
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>.UnderGo.</title>
       </head>
-      <body className="text-[#FFFFFF]">
+      <body>
         <AuthProvider>
           <LayoutWrapper>
             <CookieBanner />
