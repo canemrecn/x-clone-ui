@@ -95,7 +95,7 @@ export default function PostDetailPage() {
 
   return (
     <div className="min-h-screen text-white p-4 pt-24 pb-20">
-      <Post postData={postData} />
+      <Post postData={postData} visiblePostId={postData.id} /> // ✅
       <div className="mt-4 flex gap-2">
         {user?.role === "admin" && (
           <button

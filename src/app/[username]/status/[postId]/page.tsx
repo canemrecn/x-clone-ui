@@ -79,7 +79,7 @@ export default function StatusPage() {
         ) : !postData ? (
           <p className="p-4 text-center">Gönderi bulunamadı.</p>
         ) : (
-          <Post postData={postData} />
+          <Post postData={postData} visiblePostId={postData.id} /> // ✅
         )}
       </div>
     </div>
