@@ -12,14 +12,6 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const [enabled3D, setEnabled3D] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("enable3D");
-    if (stored === "true") {
-      setEnabled3D(true);
-      document.body.classList.add("anaglyph");
-    }
-  }, []);
-
-  useEffect(() => {
     if (enabled3D) {
       document.body.classList.add("anaglyph");
       localStorage.setItem("enable3D", "true");
