@@ -2,15 +2,15 @@
   perspective: 2200px;
   transform-style: preserve-3d;
   position: relative;
-  z-index: 999; /* Buraya mutlaka ver! */
+  z-index: 999;
+  overflow: visible;
 }
-
 
 /* Yazıların gölgesi, kalınlığı ve büyüklüğü */
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
   text-shadow: 3px 0 red, -3px 0 cyan;
-  animation: textZoom 6s infinite ease-in-out;
+  animation: textZoom 6s infinite ease-in-out, flickerAnaglyph 0.02s infinite;
   will-change: transform, text-shadow;
   font-weight: 900;
   font-size: 1rem !important;
@@ -21,16 +21,33 @@
 .anaglyph-active-post img,
 .anaglyph-active-post video {
   filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
-  /* Animasyonu kaldırıyoruz */
   animation: none !important;
 }
 
-/* Yazılarda daha fazla yakınlaştırma efekti */
+/* Yakınlaşma animasyonu */
 @keyframes textZoom {
   0%   { transform: scale(1) translateZ(0); }
-  50%  { transform: scale(1.11) translateZ(12px); } /* 🔵 Önceki 10px → şimdi %20 artırıldı */
+  50%  { transform: scale(1.11) translateZ(12px); } /* 🔵 %20 daha yakın */
   100% { transform: scale(1) translateZ(0); }
 }
+
+/* Mavi-kırmızı yanıp sönme efekti */
+@keyframes flickerAnaglyph {
+  0%, 100% {
+    text-shadow: 3px 0 red, -3px 0 cyan;
+  }
+  25% {
+    text-shadow: 2px 0 transparent, -2px 0 cyan;
+  }
+  50% {
+    text-shadow: 0px 0 red, 0px 0 cyan;
+  }
+  75% {
+    text-shadow: -2px 0 red, 2px 0 transparent;
+  }
+}
+
+/* Ekstra güvenlik için (ama zaten üstte tanımlandı) */
 .anaglyph-active-post.anaglyph-is-focused {
   z-index: 999;
   position: relative;
