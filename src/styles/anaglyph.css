@@ -9,7 +9,7 @@
 /* Yazıların gölgesi, kalınlığı ve büyüklüğü */
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
-  text-shadow: 3px 0 red, -3px 0 cyan;
+  text-shadow: 5px 0 red, -5px 0 cyan;
   animation: textZoom 6s infinite ease-in-out;
   will-change: transform, text-shadow;
   font-weight: 900;
@@ -20,7 +20,7 @@
 /* Fotoğraf ve videoların hareketini kaldırdık, sadece gölge */
 .anaglyph-active-post img,
 .anaglyph-active-post video {
-  filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
+  filter: drop-shadow(1px 0 red) drop-shadow(-1px 0 cyan);
   /* Animasyonu kaldırıyoruz */
   animation: none !important;
 }
