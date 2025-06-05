@@ -10,7 +10,7 @@
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
   text-shadow: 3px 0 red, -3px 0 cyan;
-  animation: textZoom 6s infinite ease-in-out, flickerAnaglyph 0.004s infinite linear;
+  animation: textZoom 6s infinite ease-in-out, flickerAnaglyph 0.001s infinite linear;
   will-change: transform, text-shadow;
   font-weight: 900;
   font-size: 1rem !important;
