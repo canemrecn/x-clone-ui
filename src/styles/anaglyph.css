@@ -6,7 +6,7 @@
 /* Yazıların gölgesi, kalınlığı ve büyüklüğü */
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
   color: transparent !important;
-  text-shadow: 3px 0 red, -3px 0 cyan; /* 🔴 Gölgeler de %50 küçültüldü */
+  text-shadow: 3px 0 red, -3px 0 cyan;
   animation: textZoom 6s infinite ease-in-out;
   will-change: transform, text-shadow;
   font-weight: 900;
@@ -14,25 +14,17 @@
   line-height: 1rem !important;
 }
 
-/* Görsellere daha hafif gölge efekti 
+/* Fotoğraf ve videoların hareketini kaldırdık, sadece gölge */
 .anaglyph-active-post img,
 .anaglyph-active-post video {
   filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
-  animation: zoomInOut 6s infinite ease-in-out;
-}*/
-
-/* %50 daha az yakınlaşma */
-@keyframes zoomInOut {
-  0%, 100% {
-    transform: scale(1) translateZ(0);
-  }
-  50% {
-    transform: scale(1.11) translateZ(16px); /* 🔵 Önceki 44px → şimdi 22px */
-  }
+  /* Animasyonu kaldırıyoruz */
+  animation: none !important;
 }
 
+/* Yazılarda daha fazla yakınlaştırma efekti */
 @keyframes textZoom {
   0%   { transform: scale(1) translateZ(0); }
-  50%  { transform: scale(1.09) translateZ(10px); } /* 🔵 Önceki 40px → şimdi 20px */
-
+  50%  { transform: scale(1.11) translateZ(12px); } /* 🔵 Önceki 10px → şimdi %20 artırıldı */
+  100% { transform: scale(1) translateZ(0); }
 }
