@@ -1,7 +1,10 @@
 .anaglyph-active-post {
   perspective: 2200px;
   transform-style: preserve-3d;
+  position: relative;
+  z-index: 999; /* Buraya mutlaka ver! */
 }
+
 
 /* Yazıların gölgesi, kalınlığı ve büyüklüğü */
 .anaglyph-active-post *:not(img):not(video):not(button):not(svg):not(path):not(input):not(textarea):not(.no-anaglyph) {
