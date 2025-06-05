@@ -28,3 +28,7 @@
   50%  { transform: scale(1.11) translateZ(12px); } /* 🔵 Önceki 10px → şimdi %20 artırıldı */
   100% { transform: scale(1) translateZ(0); }
 }
+.anaglyph-active-post.anaglyph-is-focused {
+  z-index: 999;
+  position: relative;
+}
