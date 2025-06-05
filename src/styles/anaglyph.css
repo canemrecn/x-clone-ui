@@ -14,12 +14,12 @@
   line-height: 1rem !important;
 }
 
-/* Görsellere daha hafif gölge efekti */
+/* Görsellere daha hafif gölge efekti 
 .anaglyph-active-post img,
 .anaglyph-active-post video {
   filter: drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan);
   animation: zoomInOut 6s infinite ease-in-out;
-}
+}*/
 
 /* %50 daha az yakınlaşma */
 @keyframes zoomInOut {
